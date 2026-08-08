@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.tsbuildinfo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+htmlcov/
+.venv/
+.release-venv/
+dist/
+build/
+reproducibility-dist/
+
+# Local runtime state
+.env
+*.db
+*.sqlite*
+artifacts/private/
+traces/
+keys/
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
+.wrangler/
+*.swp
+
+# DataHub quickstart and local probe output
+.datahub/
+capability-report.local.json

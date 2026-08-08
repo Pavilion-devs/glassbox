@@ -1,0 +1,56 @@
+{
+  "compiler_version": "0.1.0",
+  "datahub": {
+    "aspect_names": [
+      "browsePathsV2",
+      "documentInfo",
+      "documentKey",
+      "documentSettings",
+      "subTypes"
+    ],
+    "document_urn": "urn:li:document:glassbox.receipt.77e06c24ff97521b6bac511ef8b9d3cb3a8460ebd3d574af00f5f39a6a2a8f22",
+    "emissions": 2,
+    "sdk_version": "1.6.0.15",
+    "server": "http://localhost:8080",
+    "server_version": "1.6.0",
+    "valid": true
+  },
+  "evidence_resolution": {
+    "attempt_count": 1,
+    "source": "EXPLICIT_INSTRUMENTATION",
+    "status": "RESOLVED",
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"
+  },
+  "live_contract_discovery": {
+    "correction": "Only the native dataset is emitted through document.relatedAssets; compatibility Documents and the ML model remain explicit custom-property references.",
+    "failure": "DataHub Core rejected a compatibility Document URN in document.relatedAssets.",
+    "http_status": 422,
+    "recoverability": "The deterministic Document upsert repaired the partially-created entity on retry."
+  },
+  "persisted_summary": {
+    "action_count": 1,
+    "agent_id": "glassbox.demo.pricing-agent",
+    "evidence_count": 1,
+    "related_assets": [
+      "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"
+    ],
+    "replay_eligibility": "ELIGIBLE",
+    "run_id": "glassbox-live-pricing-run-001",
+    "run_status": "SUCCEEDED",
+    "signature_count": 1,
+    "trace_id": "0123456789abcdef0123456789abcdef"
+  },
+  "receipt": {
+    "action_count": 1,
+    "evidence_count": 1,
+    "merkle_root": "446a8066505186b295ecfbb4714b09fccc6f8394ec2ff73961741709763ee568",
+    "payload_digest": "77e06c24ff97521b6bac511ef8b9d3cb3a8460ebd3d574af00f5f39a6a2a8f22",
+    "receipt_id": "gbx:receipt:sha256:77e06c24ff97521b6bac511ef8b9d3cb3a8460ebd3d574af00f5f39a6a2a8f22",
+    "replay_eligibility": "ELIGIBLE",
+    "signature_key_ids": [
+      "glassbox-live-ephemeral"
+    ],
+    "signature_verified": true
+  },
+  "valid": true
+}

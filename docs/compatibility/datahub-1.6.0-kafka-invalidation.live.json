@@ -1,0 +1,155 @@
+{
+  "audit": {
+    "phases": [
+      "CLASSIFIED",
+      "CLASSIFIED",
+      "DATAHUB_VERIFIED",
+      "OWNER_ROUTING_ACCEPTED",
+      "CLASSIFIED",
+      "CLASSIFIED",
+      "CLASSIFIED"
+    ],
+    "record_count": 7
+  },
+  "contract": "glassbox.datahub-kafka-invalidation-live-proof.v2",
+  "material_change": {
+    "acknowledged_after_first_process": false,
+    "attempts": 2,
+    "campaign_id": "gbx:invalidation:sha256:17f5e5de8e20d148bd88aa5598998dd931bfd39d5167f23f8d760d153250254b",
+    "classification": "STALE",
+    "committed_offset_after_failed_ack": 1173,
+    "delivery": {
+      "offset": 1173,
+      "partition": 0,
+      "topic": "MetadataChangeLog_Versioned_v1"
+    },
+    "direct_writeback_verified": true,
+    "incident_urn": "urn:li:incident:glassbox.invalidation.17f5e5de8e20d148bd88aa5598998dd931bfd39d5167f23f8d760d153250254b",
+    "injected_commit_attempt_failures": 3,
+    "injected_failures": 1,
+    "kind": "SCHEMA_FIELD_TYPE_CHANGED",
+    "pipeline_action_stats": {
+      "ack_success_count": 3,
+      "exception_count": 1,
+      "failed_ack_count": 1,
+      "success_count": 2
+    }
+  },
+  "receipt": {
+    "automatic_registration": {
+      "field_lineage": {
+        "coverage": "COMPLETE",
+        "rule_id": "glassbox.runtime-field-observation.v1",
+        "wildcard_query": false
+      },
+      "readback_verified": true,
+      "registration": "INSERTED"
+    },
+    "document_urn": "urn:li:document:glassbox.receipt.7196bca9b80d521bf11cee806b8cfb5d6fac7bd2f2ded350b2217c32a89dac79",
+    "publication": {
+      "attempt_count": 1,
+      "datahub_write_performed": true
+    },
+    "receipt_id": "gbx:receipt:sha256:7196bca9b80d521bf11cee806b8cfb5d6fac7bd2f2ded350b2217c32a89dac79"
+  },
+  "raw_content_returned": false,
+  "restart_negative_control": {
+    "acknowledged": true,
+    "attempts": 1,
+    "classification": "UNAFFECTED",
+    "committed_offset": 1181,
+    "delivery": {
+      "offset": 1180,
+      "partition": 0,
+      "topic": "MetadataChangeLog_Versioned_v1"
+    },
+    "first_event_replayed": false,
+    "kind": "SCHEMA_FIELD_ADDED",
+    "no_op": true,
+    "pipeline_action_stats": {
+      "ack_success_count": 9,
+      "exception_count": 0,
+      "failed_ack_count": 0,
+      "success_count": 3
+    },
+    "seen_offsets": [
+      1178,
+      1179,
+      1180
+    ]
+  },
+  "same_event_recovery": {
+    "acknowledged": true,
+    "attempts": 1,
+    "campaign_id": "gbx:invalidation:sha256:17f5e5de8e20d148bd88aa5598998dd931bfd39d5167f23f8d760d153250254b",
+    "committed_offset_after_recovery": 1174,
+    "delivery": {
+      "offset": 1173,
+      "partition": 0,
+      "topic": "MetadataChangeLog_Versioned_v1"
+    },
+    "emissions": 0,
+    "fresh_direct_readback": true,
+    "pipeline_action_stats": {
+      "ack_success_count": 1,
+      "exception_count": 0,
+      "failed_ack_count": 0,
+      "success_count": 1
+    },
+    "reused_completion": true,
+    "same_topic_partition_offset": true
+  },
+  "transactional_state": {
+    "audit_records": 7,
+    "campaigns": 5,
+    "dependencies": 1,
+    "integrity_verified": true,
+    "material_redelivery": {
+      "campaign_id": "gbx:invalidation:sha256:17f5e5de8e20d148bd88aa5598998dd931bfd39d5167f23f8d760d153250254b",
+      "emissions": 0,
+      "fresh_direct_readback": true,
+      "reused_completion": true
+    },
+    "owner_routing": {
+      "datahub_owner_urn": "urn:li:corpuser:glassbox-proof-owner",
+      "destination_count": 1,
+      "destination_identifiers_persisted": false,
+      "first_delivery_reused": false,
+      "idempotency_key": "gbx:invalidation:sha256:17f5e5de8e20d148bd88aa5598998dd931bfd39d5167f23f8d760d153250254b",
+      "redelivery_reused": true,
+      "webhook_requests": 1
+    },
+    "owner_routing_tasks": 1,
+    "profile": "sqlite-wal-single-host-multiprocess",
+    "receipt_publication_status": "COMPLETED",
+    "receipt_publication_tasks": 1,
+    "receipts": 1
+  },
+  "transport": {
+    "commit_mode": "synchronous",
+    "consumer_group": "glassbox-broker-proof-ab3e10dbf3df4860a310ec4d96645418",
+    "fault_injection": {
+      "boundary": "confluent-kafka synchronous consumer.commit",
+      "broker_offset_advanced_during_failure": false,
+      "origin": "TEST_HARNESS_BEFORE_BROKER_COMMIT",
+      "physical_broker_outage": false
+    },
+    "schema_registry_url": "http://localhost:18080/schema-registry/api/",
+    "scope": {
+      "ack_failure_recovery": "PROVEN",
+      "action_retry": "PROVEN",
+      "kafka_delivery": "PROVEN",
+      "pgqueue_delivery": "UNVERIFIED",
+      "same_group_restart": "PROVEN",
+      "synchronous_offset_commit": "PROVEN"
+    },
+    "source": "datahub-actions-kafka",
+    "topic": "MetadataChangeLog_Versioned_v1"
+  },
+  "valid": true,
+  "versions": {
+    "datahub_actions": "1.6.0.15",
+    "datahub_core": "1.6.0",
+    "datahub_sdk": "1.6.0.15"
+  }
+}

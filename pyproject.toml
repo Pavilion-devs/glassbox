@@ -1,0 +1,225 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "glassbox-core"
+version = "0.1.0"
+description = "DataHub-native execution lineage, invalidation, and replay for AI agents."
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = { text = "Apache-2.0" }
+authors = [{ name = "GlassBox Contributors" }]
+keywords = ["datahub", "provenance", "ai-agents", "opentelemetry", "dbom"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Typing :: Typed",
+]
+dependencies = [
+  "cryptography>=46.0.0,<47",
+  "jsonschema[format]>=4.25.0,<5",
+  "rfc8785>=0.1.4,<0.2",
+]
+
+[project.optional-dependencies]
+actions = ["acryl-datahub-actions==1.6.0.15"]
+datahub = ["acryl-datahub==1.6.0.15"]
+google-adk = ["google-adk>=2.5,<3"]
+langchain = ["langchain-core>=1.5,<1.6"]
+mcp = ["mcp>=2,<3"]
+postgres = ["psycopg[binary]>=3.2,<4"]
+dev = [
+  "hypothesis>=6.140,<7",
+  "mypy>=1.17,<3",
+  "pytest>=8.4,<10",
+  "pytest-cov>=6.2,<8",
+  "ruff>=0.12,<0.16",
+]
+
+[project.scripts]
+glassbox-dbom = "glassbox_dbom.cli:main"
+glassbox-datahub-probe = "glassbox_datahub.capability_probe:main"
+glassbox-datahub-action = "glassbox_invalidation.plugin_cli:main"
+glassbox-invalidation-state = "glassbox_invalidation.state_cli:main"
+glassbox-otlp-receiver = "glassbox_compiler.receiver:main"
+glassbox-forensics-mcp = "glassbox_forensics.server:main"
+glassbox-agent-narration = "glassbox_forensics.narration_cli:main"
+glassbox-replay = "glassbox_replay.cli:main"
+
+[project.entry-points."datahub_actions.action.plugins"]
+glassbox_invalidation = "glassbox_invalidation.datahub_action:GlassBoxInvalidationAction"
+
+[project.urls]
+Documentation = "https://github.com/Pavilion-devs/glassbox#readme"
+Issues = "https://github.com/Pavilion-devs/glassbox/issues"
+Source = "https://github.com/Pavilion-devs/glassbox"
+
+[tool.hatch.build.targets.wheel]
+packages = [
+  "packages/sdk/src/glassbox",
+  "packages/dbom/src/glassbox_dbom",
+  "packages/datahub-adapter/src/glassbox_datahub",
+  "packages/policy/src/glassbox_policy",
+  "services/compiler/src/glassbox_compiler",
+  "services/invalidation-action/src/glassbox_invalidation",
+  "services/forensics-mcp/src/glassbox_forensics",
+  "services/replay-worker/src/glassbox_replay",
+]
+
+[tool.hatch.build.targets.wheel.force-include]
+"schemas/dbom/0.1.0/schema.json" = "glassbox_dbom/schemas/0.1.0/schema.json"
+"schemas/signer-trust/0.1.0/schema.json" = "glassbox_dbom/schemas/signer-trust/0.1.0/schema.json"
+"schemas/runtime-event/0.1.0/schema.json" = "glassbox/schemas/runtime-event/0.1.0/schema.json"
+"schemas/replay-bundle/0.1.0/schema.json" = "glassbox_replay/schemas/0.1.0/schema.json"
+"schemas/state-transfer/0.1.0/schema.json" = "glassbox_invalidation/schemas/state-transfer/0.1.0/schema.json"
+"schemas/semantic-policy/0.1.0/schema.json" = "glassbox_policy/schemas/semantic-policy/0.1.0/schema.json"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/.env.example",
+  "/.github/workflows/ci.yml",
+  "/.gitignore",
+  "/.python-version",
+  "/AGENTS.md",
+  "/CODE_OF_CONDUCT.md",
+  "/CONTRIBUTING.md",
+  "/LICENSE",
+  "/README.md",
+  "/SECURITY.md",
+  "/docs",
+  "/examples",
+  "/packages",
+  "/plan.md",
+  "/pyproject.toml",
+  "/schemas",
+  "/scripts",
+  "/services",
+  "/skills",
+  "/tests",
+  "/uv.lock",
+]
+
+[tool.pytest.ini_options]
+addopts = "--strict-config --strict-markers -ra"
+pythonpath = [
+  ".",
+  "packages/sdk/src",
+  "packages/dbom/src",
+  "packages/datahub-adapter/src",
+  "packages/policy/src",
+  "services/compiler/src",
+  "services/invalidation-action/src",
+  "services/forensics-mcp/src",
+  "services/replay-worker/src",
+]
+testpaths = ["tests"]
+markers = [
+  "integration: requires an explicitly configured external service",
+]
+
+[tool.coverage.run]
+branch = true
+source = [
+  "glassbox",
+  "glassbox_dbom",
+  "glassbox_datahub",
+  "glassbox_policy",
+  "glassbox_compiler",
+  "glassbox_invalidation",
+  "glassbox_forensics",
+  "glassbox_replay",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 90
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = [
+  "packages/sdk/src",
+  "packages/dbom/src",
+  "packages/datahub-adapter/src",
+  "packages/policy/src",
+  "services/compiler/src",
+  "services/invalidation-action/src",
+  "services/forensics-mcp/src",
+  "services/replay-worker/src",
+  "tests",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "A", "C4", "DTZ", "PTH", "RUF"]
+ignore = ["A005"]
+
+[tool.ruff.lint.isort]
+known-first-party = [
+  "glassbox",
+  "glassbox_compiler",
+  "glassbox_datahub",
+  "glassbox_dbom",
+  "glassbox_policy",
+  "glassbox_invalidation",
+  "glassbox_forensics",
+  "glassbox_replay",
+  "scripts",
+  "tests",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+packages = [
+  "glassbox",
+  "glassbox_compiler",
+  "glassbox_dbom",
+  "glassbox_datahub",
+  "glassbox_policy",
+  "glassbox_invalidation",
+  "glassbox_forensics",
+  "glassbox_replay",
+  "scripts",
+]
+mypy_path = [
+  ".",
+  "packages/sdk/src",
+  "packages/dbom/src",
+  "packages/datahub-adapter/src",
+  "packages/policy/src",
+  "services/compiler/src",
+  "services/invalidation-action/src",
+  "services/forensics-mcp/src",
+  "services/replay-worker/src",
+]
+
+[[tool.mypy.overrides]]
+module = [
+  "rfc8785",
+  "rfc8785.*",
+  "jsonschema",
+  "jsonschema.*",
+  "datahub",
+  "datahub.*",
+  "datahub_actions",
+  "datahub_actions.*",
+  "google.adk",
+  "google.adk.*",
+  "langchain_core",
+  "langchain_core.*",
+  "mcp",
+  "mcp.*",
+  "yaml",
+  "yaml.*",
+]
+ignore_missing_imports = true

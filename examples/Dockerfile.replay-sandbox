@@ -1,0 +1,16 @@
+FROM python:3.12.11-alpine3.22@sha256:efcdfa6a6b2fd2afb9c7dfa9a5b288a6f68338b5cfdebe6b637d986067d85757
+
+ARG CAPABILITY_SOURCE_DIGEST
+ARG CAPABILITY_SCHEMA_DIGEST
+
+LABEL org.glassbox.capability.protocol="glassbox.isolated-capability.v1" \
+      org.glassbox.capability.source-sha256="${CAPABILITY_SOURCE_DIGEST}" \
+      org.glassbox.capability.schema-sha256="${CAPABILITY_SCHEMA_DIGEST}"
+
+ENV PYTHONDONTWRITEBYTECODE=1
+WORKDIR /capability
+COPY --chown=65534:65534 examples/pricing_policy.py /capability/pricing_policy.py
+COPY --chown=65534:65534 examples/isolated_pricing_worker.py /capability/worker.py
+USER 65534:65534
+
+CMD ["python", "-B", "/capability/worker.py"]

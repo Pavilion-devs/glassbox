@@ -1,0 +1,16 @@
+{
+  "description": "Negative contract vector: OBSERVED evidence cannot omit runtime proof.",
+  "evidence": {
+    "state": "OBSERVED",
+    "source_span_id": null,
+    "observed_at": null,
+    "provenance": {
+      "capture_method": "UNAVAILABLE",
+      "rule_id": null,
+      "confidence": null
+    }
+  },
+  "expected": {
+    "schema_valid": false
+  }
+}

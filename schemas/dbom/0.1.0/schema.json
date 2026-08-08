@@ -1,0 +1,459 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glassbox.dev/schemas/dbom/0.1.0/schema.json",
+  "title": "GlassBox Decision Bill of Materials",
+  "description": "Portable receipt for the evidence, execution, authority, and output of a consequential AI-agent run.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "spec_version",
+    "receipt_id",
+    "run",
+    "agent",
+    "workflow",
+    "models",
+    "skills",
+    "tools",
+    "evidence",
+    "queries",
+    "actions",
+    "approvals",
+    "evaluations",
+    "output",
+    "replay",
+    "integrity",
+    "extensions"
+  ],
+  "properties": {
+    "spec_version": { "const": "0.1.0" },
+    "receipt_id": {
+      "type": "string",
+      "pattern": "^gbx:receipt:sha256:[0-9a-f]{64}$"
+    },
+    "run": { "$ref": "#/$defs/run" },
+    "agent": { "$ref": "#/$defs/component" },
+    "workflow": { "$ref": "#/$defs/workflow" },
+    "models": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/component" }
+    },
+    "skills": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/component" }
+    },
+    "tools": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/tool" }
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidence" }
+    },
+    "queries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/query" }
+    },
+    "actions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/action" }
+    },
+    "approvals": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/approval" }
+    },
+    "evaluations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evaluation" }
+    },
+    "output": { "$ref": "#/$defs/output" },
+    "replay": { "$ref": "#/$defs/replay" },
+    "integrity": { "$ref": "#/$defs/integrity" },
+    "extensions": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)+$"
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nullableString": {
+      "type": ["string", "null"]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "digest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "value"],
+      "properties": {
+        "algorithm": { "const": "sha256" },
+        "value": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "status",
+        "started_at",
+        "ended_at",
+        "trace_id",
+        "parent_run_id",
+        "environment"
+      ],
+      "properties": {
+        "run_id": { "$ref": "#/$defs/nonEmptyString" },
+        "status": {
+          "enum": ["SUCCEEDED", "FAILED", "ABSTAINED", "CANCELLED"]
+        },
+        "started_at": { "$ref": "#/$defs/timestamp" },
+        "ended_at": {
+          "oneOf": [
+            { "$ref": "#/$defs/timestamp" },
+            { "type": "null" }
+          ]
+        },
+        "trace_id": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "parent_run_id": { "$ref": "#/$defs/nullableString" },
+        "environment": { "enum": ["DEV", "STAGING", "PROD"] }
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "datahub_urn", "source_digest"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nonEmptyString" },
+        "version": { "$ref": "#/$defs/nullableString" },
+        "datahub_urn": { "$ref": "#/$defs/nullableString" },
+        "source_digest": {
+          "oneOf": [
+            { "$ref": "#/$defs/digest" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nonEmptyString" },
+        "version": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "datahub_urn", "source_digest", "schema_digest"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nonEmptyString" },
+        "version": { "$ref": "#/$defs/nullableString" },
+        "datahub_urn": { "$ref": "#/$defs/nullableString" },
+        "source_digest": {
+          "oneOf": [
+            { "$ref": "#/$defs/digest" },
+            { "type": "null" }
+          ]
+        },
+        "schema_digest": {
+          "oneOf": [
+            { "$ref": "#/$defs/digest" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "entity_type",
+        "datahub_urn",
+        "schema_field_urn",
+        "state",
+        "role",
+        "source_span_id",
+        "representation_digest",
+        "observed_at",
+        "redaction",
+        "provenance"
+      ],
+      "properties": {
+        "evidence_id": { "$ref": "#/$defs/nonEmptyString" },
+        "entity_type": { "$ref": "#/$defs/nonEmptyString" },
+        "datahub_urn": { "$ref": "#/$defs/nullableString" },
+        "schema_field_urn": { "$ref": "#/$defs/nullableString" },
+        "state": {
+          "enum": ["OBSERVED", "DECLARED", "INFERRED", "UNKNOWN"]
+        },
+        "role": {
+          "enum": [
+            "INPUT",
+            "REFERENCE",
+            "CONSTRAINT",
+            "POLICY",
+            "MEMORY",
+            "OUTPUT_TARGET"
+          ]
+        },
+        "source_span_id": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{16}$"
+        },
+        "representation_digest": {
+          "oneOf": [
+            { "$ref": "#/$defs/digest" },
+            { "type": "null" }
+          ]
+        },
+        "observed_at": {
+          "oneOf": [
+            { "$ref": "#/$defs/timestamp" },
+            { "type": "null" }
+          ]
+        },
+        "redaction": { "$ref": "#/$defs/redaction" },
+        "provenance": { "$ref": "#/$defs/provenance" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "state": { "const": "OBSERVED" } },
+            "required": ["state"]
+          },
+          "then": {
+            "properties": {
+              "source_span_id": { "type": "string", "pattern": "^[0-9a-f]{16}$" },
+              "observed_at": { "$ref": "#/$defs/timestamp" },
+              "provenance": {
+                "properties": {
+                  "capture_method": { "enum": ["OTEL_SPAN", "TOOL_RESULT", "SDK_EVENT"] }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "state": { "const": "INFERRED" } },
+            "required": ["state"]
+          },
+          "then": {
+            "properties": {
+              "provenance": {
+                "properties": {
+                  "rule_id": { "type": "string", "minLength": 1 },
+                  "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+                },
+                "required": ["rule_id", "confidence"]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "redaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "policy_id", "reason"],
+      "properties": {
+        "status": { "enum": ["NOT_CAPTURED", "REDACTED", "DIGEST_ONLY", "CLEAR"] },
+        "policy_id": { "$ref": "#/$defs/nonEmptyString" },
+        "reason": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capture_method", "rule_id", "confidence"],
+      "properties": {
+        "capture_method": {
+          "enum": [
+            "OTEL_SPAN",
+            "TOOL_RESULT",
+            "SDK_EVENT",
+            "OWNER_DECLARATION",
+            "QUERY_PARSE",
+            "LINEAGE_TRAVERSAL",
+            "CONFIGURATION",
+            "UNAVAILABLE"
+          ]
+        },
+        "rule_id": { "$ref": "#/$defs/nullableString" },
+        "confidence": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "query": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["query_id", "language", "statement_digest", "redacted"],
+      "properties": {
+        "query_id": { "$ref": "#/$defs/nonEmptyString" },
+        "language": { "$ref": "#/$defs/nonEmptyString" },
+        "statement_digest": { "$ref": "#/$defs/digest" },
+        "redacted": { "type": "boolean" }
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action_id",
+        "tool_id",
+        "effect",
+        "status",
+        "idempotency_key",
+        "input_digest",
+        "output_digest",
+        "approval_id"
+      ],
+      "properties": {
+        "action_id": { "$ref": "#/$defs/nonEmptyString" },
+        "tool_id": { "$ref": "#/$defs/nonEmptyString" },
+        "effect": {
+          "enum": ["READ_ONLY", "REVERSIBLE", "IRREVERSIBLE", "UNKNOWN_EFFECT"]
+        },
+        "status": { "enum": ["PLANNED", "ATTEMPTED", "SUCCEEDED", "FAILED", "BLOCKED"] },
+        "idempotency_key": { "$ref": "#/$defs/nullableString" },
+        "input_digest": { "$ref": "#/$defs/digest" },
+        "output_digest": {
+          "oneOf": [
+            { "$ref": "#/$defs/digest" },
+            { "type": "null" }
+          ]
+        },
+        "approval_id": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approval_id",
+        "issuer",
+        "action_digest",
+        "policy_version",
+        "issued_at",
+        "expires_at",
+        "revoked"
+      ],
+      "properties": {
+        "approval_id": { "$ref": "#/$defs/nonEmptyString" },
+        "issuer": { "$ref": "#/$defs/nonEmptyString" },
+        "action_digest": { "$ref": "#/$defs/digest" },
+        "policy_version": { "$ref": "#/$defs/nonEmptyString" },
+        "issued_at": { "$ref": "#/$defs/timestamp" },
+        "expires_at": {
+          "oneOf": [
+            { "$ref": "#/$defs/timestamp" },
+            { "type": "null" }
+          ]
+        },
+        "revoked": { "type": "boolean" }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evaluation_id", "method", "version", "result", "score"],
+      "properties": {
+        "evaluation_id": { "$ref": "#/$defs/nonEmptyString" },
+        "method": { "enum": ["DETERMINISTIC", "MODEL_BASED", "HUMAN"] },
+        "version": { "$ref": "#/$defs/nonEmptyString" },
+        "result": { "enum": ["PASS", "FAIL", "ABSTAIN", "ERROR"] },
+        "score": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "mime_type", "digest", "redacted", "redaction_reason"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/nonEmptyString" },
+        "mime_type": { "$ref": "#/$defs/nonEmptyString" },
+        "digest": { "$ref": "#/$defs/digest" },
+        "redacted": { "type": "boolean" },
+        "redaction_reason": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+    "replay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eligibility", "reason", "prior_receipt_digest"],
+      "properties": {
+        "eligibility": {
+          "enum": [
+            "ELIGIBLE",
+            "REQUIRES_APPROVAL",
+            "DRY_RUN_ONLY",
+            "UNREPLAYABLE",
+            "NOT_EVALUATED"
+          ]
+        },
+        "reason": { "$ref": "#/$defs/nonEmptyString" },
+        "prior_receipt_digest": {
+          "oneOf": [
+            { "$ref": "#/$defs/digest" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "key_id", "public_key", "value"],
+      "properties": {
+        "algorithm": { "const": "Ed25519" },
+        "key_id": { "$ref": "#/$defs/nonEmptyString" },
+        "public_key": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{43}$"
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{86}$"
+        }
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonicalization", "payload_digest", "merkle_root", "signatures"],
+      "properties": {
+        "canonicalization": { "const": "RFC8785" },
+        "payload_digest": { "$ref": "#/$defs/digest" },
+        "merkle_root": { "$ref": "#/$defs/digest" },
+        "signatures": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/signature" }
+        }
+      }
+    }
+  }
+}

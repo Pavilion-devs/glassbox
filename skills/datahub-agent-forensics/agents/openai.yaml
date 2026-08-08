@@ -1,0 +1,4 @@
+interface:
+  display_name: "DataHub Agent Forensics"
+  short_description: "Investigate agent provenance and replay safety"
+  default_prompt: "Use $datahub-agent-forensics to investigate this DataHub agent decision and produce an evidence-backed forensic report."

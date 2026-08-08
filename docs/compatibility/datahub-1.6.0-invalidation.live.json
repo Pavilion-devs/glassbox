@@ -1,0 +1,63 @@
+{
+  "audit": {
+    "phases": [
+      "CLASSIFIED",
+      "CLASSIFIED",
+      "DATAHUB_VERIFIED"
+    ],
+    "record_count": 3
+  },
+  "campaign": {
+    "campaign_id": "gbx:invalidation:sha256:cd2ab9c28c15de4bc5c066f1082f82f7ce3ba83c0ee47a0e2a1eafddc96ab284",
+    "classification": "STALE",
+    "deliveries": 2,
+    "emissions_per_delivery": 2,
+    "incident_urn": "urn:li:incident:glassbox.invalidation.cd2ab9c28c15de4bc5c066f1082f82f7ce3ba83c0ee47a0e2a1eafddc96ab284",
+    "policy_version": "glassbox.materiality.v1",
+    "reason_code": "OBSERVED_MATERIAL_DEPENDENCY_CHANGED",
+    "same_campaign_on_redelivery": true
+  },
+  "change": {
+    "event_id": "datahub:mcl:sha256:a5618213f4b0f2c97cf8107f7eecf3a9c555cdd393720077957a6f7c0b4c5a65",
+    "field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),average_order_value)",
+    "kind": "SCHEMA_FIELD_TYPE_CHANGED"
+  },
+  "datahub": {
+    "actions_version": "1.6.0.15",
+    "incident_aspects": [
+      "incidentInfo",
+      "incidentKey"
+    ],
+    "quarantined_documents": [
+      "urn:li:document:glassbox.receipt.7196bca9b80d521bf11cee806b8cfb5d6fac7bd2f2ded350b2217c32a89dac79"
+    ],
+    "schema_field_aspects": [
+      "schemaFieldKey"
+    ],
+    "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),average_order_value)",
+    "sdk_version": "1.6.0.15",
+    "server": "http://localhost:8080",
+    "server_version": "1.6.0",
+    "target_summary_verified": true
+  },
+  "negative_control": {
+    "change_kind": "SCHEMA_FIELD_ADDED",
+    "classification": "UNAFFECTED",
+    "emissions_per_delivery": 0,
+    "field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),internal_note)",
+    "no_op": true,
+    "reason_code": "COMPLETE_FIELD_LINEAGE_PROVES_FIELD_UNUSED",
+    "same_campaign_on_redelivery": true
+  },
+  "receipt": {
+    "document_urn": "urn:li:document:glassbox.receipt.7196bca9b80d521bf11cee806b8cfb5d6fac7bd2f2ded350b2217c32a89dac79",
+    "receipt_id": "gbx:receipt:sha256:7196bca9b80d521bf11cee806b8cfb5d6fac7bd2f2ded350b2217c32a89dac79"
+  },
+  "transport_scope": {
+    "datahub_actions_entry_point_discovery": "PROVEN",
+    "event_envelope_contract": "PROVEN",
+    "kafka_delivery_in_this_run": "NOT_EXERCISED",
+    "kafka_delivery_separate_report": "datahub-1.6.0-kafka-invalidation.live.json"
+  },
+  "valid": true
+}

@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GLASSBOX_TEST_POSTGRES_DSN: "postgresql://glassbox:glassbox-ci-only@localhost:5432/glassbox"
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: glassbox
+          POSTGRES_PASSWORD: glassbox-ci-only
+          POSTGRES_DB: glassbox
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U glassbox -d glassbox"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          python-version: "3.12"
+      - run: uv sync --all-extras --locked
+      - run: uv run python -m scripts.repository_preflight --root . --require-clean
+      - run: uv run ruff format --check .
+      - run: uv run ruff check .
+      - run: uv run mypy
+      - run: uv run pytest --cov --cov-report=term-missing
+
+  python-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+      - run: uv sync --all-extras --locked
+      - run: uv run pytest -m "not integration"
+
+  release-artifacts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          python-version: "3.12"
+      - run: uv sync --extra dev --locked
+      - run: uv build --no-sources
+      - run: uv build --no-sources --out-dir reproducibility-dist
+      - run: >-
+          uv run python -m scripts.release_evidence
+          --reproducibility-dist reproducibility-dist
+      - run: uv venv --python 3.12 --seed .release-venv
+      - run: >-
+          uv pip install --python .release-venv/bin/python
+          'dist/glassbox_core-0.1.0-py3-none-any.whl[actions,datahub,mcp,postgres]'
+      - run: uv pip check --python .release-venv/bin/python
+      - run: .release-venv/bin/glassbox-datahub-action inspect-install
+      - run: >-
+          .release-venv/bin/glassbox-datahub-action validate-config
+          examples/datahub-actions-invalidation.yml
+      - run: .release-venv/bin/glassbox-forensics-mcp --help
+      - run: .release-venv/bin/glassbox-agent-narration --help
+      - run: .release-venv/bin/glassbox-otlp-receiver --help
+      - uses: actions/upload-artifact@v4
+        with:
+          name: glassbox-release-candidate
+          path: |
+            dist/
+            release-evidence/
+          if-no-files-found: error

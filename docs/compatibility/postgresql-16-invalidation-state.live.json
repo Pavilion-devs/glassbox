@@ -1,0 +1,49 @@
+{
+  "coordination": {
+    "attempt_count_after_recovery": 2,
+    "claim_winners": 1,
+    "connections": 8,
+    "final_status": "COMPLETED",
+    "server_clock_used_despite_caller_now_ms_1": true
+  },
+  "dual_outbox": {
+    "audit_records": 4,
+    "campaigns": 1,
+    "owner_routing_tasks": 1,
+    "routing_destination_count": 0,
+    "routing_status": "COMPLETED"
+  },
+  "receipt_publication_outbox": {
+    "status_after_registration_without_compiler_publication": "READY",
+    "tasks": 1
+  },
+  "engine": {
+    "dsn_persisted_or_reported": false,
+    "name": "postgresql",
+    "schema_version": 2,
+    "server_version": "16.14"
+  },
+  "receipt_index": {
+    "candidate_count": 1,
+    "dependencies": 1,
+    "duplicate_registration_inserted": false,
+    "receipts": 1
+  },
+  "scope": {
+    "managed_failover": "UNVERIFIED",
+    "multi_connection_row_locking": "PROVEN",
+    "network_partition_recovery": "UNVERIFIED",
+    "physical_multi_host_deployment": "UNVERIFIED",
+    "postgres_16_real_server": "PROVEN",
+    "recovery_and_redelivery": "PROVEN",
+    "server_clock_leases": "PROVEN"
+  },
+  "valid": true,
+  "verified_redelivery": {
+    "first_emissions": 2,
+    "fresh_backend_verifications": 2,
+    "redelivery_emissions": 0,
+    "reused_completion": true,
+    "reused_routing": true
+  }
+}

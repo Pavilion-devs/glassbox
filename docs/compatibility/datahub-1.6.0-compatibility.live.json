@@ -1,0 +1,65 @@
+{
+  "connection": "PROVEN",
+  "results": [
+    {
+      "aspect_names": ["browsePathsV2", "dataPlatformInstance", "datasetKey", "schemaMetadata"],
+      "detail": "same deterministic URN emitted twice and directly read back",
+      "emitted_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,glassbox.probe.orders,PROD)",
+      "expected_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,glassbox.probe.orders,PROD)",
+      "kind": "dataset",
+      "status": "PROVEN"
+    },
+    {
+      "aspect_names": ["browsePathsV2", "dataPlatformInstance", "mlModelKey", "mlModelProperties"],
+      "detail": "same deterministic URN emitted twice and directly read back",
+      "emitted_urn": "urn:li:mlModel:(urn:li:dataPlatform:openai,glassbox.probe.model,PROD)",
+      "expected_urn": "urn:li:mlModel:(urn:li:dataPlatform:openai,glassbox.probe.model,PROD)",
+      "kind": "ml_model",
+      "status": "PROVEN"
+    },
+    {
+      "aspect_names": ["dataProcessInstanceInput", "dataProcessInstanceKey", "dataProcessInstanceProperties", "dataProcessInstanceRelationships", "subTypes"],
+      "detail": "same deterministic URN emitted twice and directly read back",
+      "emitted_urn": "urn:li:dataProcessInstance:0fb35cf48d682d4b105c67218bdd3cf7",
+      "expected_urn": "urn:li:dataProcessInstance:0fb35cf48d682d4b105c67218bdd3cf7",
+      "kind": "agent_run",
+      "status": "PROVEN"
+    },
+    {
+      "aspect_names": ["browsePathsV2", "documentInfo", "documentKey", "documentSettings", "subTypes"],
+      "detail": "same deterministic URN emitted twice and directly read back",
+      "emitted_urn": "urn:li:document:glassbox.probe.tool.orders.lookup",
+      "expected_urn": "urn:li:document:glassbox.probe.tool.orders.lookup",
+      "kind": "api_tool_compat",
+      "status": "PROVEN"
+    },
+    {
+      "aspect_names": ["browsePathsV2", "documentInfo", "documentKey", "documentSettings", "subTypes"],
+      "detail": "same deterministic URN emitted twice and directly read back",
+      "emitted_urn": "urn:li:document:glassbox.probe.skill.pricing-analysis",
+      "expected_urn": "urn:li:document:glassbox.probe.skill.pricing-analysis",
+      "kind": "agent_skill_compat",
+      "status": "PROVEN"
+    },
+    {
+      "aspect_names": ["browsePathsV2", "documentInfo", "documentKey", "documentSettings", "subTypes"],
+      "detail": "same deterministic URN emitted twice and directly read back",
+      "emitted_urn": "urn:li:document:glassbox.probe.agent.pricing-agent",
+      "expected_urn": "urn:li:document:glassbox.probe.agent.pricing-agent",
+      "kind": "ai_agent_compat",
+      "status": "PROVEN"
+    },
+    {
+      "aspect_names": ["browsePathsV2", "documentInfo", "documentKey", "documentSettings", "subTypes"],
+      "detail": "same deterministic URN emitted twice and directly read back",
+      "emitted_urn": "urn:li:document:glassbox.probe.receipt",
+      "expected_urn": "urn:li:document:glassbox.probe.receipt",
+      "kind": "receipt_document",
+      "status": "PROVEN"
+    }
+  ],
+  "sdk_version": "1.6.0.15",
+  "server_version": "1.6.0",
+  "target": "http://localhost:8080",
+  "valid": true
+}

@@ -1,0 +1,51 @@
+name: glassbox_invalidation
+
+source:
+  type: kafka
+  config:
+    connection:
+      bootstrap: ${KAFKA_BOOTSTRAP_SERVER:-localhost:9092}
+      schema_registry_url: ${SCHEMA_REGISTRY_URL:-http://localhost:8080/schema-registry/api/}
+      consumer_config:
+        auto.offset.reset: ${KAFKA_AUTO_OFFSET_RESET:-latest}
+    async_commit_enabled: false
+    commit_retry_count: 5
+    commit_retry_backoff: 1.0
+
+filters:
+  - type: event_type
+    config:
+      filter:
+        MetadataChangeLogEvent_v1:
+          event:
+            - aspectName:
+                - schemaMetadata
+                - status
+                - deprecation
+                - ownership
+                - glossaryTermInfo
+                - incidentInfo
+                - documentInfo
+
+action:
+  type: glassbox_invalidation
+  config:
+    # The DSN itself stays in the named environment variable or secret manager.
+    # Run `glassbox-invalidation-state postgres-init` before starting workers.
+    state_postgres_dsn_env: GLASSBOX_STATE_POSTGRES_DSN
+    state_postgres_schema: glassbox
+    postgres_connect_timeout_seconds: 10
+    actor_urn: urn:li:corpuser:datahub
+    require_receipt_signature: true
+    signer_trust_policy_path: ${GLASSBOX_SIGNER_TRUST_POLICY_PATH}
+    lease_duration_ms: 60000
+    claim_timeout_seconds: 10
+
+datahub:
+  server: ${DATAHUB_GMS_URL:-http://localhost:8080}
+  token: ${DATAHUB_GMS_TOKEN:-}
+
+options:
+  retry_count: 3
+  failure_mode: THROW
+  failed_events_dir: .glassbox/failed-events

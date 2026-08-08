@@ -1,0 +1,156 @@
+{
+  "actions": [
+    {
+      "action_id": "action-read-orders-001",
+      "approval_id": null,
+      "effect": "READ_ONLY",
+      "idempotency_key": "run-pricing-001:orders-lookup",
+      "input_digest": {
+        "algorithm": "sha256",
+        "value": "c062fa43e0662ef64b63e21cc3bfc338fe1cc6df0aed0300f4dadca1f79d5ffa"
+      },
+      "output_digest": {
+        "algorithm": "sha256",
+        "value": "aad125f09304682db7fde54a44e2536b2eb705dae6db0d9cccb35d3db4c8a991"
+      },
+      "status": "SUCCEEDED",
+      "tool_id": "glassbox.orders.lookup"
+    }
+  ],
+  "agent": {
+    "datahub_urn": "urn:li:aiAgent:glassbox.pricing-agent",
+    "id": "glassbox.pricing-agent",
+    "source_digest": {
+      "algorithm": "sha256",
+      "value": "bc6c6a4d0d924a1440018acd9d613b5eee21b2495c1a3b748b18155d90afa4ee"
+    },
+    "version": "0.1.0"
+  },
+  "approvals": [],
+  "evaluations": [
+    {
+      "evaluation_id": "evaluation-completeness-001",
+      "method": "DETERMINISTIC",
+      "result": "PASS",
+      "score": 1.0,
+      "version": "0.1.0"
+    }
+  ],
+  "evidence": [
+    {
+      "datahub_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+      "entity_type": "dataset",
+      "evidence_id": "evidence-orders-001",
+      "observed_at": "2026-08-06T00:00:01Z",
+      "provenance": {
+        "capture_method": "OTEL_SPAN",
+        "confidence": null,
+        "rule_id": null
+      },
+      "redaction": {
+        "policy_id": "glassbox.default-deny-v1",
+        "reason": "Raw rows are not receipt material.",
+        "status": "DIGEST_ONLY"
+      },
+      "representation_digest": {
+        "algorithm": "sha256",
+        "value": "aad125f09304682db7fde54a44e2536b2eb705dae6db0d9cccb35d3db4c8a991"
+      },
+      "role": "INPUT",
+      "schema_field_urn": null,
+      "source_span_id": "0123456789abcdef",
+      "state": "OBSERVED"
+    }
+  ],
+  "extensions": {},
+  "integrity": {
+    "canonicalization": "RFC8785",
+    "merkle_root": {
+      "algorithm": "sha256",
+      "value": "b6b49d7af34f7950c7dfb6755ac655692b2fdbef036e69ae7553acaddd1f1c49"
+    },
+    "payload_digest": {
+      "algorithm": "sha256",
+      "value": "60baa88f609244e2d1b6d9649fa7394769865960a26df2d2401815de52ee388a"
+    },
+    "signatures": []
+  },
+  "models": [
+    {
+      "datahub_urn": null,
+      "id": "deterministic-demo-model",
+      "source_digest": {
+        "algorithm": "sha256",
+        "value": "0b77b85b9e6d2bfaba7428ef69c38ac76aaea2f1240071844f1234ddbb988c92"
+      },
+      "version": "1"
+    }
+  ],
+  "output": {
+    "digest": {
+      "algorithm": "sha256",
+      "value": "fafd716e54a2e7bdeed647a407aa48e7ad41e0b40db0057515a7411472702d5b"
+    },
+    "kind": "recommendation",
+    "mime_type": "application/json",
+    "redacted": true,
+    "redaction_reason": "Receipt stores an output digest by default."
+  },
+  "queries": [
+    {
+      "language": "SQL",
+      "query_id": "query-orders-001",
+      "redacted": true,
+      "statement_digest": {
+        "algorithm": "sha256",
+        "value": "3ef11f544f1903c206dd05ec1edbd41321eeb349fd505fd88d23b18c2c5f39c9"
+      }
+    }
+  ],
+  "receipt_id": "gbx:receipt:sha256:60baa88f609244e2d1b6d9649fa7394769865960a26df2d2401815de52ee388a",
+  "replay": {
+    "eligibility": "ELIGIBLE",
+    "prior_receipt_digest": null,
+    "reason": "All recorded actions are read-only."
+  },
+  "run": {
+    "ended_at": "2026-08-06T00:00:02Z",
+    "environment": "DEV",
+    "parent_run_id": null,
+    "run_id": "run-pricing-001",
+    "started_at": "2026-08-06T00:00:00Z",
+    "status": "SUCCEEDED",
+    "trace_id": "0123456789abcdef0123456789abcdef"
+  },
+  "skills": [
+    {
+      "datahub_urn": "urn:li:agentSkill:glassbox.pricing-analysis",
+      "id": "pricing-analysis",
+      "source_digest": {
+        "algorithm": "sha256",
+        "value": "b78d2267da3f420f9ed5c95c335b3a344697c3bbae933ce2f94204efc245a3d7"
+      },
+      "version": "0.1.0"
+    }
+  ],
+  "spec_version": "0.1.0",
+  "tools": [
+    {
+      "datahub_urn": "urn:li:api:glassbox.orders.lookup",
+      "id": "glassbox.orders.lookup",
+      "schema_digest": {
+        "algorithm": "sha256",
+        "value": "4a1570ece14000c8aeffda1e57d8a5d828b7ace3dabc5d255ea262dafa87dba8"
+      },
+      "source_digest": {
+        "algorithm": "sha256",
+        "value": "a5c00effa3d0cde91a5634119df45b48354aedfdbfe49c1d4587b98383f287b1"
+      },
+      "version": "0.1.0"
+    }
+  ],
+  "workflow": {
+    "id": "pricing-recommendation",
+    "version": "0.1.0"
+  }
+}

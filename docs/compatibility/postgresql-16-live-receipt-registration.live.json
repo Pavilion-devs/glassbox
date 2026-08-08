@@ -1,0 +1,36 @@
+{
+  "contract": "glassbox.live-receipt-publication.v2",
+  "date": "2026-08-07",
+  "engine": {
+    "dsn_persisted_or_reported": false,
+    "name": "postgresql",
+    "runtime_issued_ddl": false,
+    "schema_version": 2,
+    "server_version": "16.14"
+  },
+  "pipeline": {
+    "canonical_state_readback_verified": true,
+    "completed_redelivery_emissions": 0,
+    "datahub_emissions_across_identical_deliveries": 2,
+    "default_field_lineage_is_conservative": true,
+    "first_registration": "INSERTED",
+    "raw_content_returned": false,
+    "receipt_publication_status": "COMPLETED",
+    "receipt_publication_tasks": 1,
+    "second_registration": "REUSED",
+    "state_profile": "existing-action-postgresql-schema"
+  },
+  "scope": {
+    "automatic_compiler_to_postgresql_registration": "PROVEN",
+    "datahub_emitter_idempotency_boundary": "PROVEN_WITH_DETERMINISTIC_BACKEND",
+    "genuine_datahub_document_readback": "PROVEN_SEPARATELY",
+    "postgres_16_real_server": "PROVEN",
+    "strict_otlp_to_pipeline": "PROVEN_SEPARATELY_LIVE_HTTP"
+  },
+  "suite": {
+    "failed": 0,
+    "passed": 19,
+    "test_file": "tests/integration/test_postgres_invalidation.py"
+  },
+  "valid": true
+}

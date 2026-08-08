@@ -1,0 +1,387 @@
+{
+  "contract": "glassbox.durable-causal-recovery-crash.v1",
+  "authorization": {
+    "authorization_id": "gbx:recovery-authorization:sha256:1b2e2718adc15cb3522a446ca5d9a4fb54e74615bf2efb5b83a80f5767db0b6e",
+    "bundle_id": "gbx:replay-bundle:sha256:395f39208421597c3d31bea7c978bcdddca8b01fc66ed3320bfb70c706a796d5",
+    "source_receipt_id": "gbx:receipt:sha256:dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+    "staged_before_worker_start": true,
+    "verification": {
+      "authorization_id_valid": true,
+      "errors": [],
+      "exact_binding_valid": true,
+      "not_revoked": true,
+      "operational_binding_valid": true,
+      "raw_content_returned": false,
+      "signatures_valid": true,
+      "time_valid": true,
+      "trusted_signer_present": true,
+      "valid": true
+    }
+  },
+  "history_preservation": {
+    "datahub_receipt_documents_unchanged": true,
+    "direct_entity_digests_after": {
+      "urn:li:document:glassbox.receipt.096df8ce771d6c97b20f0daf84fc1ce47f29e36882bf677b4f983d8ccbec8955": "1974101ea9a8f2b3c3b18a68f48c58ea019d7d4de1cd1acf667025a129ae40a2",
+      "urn:li:document:glassbox.receipt.dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb": "fa360eb56cd070ed6d03f395fdf6fb39c66efa65f6a9fec57772716841b6e3bf"
+    },
+    "direct_entity_digests_before": {
+      "urn:li:document:glassbox.receipt.096df8ce771d6c97b20f0daf84fc1ce47f29e36882bf677b4f983d8ccbec8955": "1974101ea9a8f2b3c3b18a68f48c58ea019d7d4de1cd1acf667025a129ae40a2",
+      "urn:li:document:glassbox.receipt.dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb": "fa360eb56cd070ed6d03f395fdf6fb39c66efa65f6a9fec57772716841b6e3bf"
+    },
+    "postgres_source_receipt_unchanged": true
+  },
+  "integrity": {
+    "active_workflows": 0,
+    "closed_workflows": 1,
+    "events": 5,
+    "workflows": 1
+  },
+  "invalidation": {
+    "campaign_id": "gbx:invalidation:sha256:255d3fb042676ac5470494ea25c6ea2bb5f4b0fe89410ee16b921e58a3bfbf11",
+    "completed_redelivery_emissions": 0,
+    "datahub_writeback_verified": true,
+    "finding": "STALE",
+    "incident_urn": "urn:li:incident:glassbox.invalidation.255d3fb042676ac5470494ea25c6ea2bb5f4b0fe89410ee16b921e58a3bfbf11",
+    "negative_control": "UNAFFECTED"
+  },
+  "privacy": {
+    "database_credentials_returned": false,
+    "private_keys_returned": false,
+    "raw_action_inputs_returned": false,
+    "raw_evidence_returned": false,
+    "raw_outputs_returned": false,
+    "raw_prompts_returned": false
+  },
+  "raw_content_returned": false,
+  "recovery": {
+    "artifact_set_id": "gbx:recovery-artifacts:sha256:331282d0880ce535f287f861ab0c731952a9a515fe14fca661e5cc87c44e611b",
+    "attempt_count": 4,
+    "checkpoint_events": [
+      {
+        "artifact_or_evidence_id": "gbx:recovery-authorization:sha256:1b2e2718adc15cb3522a446ca5d9a4fb54e74615bf2efb5b83a80f5767db0b6e",
+        "attempt_count": 0,
+        "event_id": "gbx:recovery-event:sha256:1433fa6151f53a5fbde1251b031f562450cce69e58cf954921ba43d0afe2d759",
+        "from_stage": null,
+        "operation": "STAGE_AUTHORIZATION",
+        "recorded_at_ms": 1786153828511,
+        "stage_version": 0,
+        "to_stage": "AUTHORIZED",
+        "workflow_id": "gbx:recovery-workflow:sha256:bce8e3a16fa8ec5e1b8a251f601adc82d8640f3df61d13dbefce718912cbdafd"
+      },
+      {
+        "artifact_or_evidence_id": "gbx:recovery-artifacts:sha256:331282d0880ce535f287f861ab0c731952a9a515fe14fca661e5cc87c44e611b",
+        "attempt_count": 1,
+        "event_id": "gbx:recovery-event:sha256:333a63cd12a1427709651bc431dfcab7e096bfebc8ee20e29f25316d98f29427",
+        "from_stage": "AUTHORIZED",
+        "operation": "EXECUTE_ISOLATED_REPLAY",
+        "recorded_at_ms": 1786153830470,
+        "stage_version": 1,
+        "to_stage": "ISOLATED_EXECUTION_SUCCEEDED",
+        "workflow_id": "gbx:recovery-workflow:sha256:bce8e3a16fa8ec5e1b8a251f601adc82d8640f3df61d13dbefce718912cbdafd"
+      },
+      {
+        "artifact_or_evidence_id": "gbx:recovery-effect:sha256:f3defacab9e529107d1f4447396a277b9ca8fb3615971cd0b1f16eabece3a245",
+        "attempt_count": 2,
+        "event_id": "gbx:recovery-event:sha256:6acfc3ea040fa07729d986e803dfcf9ce2eedf01674a157cceaedd114759d40c",
+        "from_stage": "ISOLATED_EXECUTION_SUCCEEDED",
+        "operation": "PUBLISH_REPLAY_RECEIPT",
+        "recorded_at_ms": 1786153831574,
+        "stage_version": 2,
+        "to_stage": "REPLAY_RECEIPT_PUBLISHED",
+        "workflow_id": "gbx:recovery-workflow:sha256:bce8e3a16fa8ec5e1b8a251f601adc82d8640f3df61d13dbefce718912cbdafd"
+      },
+      {
+        "artifact_or_evidence_id": "gbx:recovery-effect:sha256:5c9b68dce25163a3609bd7ab95cb62d1936956a3cc4b22ea8c44f61c4bc9b4e6",
+        "attempt_count": 3,
+        "event_id": "gbx:recovery-event:sha256:8b15686105f7625d212355b0025e2449e68c84c304b2338aeeb6db3409a8f873",
+        "from_stage": "REPLAY_RECEIPT_PUBLISHED",
+        "operation": "PUBLISH_SUPERSESSION",
+        "recorded_at_ms": 1786153832626,
+        "stage_version": 3,
+        "to_stage": "SUPERSESSION_VERIFIED",
+        "workflow_id": "gbx:recovery-workflow:sha256:bce8e3a16fa8ec5e1b8a251f601adc82d8640f3df61d13dbefce718912cbdafd"
+      },
+      {
+        "artifact_or_evidence_id": "gbx:recovery-effect:sha256:021410bffaa30fc622a99c9bb622ffe03a522fbe3fba9c5fdba162238faa2f17",
+        "attempt_count": 4,
+        "event_id": "gbx:recovery-event:sha256:95357895cc35df025be2a8c83a54433217aa1aec47982086582865ad19b053bd",
+        "from_stage": "SUPERSESSION_VERIFIED",
+        "operation": "CLOSE_INCIDENT",
+        "recorded_at_ms": 1786153833746,
+        "stage_version": 4,
+        "to_stage": "INCIDENT_CLOSED",
+        "workflow_id": "gbx:recovery-workflow:sha256:bce8e3a16fa8ec5e1b8a251f601adc82d8640f3df61d13dbefce718912cbdafd"
+      }
+    ],
+    "closed_redelivery_reused_completion": true,
+    "closure_id": "gbx:recovery-closure:sha256:30c290faa83b3e5d1fbdff06bbc7012a4f2a10be4d34ac2218542ce999acebb2",
+    "effect_evidence_ids": [
+      "gbx:recovery-effect:sha256:f3defacab9e529107d1f4447396a277b9ca8fb3615971cd0b1f16eabece3a245",
+      "gbx:recovery-effect:sha256:5c9b68dce25163a3609bd7ab95cb62d1936956a3cc4b22ea8c44f61c4bc9b4e6",
+      "gbx:recovery-effect:sha256:021410bffaa30fc622a99c9bb622ffe03a522fbe3fba9c5fdba162238faa2f17"
+    ],
+    "final_stage": "INCIDENT_CLOSED",
+    "replay_receipt_id": "gbx:receipt:sha256:096df8ce771d6c97b20f0daf84fc1ce47f29e36882bf677b4f983d8ccbec8955",
+    "supersession_id": "gbx:replay-supersession:sha256:5918bdb4326fd7e0a34858f3bc03c0be8bee9a89dc0f5148ce8160cddc688c70",
+    "workers": [
+      {
+        "abrupt_exit_injected": true,
+        "durable_job": {
+          "artifact_set_id": "gbx:recovery-artifacts:sha256:331282d0880ce535f287f861ab0c731952a9a515fe14fca661e5cc87c44e611b",
+          "attempt_count": 1,
+          "authorization_id": "gbx:recovery-authorization:sha256:1b2e2718adc15cb3522a446ca5d9a4fb54e74615bf2efb5b83a80f5767db0b6e",
+          "bundle_id": "gbx:replay-bundle:sha256:395f39208421597c3d31bea7c978bcdddca8b01fc66ed3320bfb70c706a796d5",
+          "campaign_id": "gbx:invalidation:sha256:255d3fb042676ac5470494ea25c6ea2bb5f4b0fe89410ee16b921e58a3bfbf11",
+          "closure_id": "gbx:recovery-closure:sha256:30c290faa83b3e5d1fbdff06bbc7012a4f2a10be4d34ac2218542ce999acebb2",
+          "effect_evidence_ids": [],
+          "last_error_type": null,
+          "lease_expires_at_ms": null,
+          "lease_operation": null,
+          "lease_owner": null,
+          "raw_content_returned": false,
+          "replay_receipt_id": "gbx:receipt:sha256:096df8ce771d6c97b20f0daf84fc1ce47f29e36882bf677b4f983d8ccbec8955",
+          "source_receipt_id": "gbx:receipt:sha256:dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+          "stage": "ISOLATED_EXECUTION_SUCCEEDED",
+          "stage_version": 1,
+          "supersession_id": "gbx:replay-supersession:sha256:5918bdb4326fd7e0a34858f3bc03c0be8bee9a89dc0f5148ce8160cddc688c70",
+          "valid": true,
+          "workflow_id": "gbx:recovery-workflow:sha256:bce8e3a16fa8ec5e1b8a251f601adc82d8640f3df61d13dbefce718912cbdafd",
+          "workflow_state": "ISOLATED_EXECUTION_SUCCEEDED"
+        },
+        "event_count": 2,
+        "pid": 50578,
+        "raw_content_returned": false,
+        "runtime_schema_ddl_permitted": false,
+        "step": {
+          "attempt_count": 1,
+          "operation": "EXECUTE_ISOLATED_REPLAY",
+          "raw_content_returned": false,
+          "reused_completion": false,
+          "stage": "ISOLATED_EXECUTION_SUCCEEDED",
+          "valid": true,
+          "workflow_id": "gbx:recovery-workflow:sha256:bce8e3a16fa8ec5e1b8a251f601adc82d8640f3df61d13dbefce718912cbdafd",
+          "workflow_state": "ISOLATED_EXECUTION_SUCCEEDED"
+        },
+        "valid": true
+      },
+      {
+        "abrupt_exit_injected": true,
+        "durable_job": {
+          "artifact_set_id": "gbx:recovery-artifacts:sha256:331282d0880ce535f287f861ab0c731952a9a515fe14fca661e5cc87c44e611b",
+          "attempt_count": 2,
+          "authorization_id": "gbx:recovery-authorization:sha256:1b2e2718adc15cb3522a446ca5d9a4fb54e74615bf2efb5b83a80f5767db0b6e",
+          "bundle_id": "gbx:replay-bundle:sha256:395f39208421597c3d31bea7c978bcdddca8b01fc66ed3320bfb70c706a796d5",
+          "campaign_id": "gbx:invalidation:sha256:255d3fb042676ac5470494ea25c6ea2bb5f4b0fe89410ee16b921e58a3bfbf11",
+          "closure_id": "gbx:recovery-closure:sha256:30c290faa83b3e5d1fbdff06bbc7012a4f2a10be4d34ac2218542ce999acebb2",
+          "effect_evidence_ids": [
+            "gbx:recovery-effect:sha256:f3defacab9e529107d1f4447396a277b9ca8fb3615971cd0b1f16eabece3a245"
+          ],
+          "last_error_type": null,
+          "lease_expires_at_ms": null,
+          "lease_operation": null,
+          "lease_owner": null,
+          "raw_content_returned": false,
+          "replay_receipt_id": "gbx:receipt:sha256:096df8ce771d6c97b20f0daf84fc1ce47f29e36882bf677b4f983d8ccbec8955",
+          "source_receipt_id": "gbx:receipt:sha256:dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+          "stage": "REPLAY_RECEIPT_PUBLISHED",
+          "stage_version": 2,
+          "supersession_id": "gbx:replay-supersession:sha256:5918bdb4326fd7e0a34858f3bc03c0be8bee9a89dc0f5148ce8160cddc688c70",
+          "valid": true,
+          "workflow_id": "gbx:recovery-workflow:sha256:bce8e3a16fa8ec5e1b8a251f601adc82d8640f3df61d13dbefce718912cbdafd",
+          "workflow_state": "REPLAY_RECEIPT_PUBLISHED"
+        },
+        "event_count": 3,
+        "pid": 50610,
+        "raw_content_returned": false,
+        "runtime_schema_ddl_permitted": false,
+        "step": {
+          "attempt_count": 2,
+          "operation": "PUBLISH_REPLAY_RECEIPT",
+          "raw_content_returned": false,
+          "reused_completion": false,
+          "stage": "REPLAY_RECEIPT_PUBLISHED",
+          "valid": true,
+          "workflow_id": "gbx:recovery-workflow:sha256:bce8e3a16fa8ec5e1b8a251f601adc82d8640f3df61d13dbefce718912cbdafd",
+          "workflow_state": "REPLAY_RECEIPT_PUBLISHED"
+        },
+        "valid": true
+      },
+      {
+        "abrupt_exit_injected": true,
+        "durable_job": {
+          "artifact_set_id": "gbx:recovery-artifacts:sha256:331282d0880ce535f287f861ab0c731952a9a515fe14fca661e5cc87c44e611b",
+          "attempt_count": 3,
+          "authorization_id": "gbx:recovery-authorization:sha256:1b2e2718adc15cb3522a446ca5d9a4fb54e74615bf2efb5b83a80f5767db0b6e",
+          "bundle_id": "gbx:replay-bundle:sha256:395f39208421597c3d31bea7c978bcdddca8b01fc66ed3320bfb70c706a796d5",
+          "campaign_id": "gbx:invalidation:sha256:255d3fb042676ac5470494ea25c6ea2bb5f4b0fe89410ee16b921e58a3bfbf11",
+          "closure_id": "gbx:recovery-closure:sha256:30c290faa83b3e5d1fbdff06bbc7012a4f2a10be4d34ac2218542ce999acebb2",
+          "effect_evidence_ids": [
+            "gbx:recovery-effect:sha256:f3defacab9e529107d1f4447396a277b9ca8fb3615971cd0b1f16eabece3a245",
+            "gbx:recovery-effect:sha256:5c9b68dce25163a3609bd7ab95cb62d1936956a3cc4b22ea8c44f61c4bc9b4e6"
+          ],
+          "last_error_type": null,
+          "lease_expires_at_ms": null,
+          "lease_operation": null,
+          "lease_owner": null,
+          "raw_content_returned": false,
+          "replay_receipt_id": "gbx:receipt:sha256:096df8ce771d6c97b20f0daf84fc1ce47f29e36882bf677b4f983d8ccbec8955",
+          "source_receipt_id": "gbx:receipt:sha256:dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+          "stage": "SUPERSESSION_VERIFIED",
+          "stage_version": 3,
+          "supersession_id": "gbx:replay-supersession:sha256:5918bdb4326fd7e0a34858f3bc03c0be8bee9a89dc0f5148ce8160cddc688c70",
+          "valid": true,
+          "workflow_id": "gbx:recovery-workflow:sha256:bce8e3a16fa8ec5e1b8a251f601adc82d8640f3df61d13dbefce718912cbdafd",
+          "workflow_state": "SUPERSESSION_VERIFIED"
+        },
+        "event_count": 4,
+        "pid": 50640,
+        "raw_content_returned": false,
+        "runtime_schema_ddl_permitted": false,
+        "step": {
+          "attempt_count": 3,
+          "operation": "PUBLISH_SUPERSESSION",
+          "raw_content_returned": false,
+          "reused_completion": false,
+          "stage": "SUPERSESSION_VERIFIED",
+          "valid": true,
+          "workflow_id": "gbx:recovery-workflow:sha256:bce8e3a16fa8ec5e1b8a251f601adc82d8640f3df61d13dbefce718912cbdafd",
+          "workflow_state": "SUPERSESSION_VERIFIED"
+        },
+        "valid": true
+      },
+      {
+        "abrupt_exit_injected": true,
+        "durable_job": {
+          "artifact_set_id": "gbx:recovery-artifacts:sha256:331282d0880ce535f287f861ab0c731952a9a515fe14fca661e5cc87c44e611b",
+          "attempt_count": 4,
+          "authorization_id": "gbx:recovery-authorization:sha256:1b2e2718adc15cb3522a446ca5d9a4fb54e74615bf2efb5b83a80f5767db0b6e",
+          "bundle_id": "gbx:replay-bundle:sha256:395f39208421597c3d31bea7c978bcdddca8b01fc66ed3320bfb70c706a796d5",
+          "campaign_id": "gbx:invalidation:sha256:255d3fb042676ac5470494ea25c6ea2bb5f4b0fe89410ee16b921e58a3bfbf11",
+          "closure_id": "gbx:recovery-closure:sha256:30c290faa83b3e5d1fbdff06bbc7012a4f2a10be4d34ac2218542ce999acebb2",
+          "effect_evidence_ids": [
+            "gbx:recovery-effect:sha256:f3defacab9e529107d1f4447396a277b9ca8fb3615971cd0b1f16eabece3a245",
+            "gbx:recovery-effect:sha256:5c9b68dce25163a3609bd7ab95cb62d1936956a3cc4b22ea8c44f61c4bc9b4e6",
+            "gbx:recovery-effect:sha256:021410bffaa30fc622a99c9bb622ffe03a522fbe3fba9c5fdba162238faa2f17"
+          ],
+          "last_error_type": null,
+          "lease_expires_at_ms": null,
+          "lease_operation": null,
+          "lease_owner": null,
+          "raw_content_returned": false,
+          "replay_receipt_id": "gbx:receipt:sha256:096df8ce771d6c97b20f0daf84fc1ce47f29e36882bf677b4f983d8ccbec8955",
+          "source_receipt_id": "gbx:receipt:sha256:dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+          "stage": "INCIDENT_CLOSED",
+          "stage_version": 4,
+          "supersession_id": "gbx:replay-supersession:sha256:5918bdb4326fd7e0a34858f3bc03c0be8bee9a89dc0f5148ce8160cddc688c70",
+          "valid": true,
+          "workflow_id": "gbx:recovery-workflow:sha256:bce8e3a16fa8ec5e1b8a251f601adc82d8640f3df61d13dbefce718912cbdafd",
+          "workflow_state": "INCIDENT_CLOSED"
+        },
+        "event_count": 5,
+        "pid": 50659,
+        "raw_content_returned": false,
+        "runtime_schema_ddl_permitted": false,
+        "step": {
+          "attempt_count": 4,
+          "operation": "CLOSE_INCIDENT",
+          "raw_content_returned": false,
+          "reused_completion": false,
+          "stage": "INCIDENT_CLOSED",
+          "valid": true,
+          "workflow_id": "gbx:recovery-workflow:sha256:bce8e3a16fa8ec5e1b8a251f601adc82d8640f3df61d13dbefce718912cbdafd",
+          "workflow_state": "INCIDENT_CLOSED"
+        },
+        "valid": true
+      },
+      {
+        "abrupt_exit_injected": true,
+        "durable_job": {
+          "artifact_set_id": "gbx:recovery-artifacts:sha256:331282d0880ce535f287f861ab0c731952a9a515fe14fca661e5cc87c44e611b",
+          "attempt_count": 4,
+          "authorization_id": "gbx:recovery-authorization:sha256:1b2e2718adc15cb3522a446ca5d9a4fb54e74615bf2efb5b83a80f5767db0b6e",
+          "bundle_id": "gbx:replay-bundle:sha256:395f39208421597c3d31bea7c978bcdddca8b01fc66ed3320bfb70c706a796d5",
+          "campaign_id": "gbx:invalidation:sha256:255d3fb042676ac5470494ea25c6ea2bb5f4b0fe89410ee16b921e58a3bfbf11",
+          "closure_id": "gbx:recovery-closure:sha256:30c290faa83b3e5d1fbdff06bbc7012a4f2a10be4d34ac2218542ce999acebb2",
+          "effect_evidence_ids": [
+            "gbx:recovery-effect:sha256:f3defacab9e529107d1f4447396a277b9ca8fb3615971cd0b1f16eabece3a245",
+            "gbx:recovery-effect:sha256:5c9b68dce25163a3609bd7ab95cb62d1936956a3cc4b22ea8c44f61c4bc9b4e6",
+            "gbx:recovery-effect:sha256:021410bffaa30fc622a99c9bb622ffe03a522fbe3fba9c5fdba162238faa2f17"
+          ],
+          "last_error_type": null,
+          "lease_expires_at_ms": null,
+          "lease_operation": null,
+          "lease_owner": null,
+          "raw_content_returned": false,
+          "replay_receipt_id": "gbx:receipt:sha256:096df8ce771d6c97b20f0daf84fc1ce47f29e36882bf677b4f983d8ccbec8955",
+          "source_receipt_id": "gbx:receipt:sha256:dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+          "stage": "INCIDENT_CLOSED",
+          "stage_version": 4,
+          "supersession_id": "gbx:replay-supersession:sha256:5918bdb4326fd7e0a34858f3bc03c0be8bee9a89dc0f5148ce8160cddc688c70",
+          "valid": true,
+          "workflow_id": "gbx:recovery-workflow:sha256:bce8e3a16fa8ec5e1b8a251f601adc82d8640f3df61d13dbefce718912cbdafd",
+          "workflow_state": "INCIDENT_CLOSED"
+        },
+        "event_count": 5,
+        "pid": 50680,
+        "raw_content_returned": false,
+        "runtime_schema_ddl_permitted": false,
+        "step": {
+          "attempt_count": 4,
+          "operation": null,
+          "raw_content_returned": false,
+          "reused_completion": true,
+          "stage": "INCIDENT_CLOSED",
+          "valid": true,
+          "workflow_id": "gbx:recovery-workflow:sha256:bce8e3a16fa8ec5e1b8a251f601adc82d8640f3df61d13dbefce718912cbdafd",
+          "workflow_state": "INCIDENT_CLOSED"
+        },
+        "valid": true
+      }
+    ],
+    "workflow_id": "gbx:recovery-workflow:sha256:bce8e3a16fa8ec5e1b8a251f601adc82d8640f3df61d13dbefce718912cbdafd",
+    "zero_write_exact_closure_recovery": {
+      "aspect_writes": 0,
+      "campaign_id": "gbx:invalidation:sha256:255d3fb042676ac5470494ea25c6ea2bb5f4b0fe89410ee16b921e58a3bfbf11",
+      "closure_id": "gbx:recovery-closure:sha256:30c290faa83b3e5d1fbdff06bbc7012a4f2a10be4d34ac2218542ce999acebb2",
+      "emission_attempts": 0,
+      "incident_aspects": [
+        "incidentInfo",
+        "incidentKey"
+      ],
+      "incident_urn": "urn:li:incident:glassbox.invalidation.255d3fb042676ac5470494ea25c6ea2bb5f4b0fe89410ee16b921e58a3bfbf11",
+      "raw_values_retained": false,
+      "receipt_documents_unchanged": true,
+      "replay_receipt_document_urn": "urn:li:document:glassbox.receipt.096df8ce771d6c97b20f0daf84fc1ce47f29e36882bf677b4f983d8ccbec8955",
+      "reused_completion": true,
+      "source_receipt_document_urn": "urn:li:document:glassbox.receipt.dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+      "supersession_document_urn": "urn:li:document:glassbox.replay.supersession.5918bdb4326fd7e0a34858f3bc03c0be8bee9a89dc0f5148ce8160cddc688c70",
+      "supersession_verified": true,
+      "target_summary_resolved": true,
+      "valid": true
+    }
+  },
+  "runtime": {
+    "abrupt_checkpoint_exit_code": 86,
+    "datahub_core_version": "v1.6.0",
+    "datahub_sdk_version": "1.6.0.15",
+    "distinct_worker_pids": 5,
+    "postgresql_server_version": "16.14",
+    "proof_date": "2026-08-08",
+    "proof_run_offset_ms": 4,
+    "sandbox_image_digest": "sha256:86f5cba22dd17d844d77025a5b448dc06de5a98c2671e3fa9d76b31ad3669fdb",
+    "worker_processes": 5
+  },
+  "scenario": "GLASSBOX_DURABLE_CAUSAL_RECOVERY_WITH_PROCESS_CRASHES",
+  "scope": {
+    "abrupt_interpreter_exit_after_each_checkpoint": "PROVEN",
+    "closed_redelivery_zero_effect": "PROVEN",
+    "crash_before_checkpoint_commit": "NOT_EXERCISED",
+    "digest_pinned_oci_execution": "PROVEN",
+    "exact_prior_closure_zero_write": "PROVEN",
+    "fresh_process_after_each_checkpoint": "PROVEN",
+    "live_datahub_core": "PROVEN",
+    "live_postgresql": "PROVEN",
+    "physical_multi_host_failover": "NOT_EXERCISED"
+  },
+  "valid": true
+}

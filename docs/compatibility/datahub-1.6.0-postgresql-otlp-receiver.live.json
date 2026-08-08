@@ -1,0 +1,49 @@
+{
+  "contract": "glassbox.otlp-acknowledged-receipt-publication.v1",
+  "datahub": {
+    "completed_redelivery_writes": 0,
+    "direct_reads_including_fresh_urn_resolution": 4,
+    "document_urn": "urn:li:document:glassbox.receipt.04957d06b1d09c745d9cb09ea246c486bb14cfafc0b92e407b2f68002fdaeb7b",
+    "first_delivery_writes": 2,
+    "sealed_aspects": [
+      "browsePathsV2",
+      "documentInfo",
+      "documentKey",
+      "documentSettings",
+      "subTypes"
+    ]
+  },
+  "generated_at": "2026-08-07T00:52:08Z",
+  "scope": {
+    "datahub_core_real_server": "PROVEN",
+    "failure_recovery_after_503": "PROVEN_WITH_REAL_HTTP_AND_TEST_TRANSPORT",
+    "genuine_kafka_delivery": "NOT_EXERCISED_IN_THIS_RUN",
+    "loopback_http_receiver": "PROVEN",
+    "postgresql_real_server": "PROVEN",
+    "remote_tls_and_rate_limiting": "NOT_EXERCISED_IN_THIS_RUN"
+  },
+  "state": {
+    "attempt_count": 1,
+    "engine": "PostgreSQL",
+    "field_lineage_coverage": "NONE",
+    "publication_evidence_sealed": true,
+    "publication_status": "COMPLETED",
+    "receipt_publication_tasks": 1,
+    "registration": "INSERTED",
+    "runtime_issued_ddl": false,
+    "schema_version": 2
+  },
+  "transport": {
+    "authentication": "BEARER_PROVEN",
+    "completed_redelivery_status": 200,
+    "endpoint": "/v1/traces",
+    "first_delivery_status": 200,
+    "raw_content_returned": false
+  },
+  "valid": true,
+  "versions": {
+    "datahub_core": "1.6.0",
+    "datahub_sdk": "1.6.0.15",
+    "postgresql": "16.14"
+  }
+}

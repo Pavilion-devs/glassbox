@@ -1,0 +1,39 @@
+{
+  "contract": "glassbox.postgresql-receipt-publication-outbox.v1",
+  "date": "2026-08-07",
+  "integrity": {
+    "checksummed_completion_evidence": "PROVEN",
+    "missing_obligation_detection": "PROVEN",
+    "receipt_dependency_obligation_atomicity": "PROVEN"
+  },
+  "leases": {
+    "claim_mechanism": "SELECT_FOR_UPDATE",
+    "concurrent_connections": 8,
+    "publication_claim_winners": 1,
+    "server_clock_authoritative": true
+  },
+  "lifecycle": {
+    "completed_redelivery_writes": 0,
+    "failure_release_to_ready": "PROVEN",
+    "states": [
+      "READY",
+      "LEASED",
+      "COMPLETED"
+    ]
+  },
+  "scope": {
+    "physical_multi_host": "NOT_EXERCISED",
+    "real_postgresql_server": "PROVEN",
+    "schema_bootstrap_and_runtime_separation": "PROVEN"
+  },
+  "suite": {
+    "failed": 0,
+    "passed": 19,
+    "skipped": 0
+  },
+  "valid": true,
+  "versions": {
+    "postgresql": "16.14",
+    "state_schema": 2
+  }
+}

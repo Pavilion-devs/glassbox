@@ -1,0 +1,99 @@
+{
+  "contract": "glassbox.prepublication-flagship-check.v1",
+  "generated_at": "2026-08-08T17:40:39Z",
+  "history_preservation": {
+    "datahub_receipt_documents_unchanged": true,
+    "postgres_source_receipt_unchanged": true,
+    "source_history_mutations": 0
+  },
+  "invalidation": {
+    "campaign_id": "gbx:invalidation:sha256:69472e979d3ac69fc0b8a0020eda92e832ba54d495ec4c97259c7cb628379efa",
+    "datahub_writeback_verified": true,
+    "finding": "STALE",
+    "first_delivery_emissions": 2,
+    "incident_urn": "urn:li:incident:glassbox.invalidation.69472e979d3ac69fc0b8a0020eda92e832ba54d495ec4c97259c7cb628379efa",
+    "redelivery_emissions": 0,
+    "redelivery_reused_completion": true,
+    "workflow_status": "COMPLETED"
+  },
+  "negative_control": {
+    "datahub_mutation_required": false,
+    "finding": "UNAFFECTED",
+    "first_delivery_emissions": 0,
+    "reason_code": "COMPLETE_FIELD_LINEAGE_PROVES_FIELD_UNUSED",
+    "redelivery_emissions": 0
+  },
+  "postconditions": {
+    "datahub_actions_running": true,
+    "datahub_frontend_healthy": true,
+    "datahub_gms_health_status": 200,
+    "datahub_gms_healthy": true,
+    "kafka_healthy": true,
+    "opensearch_healthy": true,
+    "postgresql_healthy": true,
+    "sandbox_containers_remaining": 0,
+    "transient_postgresql_schemas_remaining": 0
+  },
+  "privacy": {
+    "database_credentials_returned": false,
+    "private_keys_returned": false,
+    "raw_action_inputs_returned": false,
+    "raw_evidence_returned": false,
+    "raw_outputs_returned": false,
+    "raw_prompts_returned": false
+  },
+  "publication": {
+    "draft_pull_request_opened": false,
+    "release_gate_satisfied": false,
+    "source_tree_tagged": false
+  },
+  "raw_content_returned": false,
+  "recovery": {
+    "authorization_valid": true,
+    "corrected_action_input_executed": true,
+    "incident_closure_valid": true,
+    "incident_target_resolved": true,
+    "replay_decision": "ALLOW",
+    "replay_execution_status": "SUCCEEDED",
+    "replay_receipt_id": "gbx:receipt:sha256:5cd82ac0ee33c0fec4b07d43167b7e9e8c9f732ae0954c56cb61096ada27980f",
+    "supersession_id": "gbx:replay-supersession:sha256:57947cbcfaee138a1fed66a912bbaf9db5391b364d08fd9b4231d72b7fdec2b2",
+    "supersession_valid": true
+  },
+  "runtime": {
+    "datahub_core_commit": "059a36c0b035a6057de00114ccac0ea9003d6bc2",
+    "datahub_core_version": "v1.6.0",
+    "datahub_mcp_version": "0.6.0",
+    "datahub_sdk_version": "1.6.0.15",
+    "glassbox_mcp_version": "0.1.0",
+    "negotiated_mcp_protocol_version": "2025-11-25",
+    "postgresql_server_version": "16.14",
+    "proof_run_offset_ms": 100,
+    "sandbox_image_digest": "sha256:38316e9a7baf5e527f5ce1d14a032036f2c01a9a4a2a78b629bd92be4c6f5baf"
+  },
+  "sandbox": {
+    "capability_labels_verified": true,
+    "host_environment_inherited": false,
+    "image_identity_verified": true,
+    "linux_capabilities": "ALL_DROPPED",
+    "network_access": "DENIED",
+    "no_new_privileges": true,
+    "root_filesystem": "READ_ONLY",
+    "runtime": "OCI_CONTAINER"
+  },
+  "scenario": "GLASSBOX_DATAHUB_CAUSAL_RECOVERY",
+  "source_decision": {
+    "completed_redelivery_datahub_write_performed": false,
+    "datahub_readback_verified": true,
+    "receipt_id": "gbx:receipt:sha256:dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+    "resource_pins_complete": true
+  },
+  "verification": {
+    "datahub_catalog_read": "PROVEN",
+    "datahub_mcp_read_only": true,
+    "dual_mcp_forensics_valid": true,
+    "glassbox_mcp_read_only": true,
+    "official_datahub_mcp_stdio": "PROVEN",
+    "real_datahub_mutation_and_direct_readback": "PROVEN"
+  },
+  "valid": true
+}

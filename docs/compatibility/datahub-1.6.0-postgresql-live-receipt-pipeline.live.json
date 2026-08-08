@@ -1,0 +1,56 @@
+{
+  "contract": "glassbox.live-receipt-publication.v1",
+  "datahub": {
+    "aspect_names": [
+      "browsePathsV2",
+      "documentInfo",
+      "documentKey",
+      "documentSettings",
+      "subTypes"
+    ],
+    "direct_readback_verified": true,
+    "document_urn": "urn:li:document:glassbox.receipt.77e06c24ff97521b6bac511ef8b9d3cb3a8460ebd3d574af00f5f39a6a2a8f22",
+    "emissions": 2
+  },
+  "date": "2026-08-07",
+  "receipt": {
+    "action_count": 1,
+    "evidence_count": 1,
+    "merkle_root": "446a8066505186b295ecfbb4714b09fccc6f8394ec2ff73961741709763ee568",
+    "payload_digest": "77e06c24ff97521b6bac511ef8b9d3cb3a8460ebd3d574af00f5f39a6a2a8f22",
+    "receipt_id": "gbx:receipt:sha256:77e06c24ff97521b6bac511ef8b9d3cb3a8460ebd3d574af00f5f39a6a2a8f22",
+    "signature_count": 1
+  },
+  "scope": {
+    "datahub_core_real_server": "PROVEN",
+    "genuine_kafka_delivery": "NOT_EXERCISED_IN_THIS_RUN",
+    "normalized_runtime_events": "PROVEN",
+    "postgres_16_real_server": "PROVEN",
+    "strict_otlp_input": "PROVEN_SEPARATELY_OFFLINE"
+  },
+  "shared_state": {
+    "audit_records": 0,
+    "campaigns": 0,
+    "dependencies": 1,
+    "dsn_persisted_or_reported": false,
+    "field_lineage": {
+      "coverage": "NONE",
+      "rule_id": null,
+      "wildcard_query": null
+    },
+    "owner_routing_tasks": 0,
+    "receipt_publication_status": "COMPLETED",
+    "receipt_publication_tasks": 1,
+    "readback_verified": true,
+    "receipts": 1,
+    "registration": "INSERTED",
+    "runtime_issued_ddl": false,
+    "schema_version": 2
+  },
+  "valid": true,
+  "versions": {
+    "datahub_core": "1.6.0",
+    "datahub_sdk": "1.6.0.15",
+    "postgresql": "16.14"
+  }
+}

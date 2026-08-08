@@ -1,0 +1,94 @@
+{
+  "boundaries": {
+    "change_events_are_synthetic_normalized_inputs": true,
+    "datahub_mutations": 2,
+    "plaintext_receipt_values_retained": false,
+    "quarantine_or_replay_mutations": 0,
+    "unique_datahub_documents_written": 1
+  },
+  "compatibility": {
+    "datahub_cli_context": "skill=datahub-agent-forensics",
+    "datahub_core_target": "1.6.0",
+    "sdk_version": "1.6.0.15",
+    "server": "http://localhost:8080"
+  },
+  "direct_cli_read": {
+    "document_urn": "urn:li:document:glassbox.receipt.d87482b9feb3eb0e4a32777771febcaea008c6c4f5836aed86d52c501e8e0ace",
+    "ignored_property_count": 0,
+    "integrity_status": "PROJECTION_ONLY",
+    "managed_property_count": 17,
+    "safe_for_deterministic_policy": false,
+    "valid": true
+  },
+  "live_write": {
+    "aspect_names": [
+      "browsePathsV2",
+      "documentInfo",
+      "documentKey",
+      "documentSettings",
+      "subTypes"
+    ],
+    "document_urn": "urn:li:document:glassbox.receipt.d87482b9feb3eb0e4a32777771febcaea008c6c4f5836aed86d52c501e8e0ace",
+    "emissions": 2,
+    "receipt_id": "gbx:receipt:sha256:d87482b9feb3eb0e4a32777771febcaea008c6c4f5836aed86d52c501e8e0ace",
+    "valid": true
+  },
+  "signed_dbom": {
+    "evidence_state_counts": {
+      "OBSERVED": 1
+    },
+    "integrity_status": "VERIFIED",
+    "raw_values_retained": false,
+    "receipt_id": "gbx:receipt:sha256:d87482b9feb3eb0e4a32777771febcaea008c6c4f5836aed86d52c501e8e0ace",
+    "safe_for_deterministic_policy": true
+  },
+  "unrelated_field_control": {
+    "change": {
+      "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+      "event_id": "forensics-live-unused-field-v1",
+      "kind": "SCHEMA_FIELD_TYPE_CHANGED",
+      "occurred_at": "2026-08-07T00:00:00Z",
+      "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),internal_note)"
+    },
+    "document_urn": "urn:li:document:glassbox.receipt.d87482b9feb3eb0e4a32777771febcaea008c6c4f5836aed86d52c501e8e0ace",
+    "field_lineage": {
+      "coverage": "COMPLETE",
+      "rule_id": "glassbox.sql-column-lineage.v1",
+      "wildcard_query": false
+    },
+    "matched_evidence_ids": [
+      "evidence-orders-001"
+    ],
+    "policy_version": "glassbox.materiality.v1",
+    "quarantine_required": false,
+    "reason_code": "COMPLETE_FIELD_LINEAGE_PROVES_FIELD_UNUSED",
+    "receipt_id": "gbx:receipt:sha256:d87482b9feb3eb0e4a32777771febcaea008c6c4f5836aed86d52c501e8e0ace",
+    "report_version": "datahub-agent-forensics.impact.v1",
+    "state": "UNAFFECTED"
+  },
+  "used_field_control": {
+    "change": {
+      "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+      "event_id": "forensics-live-used-field-v1",
+      "kind": "SCHEMA_FIELD_TYPE_CHANGED",
+      "occurred_at": "2026-08-07T00:00:00Z",
+      "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)"
+    },
+    "document_urn": "urn:li:document:glassbox.receipt.d87482b9feb3eb0e4a32777771febcaea008c6c4f5836aed86d52c501e8e0ace",
+    "field_lineage": {
+      "coverage": "NONE",
+      "rule_id": null,
+      "wildcard_query": null
+    },
+    "matched_evidence_ids": [
+      "evidence-orders-001"
+    ],
+    "policy_version": "glassbox.materiality.v1",
+    "quarantine_required": true,
+    "reason_code": "OBSERVED_MATERIAL_DEPENDENCY_CHANGED",
+    "receipt_id": "gbx:receipt:sha256:d87482b9feb3eb0e4a32777771febcaea008c6c4f5836aed86d52c501e8e0ace",
+    "report_version": "datahub-agent-forensics.impact.v1",
+    "state": "STALE"
+  },
+  "valid": true
+}

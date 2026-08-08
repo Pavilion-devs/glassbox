@@ -1,0 +1,96 @@
+{
+  "action": {
+    "campaign_status": "COMPLETED",
+    "first_delivery_emissions": 2,
+    "official_actions_envelope": true,
+    "real_datahub_writeback": true,
+    "redelivery_emissions": 0,
+    "reused_completion": true,
+    "target_summary_verified": true
+  },
+  "contract": "glassbox.dual-mcp-forensics.v1",
+  "cross_plane_binding": {
+    "campaign_id": "gbx:invalidation:sha256:cd2ab9c28c15de4bc5c066f1082f82f7ce3ba83c0ee47a0e2a1eafddc96ab284",
+    "campaign_to_incident": "EXACT",
+    "catalog_to_receipt": "EXACT",
+    "dataset_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+    "document_urn": "urn:li:document:glassbox.receipt.7196bca9b80d521bf11cee806b8cfb5d6fac7bd2f2ded350b2217c32a89dac79",
+    "incident_urn": "urn:li:incident:glassbox.invalidation.cd2ab9c28c15de4bc5c066f1082f82f7ce3ba83c0ee47a0e2a1eafddc96ab284",
+    "receipt_id": "gbx:receipt:sha256:7196bca9b80d521bf11cee806b8cfb5d6fac7bd2f2ded350b2217c32a89dac79",
+    "receipt_to_campaign": "EXACT"
+  },
+  "datahub_mcp": {
+    "active_incident_signal": true,
+    "catalog_entity_read": "PROVEN",
+    "dataset_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+    "exact_incident_entity_projection": "UNAVAILABLE",
+    "field_path": "average_order_value",
+    "incident_health": "FAIL",
+    "known_mutation_tools_exposed": [],
+    "native_type": "DECIMAL(18,2)",
+    "non_read_only_tools": [],
+    "receipt_document_related": true,
+    "required_read_tools_present": [
+      "get_entities",
+      "get_lineage",
+      "get_lineage_paths_between",
+      "list_schema_fields",
+      "search"
+    ],
+    "tool_count": 6
+  },
+  "glassbox_mcp": {
+    "campaign_workflow": "COMPLETED",
+    "datahub_writeback": "VERIFIED",
+    "finding_state": "STALE",
+    "mutation_tools": 0,
+    "observed_field_influence": true,
+    "quarantine_required": true,
+    "read_tools": [
+      "classify_decision_impact",
+      "get_decision_influence",
+      "get_invalidation_campaign",
+      "list_affected_decisions",
+      "list_decision_findings",
+      "verify_decision_receipt"
+    ],
+    "receipt_verification": "VERIFIED_NOW",
+    "scan_complete": true,
+    "tool_count": 6
+  },
+  "raw_content_returned": false,
+  "runtime": {
+    "datahub_core_commit": "059a36c0b035a6057de00114ccac0ea9003d6bc2",
+    "datahub_core_version": "v1.6.0",
+    "datahub_mcp_name": "datahub",
+    "datahub_mcp_reported_server_version": "3.4.6",
+    "datahub_sdk_version": "1.6.0.15",
+    "glassbox_mcp_name": "GlassBox Agent Decision Forensics",
+    "glassbox_mcp_reported_server_version": "0.1.0",
+    "negotiated_mcp_protocol_version": "2025-11-25",
+    "official_datahub_mcp_package": "mcp-server-datahub",
+    "official_datahub_mcp_package_version": "0.6.0",
+    "postgresql_schema_version": 3,
+    "postgresql_server_version": "16.14",
+    "proof_date": "2026-08-07"
+  },
+  "scope": {
+    "exact_incident_body_via_official_datahub_mcp": "UNAVAILABLE",
+    "glassbox_mcp_stdio": "PROVEN",
+    "kafka_delivery_in_this_run": "NOT_EXERCISED",
+    "live_datahub_core": "PROVEN",
+    "live_postgresql": "PROVEN",
+    "official_datahub_mcp_stdio": "PROVEN",
+    "organizational_retention_completeness": "CONFIGURATION_DEPENDENT",
+    "remote_mcp_authentication": "NOT_EXERCISED"
+  },
+  "state": {
+    "audit_records": 3,
+    "campaigns": 1,
+    "dsn_persisted_or_reported": false,
+    "engine": "PostgreSQL",
+    "receipt_body_returned": false,
+    "receipts": 1
+  },
+  "valid": true
+}

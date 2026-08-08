@@ -1,0 +1,52 @@
+name: glassbox_invalidation
+
+source:
+  type: kafka
+  config:
+    connection:
+      bootstrap: ${KAFKA_BOOTSTRAP_SERVER:-localhost:9092}
+      schema_registry_url: ${SCHEMA_REGISTRY_URL:-http://localhost:8080/schema-registry/api/}
+      consumer_config:
+        auto.offset.reset: ${KAFKA_AUTO_OFFSET_RESET:-latest}
+    async_commit_enabled: false
+    commit_retry_count: 5
+    commit_retry_backoff: 1.0
+
+filters:
+  - type: event_type
+    config:
+      filter:
+        MetadataChangeLogEvent_v1:
+          event:
+            - aspectName:
+                - schemaMetadata
+                - status
+                - deprecation
+                - ownership
+                - glossaryTermInfo
+                - incidentInfo
+                - documentInfo
+
+action:
+  type: glassbox_invalidation
+  config:
+    state_database_path: .glassbox/invalidation.sqlite3
+    actor_urn: urn:li:corpuser:datahub
+    require_receipt_signature: true
+    signer_trust_policy_path: ${GLASSBOX_SIGNER_TRUST_POLICY_PATH}
+    lease_duration_ms: 60000
+    claim_timeout_seconds: 10
+    sqlite_busy_timeout_seconds: 10
+    # Optional durable owner routing. HTTPS is required outside explicit local tests.
+    # owner_webhook_url: https://notifications.example.com/glassbox
+    # owner_webhook_bearer_token_env: GLASSBOX_OWNER_WEBHOOK_TOKEN
+    # owner_webhook_timeout_seconds: 10
+
+datahub:
+  server: ${DATAHUB_GMS_URL:-http://localhost:8080}
+  token: ${DATAHUB_GMS_TOKEN:-}
+
+options:
+  retry_count: 3
+  failure_mode: THROW
+  failed_events_dir: .glassbox/failed-events

@@ -1,0 +1,117 @@
+{
+  "change_count": 2,
+  "changes": [
+    {
+      "change": "ADDED",
+      "path": "metadata-ingestion/tests/integration/pgqueue/docker-compose.yml",
+      "sha256": "6d3daea6b38a4266c2a31606fdcac7439456793d1e8adc0b643d48984dc00ed9",
+      "size": 267
+    },
+    {
+      "change": "MODIFIED",
+      "path": "metadata-ingestion/tests/integration/pgqueue/test_pgqueue_optional_it.py",
+      "sha256": "bc7b0b92acedef8518ceb014d87b315def8e33b449cca8f5a9431b7e5d21f80e",
+      "size": 8559
+    }
+  ],
+  "contract": "glassbox.datahub-core-contribution-packet.v1",
+  "patch": {
+    "applies_to_exact_baseline": true,
+    "filename": "datahub-pgqueue-live-f4fda77.patch",
+    "sha256": "e3964c8451f30ace43f8c15cf5380ccdce10f884b1f7a144068de5253eede8c6",
+    "size": 10369
+  },
+  "publication": {
+    "commit_created": true,
+    "commit_sha": "b1f3f458c78e97220b165fca3555aee2a64f2eaa",
+    "draft": false,
+    "pull_request_number": 19004,
+    "pull_request_opened": true,
+    "pull_request_url": "https://github.com/datahub-project/datahub/pull/19004",
+    "push_performed": true,
+    "ready_for_review": true,
+    "review_tracking": {
+      "internal_ticket": "ING-3229",
+      "reviewer_assignment": "PENDING"
+    },
+    "review_feedback": {
+      "addressed_commit": "b1f3f458c78e97220b165fca3555aee2a64f2eaa",
+      "cubic_follow_up_review": "PASSED",
+      "findings_addressed": 2,
+      "maintenance_migration_fixture": "PASSED",
+      "dynamic_host_port": "PASSED",
+      "threads_resolved": 2
+    }
+  },
+  "raw_content_returned": false,
+  "scope": {
+    "glassbox_runtime_included": false,
+    "production_code_modified": false,
+    "test_only": true
+  },
+  "target": {
+    "baseline": "f4fda77cfaa92456c89d1597f271de9366ef38f6",
+    "baseline_verified_date": "2026-08-08",
+    "branch": "codex/pgqueue-live-integration",
+    "head_repository": "https://github.com/Pavilion-devs/datahub",
+    "repository": "https://github.com/datahub-project/datahub"
+  },
+  "valid": true,
+  "verification": {
+    "apply_check": {
+      "exact_baseline": true,
+      "file_hashes_match": true,
+      "status": "PASSED"
+    },
+    "docker_cleanup": {
+      "matching_containers_after_test": 0,
+      "status": "PASSED"
+    },
+    "focused_live_test": {
+      "errors": 0,
+      "failures": 0,
+      "passed": 1,
+      "skipped": 0,
+      "status": "PASSED"
+    },
+    "gradle_test_single_prepared_environment": {
+      "dependency_install_skipped": true,
+      "passed": 1,
+      "status": "PASSED"
+    },
+    "full_gradle_test_single": {
+      "ci_required": true,
+      "reason_code": "HOST_DISK_EXHAUSTED_BY_FULL_CONNECTOR_TEST_EXTRAS",
+      "status": "NOT_COMPLETED"
+    },
+    "git_diff_check": "PASSED",
+    "mypy": "PASSED",
+    "ruff_check": "PASSED",
+    "ruff_format_check": "PASSED",
+    "upstream_pgqueue_ci": {
+      "current_head_commit": "b1f3f458c78e97220b165fca3555aee2a64f2eaa",
+      "current_head_status": "PASSED",
+      "duration_seconds": 189,
+      "job_name": "ci (pgqueue, tests/integration/pgqueue/, 3.11)",
+      "job_url": "https://github.com/datahub-project/datahub/actions/runs/31279343200/job/93158063389",
+      "previous_head_commit": "afa59e2324fdc47edd9923a183f52e36f0526f54",
+      "previous_head_status": "PASSED",
+      "status": "PASSED"
+    },
+    "upstream_wider_ci": {
+      "current_head_commit": "b1f3f458c78e97220b165fca3555aee2a64f2eaa",
+      "current_head_status": "PASSED",
+      "github_mergeable": true,
+      "integration_tests_gate": "PASSED",
+      "mergeable_policy_status": "IN_PROGRESS",
+      "no_failed_checks": true,
+      "plugin_dependency_validation": "PASSED",
+      "previous_head_all_checks_passed": true,
+      "test_quick": {
+        "python_3_10": "PASSED",
+        "python_3_11": "PASSED",
+        "python_3_12": "PASSED"
+      }
+    }
+  }
+}

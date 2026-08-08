@@ -1,0 +1,55 @@
+{
+  "coordination": {
+    "attempt_count_after_recovery": 2,
+    "claim_winners": 1,
+    "connections": 8,
+    "final_status": "COMPLETED",
+    "server_clock_used_despite_caller_now_ms_1": true
+  },
+  "dual_outbox": {
+    "audit_records": 4,
+    "campaigns": 1,
+    "owner_routing_tasks": 1,
+    "routing_destination_count": 0,
+    "routing_status": "COMPLETED"
+  },
+  "engine": {
+    "dsn_persisted_or_reported": false,
+    "name": "postgresql",
+    "schema_version": 3,
+    "server_version": "16.14"
+  },
+  "receipt_index": {
+    "candidate_count": 1,
+    "dependencies": 1,
+    "duplicate_registration_inserted": false,
+    "receipts": 1
+  },
+  "scope": {
+    "managed_failover": "UNVERIFIED",
+    "multi_connection_row_locking": "PROVEN",
+    "network_partition_recovery": "UNVERIFIED",
+    "operator_signer_trust": "PROVEN",
+    "physical_multi_host_deployment": "UNVERIFIED",
+    "postgres_16_real_server": "PROVEN",
+    "recovery_and_redelivery": "PROVEN",
+    "server_clock_leases": "PROVEN"
+  },
+  "signer_trust": {
+    "checksummed_admission_evidence_verified": true,
+    "minimum_trusted_signatures": 1,
+    "policy_id": "glassbox-postgres-live-proof-v1",
+    "private_key_returned": false,
+    "signer_key_id": "postgres-state-proof",
+    "signer_public_key_sha256": "ded2183c2b4b522599c1dfad7451d08d6f7b857b3b75ee730ed125a58a21b03f",
+    "trusted_receipt_readback": true
+  },
+  "valid": true,
+  "verified_redelivery": {
+    "first_emissions": 2,
+    "fresh_backend_verifications": 2,
+    "redelivery_emissions": 0,
+    "reused_completion": true,
+    "reused_routing": true
+  }
+}

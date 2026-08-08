@@ -1,0 +1,111 @@
+{
+  "contract": "glassbox.datahub-pgqueue-invalidation-live-proof.v1",
+  "database_contract": {
+    "engine": "PostgreSQL 16",
+    "lease_and_contiguous_offset_transactions": "PROVEN",
+    "logical_schema": "queue.metadata_queue_*",
+    "partitioning": "proof-only DEFAULT partition replacing pg_partman time partitions",
+    "pg_partman_maintenance": "UNVERIFIED",
+    "upstream_v001_commit": "93336230f49c27eed0c07d3d2d4350781a256ba5"
+  },
+  "event_origin": {
+    "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+    "field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),average_order_value)",
+    "kafka_delivery": {
+      "offset": 1204,
+      "partition": 0,
+      "topic": "MetadataChangeLog_Versioned_v1"
+    },
+    "kind": "SCHEMA_FIELD_TYPE_CHANGED",
+    "producer": "datahub-gms"
+  },
+  "first_process": {
+    "campaign_id": "gbx:invalidation:sha256:d82624d8c728edba38e91d1d1394ec679f788e77d25e3be2d68c7255f65b7680",
+    "classification": "STALE",
+    "delivery": {
+      "enqueue_seq": 1,
+      "enqueued_at": "2026-08-08T15:41:27.264993+00:00",
+      "message_id": 1,
+      "partition": 0,
+      "topic": "MetadataChangeLog_Versioned_v1"
+    },
+    "direct_writeback_verified": true,
+    "lease_active": true,
+    "lease_present": true,
+    "pipeline_action_stats": {
+      "ack_success_count": 0,
+      "exception_count": 0,
+      "failed_ack_count": 1,
+      "success_count": 1
+    },
+    "queue_offset_after_failed_ack": 0
+  },
+  "receipt": {
+    "document_urn": "urn:li:document:glassbox.receipt.7196bca9b80d521bf11cee806b8cfb5d6fac7bd2f2ded350b2217c32a89dac79",
+    "publication": {
+      "attempt_count": 1,
+      "datahub_write_performed": true
+    },
+    "receipt_id": "gbx:receipt:sha256:7196bca9b80d521bf11cee806b8cfb5d6fac7bd2f2ded350b2217c32a89dac79"
+  },
+  "raw_content_returned": false,
+  "same_event_recovery": {
+    "ack_marker_persisted": true,
+    "campaign_id": "gbx:invalidation:sha256:d82624d8c728edba38e91d1d1394ec679f788e77d25e3be2d68c7255f65b7680",
+    "delivery": {
+      "enqueue_seq": 1,
+      "enqueued_at": "2026-08-08T15:41:27.264993+00:00",
+      "message_id": 1,
+      "partition": 0,
+      "topic": "MetadataChangeLog_Versioned_v1"
+    },
+    "emissions": 0,
+    "fresh_direct_readback": true,
+    "fresh_restart_empty": true,
+    "pipeline_action_stats": {
+      "ack_success_count": 1,
+      "exception_count": 0,
+      "failed_ack_count": 0,
+      "success_count": 1
+    },
+    "queue_offset_after_ack": 1,
+    "restart_blocked_before_visibility_expiry": true,
+    "reused_completion": true,
+    "same_queue_handle": true
+  },
+  "transactional_state": {
+    "audit_records": 3,
+    "campaigns": 1,
+    "dependencies": 1,
+    "owner_webhook_requests": 1,
+    "profile": "sqlite-wal-single-host-multiprocess",
+    "receipts": 1
+  },
+  "transport": {
+    "consumer_group": "glassbox-pgqueue-proof-c5f42546d7604b0d8477031a332c355a",
+    "fault_injection": {
+      "boundary": "DatahubPgQueueConsumer.ack",
+      "origin": "TEST_HARNESS_BEFORE_PGQUEUE_COMMIT",
+      "physical_database_outage": false,
+      "queue_offset_advanced_during_failure": false
+    },
+    "scope": {
+      "gms_event_origin": "PROVEN_VIA_KAFKA_CAPTURE",
+      "kafka_ack_failure_recovery": "OUT_OF_SCOPE_SEPARATE_PROOF",
+      "pgqueue_acknowledgement": "PROVEN",
+      "pgqueue_delivery": "PROVEN",
+      "same_group_restart": "PROVEN",
+      "visibility_timeout_redelivery": "PROVEN"
+    },
+    "source": "datahub-actions-pg-queue",
+    "topic": "MetadataChangeLog_Versioned_v1",
+    "visibility_timeout_seconds": 8
+  },
+  "valid": true,
+  "versions": {
+    "datahub_actions": "1.6.0.15",
+    "datahub_core": "1.6.0",
+    "datahub_sdk": "1.6.0.15",
+    "postgresql": "16"
+  }
+}

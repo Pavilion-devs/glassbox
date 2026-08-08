@@ -1,0 +1,18 @@
+{
+  "contract": "glassbox.semantic-policy.v1",
+  "spec_version": "0.1.0",
+  "policy_id": "gbx:semantic-policy:sha256:24fa909bad2c324e592ed1e2da85a589afde24087de8e769760ae603b3a79b15",
+  "name": "glassbox.pricing-recommendation",
+  "version": "1.0.0",
+  "output_kind": "pricing-recommendation",
+  "rules": [
+    {
+      "rule_id": "recommended-price-tolerance",
+      "kind": "NUMERIC_TOLERANCE",
+      "path": "/recommended_price",
+      "absolute_tolerance": "0.50",
+      "relative_tolerance": "0.005"
+    }
+  ],
+  "raw_content_returned": false
+}

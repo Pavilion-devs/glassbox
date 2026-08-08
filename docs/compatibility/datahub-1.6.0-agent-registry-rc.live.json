@@ -1,0 +1,65 @@
+{
+  "connection": "PROVEN",
+  "results": [
+    {
+      "aspect_names": ["browsePathsV2", "dataPlatformInstance", "datasetKey", "schemaMetadata"],
+      "detail": "same deterministic URN emitted twice and directly read back",
+      "emitted_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,glassbox.probe.orders,PROD)",
+      "expected_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,glassbox.probe.orders,PROD)",
+      "kind": "dataset",
+      "status": "PROVEN"
+    },
+    {
+      "aspect_names": ["browsePathsV2", "dataPlatformInstance", "mlModelKey", "mlModelProperties"],
+      "detail": "same deterministic URN emitted twice and directly read back",
+      "emitted_urn": "urn:li:mlModel:(urn:li:dataPlatform:openai,glassbox.probe.model,PROD)",
+      "expected_urn": "urn:li:mlModel:(urn:li:dataPlatform:openai,glassbox.probe.model,PROD)",
+      "kind": "ml_model",
+      "status": "PROVEN"
+    },
+    {
+      "aspect_names": ["dataProcessInstanceInput", "dataProcessInstanceKey", "dataProcessInstanceProperties", "dataProcessInstanceRelationships", "subTypes"],
+      "detail": "same deterministic URN emitted twice and directly read back",
+      "emitted_urn": "urn:li:dataProcessInstance:0fb35cf48d682d4b105c67218bdd3cf7",
+      "expected_urn": "urn:li:dataProcessInstance:0fb35cf48d682d4b105c67218bdd3cf7",
+      "kind": "agent_run",
+      "status": "PROVEN"
+    },
+    {
+      "aspect_names": [],
+      "detail": "OperationalError: DataHub Core v1.6.0 rejected the metadata proposal because entity type 'api' is absent from its EntityRegistry (HTTP 422)",
+      "emitted_urn": null,
+      "expected_urn": "urn:li:api:glassbox.probe.orders.lookup",
+      "kind": "api_tool",
+      "status": "FAILED"
+    },
+    {
+      "aspect_names": [],
+      "detail": "blocked by: api_tool",
+      "emitted_urn": null,
+      "expected_urn": "urn:li:agentSkill:glassbox.probe.pricing-analysis",
+      "kind": "agent_skill",
+      "status": "BLOCKED"
+    },
+    {
+      "aspect_names": [],
+      "detail": "blocked by: api_tool, agent_skill",
+      "emitted_urn": null,
+      "expected_urn": "urn:li:aiAgent:glassbox.probe.pricing-agent",
+      "kind": "ai_agent",
+      "status": "BLOCKED"
+    },
+    {
+      "aspect_names": ["browsePathsV2", "documentInfo", "documentKey", "documentSettings", "subTypes"],
+      "detail": "same deterministic URN emitted twice and directly read back",
+      "emitted_urn": "urn:li:document:glassbox.probe.receipt",
+      "expected_urn": "urn:li:document:glassbox.probe.receipt",
+      "kind": "receipt_document",
+      "status": "PROVEN"
+    }
+  ],
+  "sdk_version": "1.6.0.16rc3",
+  "server_version": "1.6.0",
+  "target": "http://localhost:8080",
+  "valid": false
+}

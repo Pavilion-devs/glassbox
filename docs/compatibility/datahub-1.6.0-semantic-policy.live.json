@@ -1,0 +1,111 @@
+{
+  "artifacts": {
+    "decision": "ALLOW",
+    "diff_id": "gbx:replay-diff:sha256:28776bf3525b95aa621be147059212338b17059dfc7c6bd21dc5dd0fef164907",
+    "execution_id": "gbx:replay-execution:sha256:bec79f41b8b9a5b3182ce7ee9c706d14ed89e26c9bd2ae3bb10b28c6e389aebc",
+    "raw_values_retained": false,
+    "replay_receipt_id": "gbx:receipt:sha256:b355eadcac0cc8b85a58e4240baa77b102edb3550b4291be25f541105550b1b0",
+    "semantic_exact_match": false,
+    "semantic_policy_id": "gbx:semantic-policy:sha256:24fa909bad2c324e592ed1e2da85a589afde24087de8e769760ae603b3a79b15",
+    "semantic_result": "EQUIVALENT",
+    "semantic_rule_id": "glassbox.pricing-recommendation",
+    "semantic_rule_version": "1.0.0",
+    "source_history_mutations": 0,
+    "source_receipt_id": "gbx:receipt:sha256:a2e599e0fe8a1c44889cb0666fef17431b5c77159813fc46de6a60f0630d4af4",
+    "structural_change_count": 1,
+    "supersession_id": "gbx:replay-supersession:sha256:de91a9c36c9e5a42bdef9a601c9264ebae1ae1d611812f0ba46eb3377bbc8722",
+    "valid": true
+  },
+  "compatibility": {
+    "datahub_core_target": "1.6.0",
+    "sdk_version": "1.6.0.15",
+    "server": "http://localhost:18080"
+  },
+  "contract": "glassbox.datahub-semantic-policy.v1",
+  "history_preservation": {
+    "direct_entity_digests_after": {
+      "urn:li:document:glassbox.receipt.a2e599e0fe8a1c44889cb0666fef17431b5c77159813fc46de6a60f0630d4af4": "7dd864dcad47804bb24df011893dd260aa47b9f8ed8e5a55608ef4a4a3857f89",
+      "urn:li:document:glassbox.receipt.b355eadcac0cc8b85a58e4240baa77b102edb3550b4291be25f541105550b1b0": "7bd03a5032bfa71b3da974cc2a2bee72eac8362d5279c1b5b44c9b5ba5e02ae8"
+    },
+    "direct_entity_digests_before": {
+      "urn:li:document:glassbox.receipt.a2e599e0fe8a1c44889cb0666fef17431b5c77159813fc46de6a60f0630d4af4": "7dd864dcad47804bb24df011893dd260aa47b9f8ed8e5a55608ef4a4a3857f89",
+      "urn:li:document:glassbox.receipt.b355eadcac0cc8b85a58e4240baa77b102edb3550b4291be25f541105550b1b0": "7bd03a5032bfa71b3da974cc2a2bee72eac8362d5279c1b5b44c9b5ba5e02ae8"
+    },
+    "local_source_mutations": 0,
+    "receipt_documents_unchanged_after_supersession": true
+  },
+  "privacy": {
+    "raw_customer_identity_returned": false,
+    "raw_replay_output_returned": false,
+    "raw_source_output_returned": false
+  },
+  "raw_content_returned": false,
+  "replay_receipt": {
+    "aspect_names": [
+      "browsePathsV2",
+      "documentInfo",
+      "documentKey",
+      "documentSettings",
+      "subTypes"
+    ],
+    "document_urn": "urn:li:document:glassbox.receipt.b355eadcac0cc8b85a58e4240baa77b102edb3550b4291be25f541105550b1b0",
+    "emissions": 2,
+    "receipt_id": "gbx:receipt:sha256:b355eadcac0cc8b85a58e4240baa77b102edb3550b4291be25f541105550b1b0",
+    "valid": true
+  },
+  "semantic_policy": {
+    "exact_match": false,
+    "matched_change_count": 1,
+    "policy_id": "gbx:semantic-policy:sha256:24fa909bad2c324e592ed1e2da85a589afde24087de8e769760ae603b3a79b15",
+    "raw_content_returned": false,
+    "reason_codes": [
+      "ALL_CHANGES_PROVEN_EQUIVALENT"
+    ],
+    "result": "EQUIVALENT",
+    "rule_evaluations": [
+      {
+        "covered_change_paths": [
+          "/recommended_price"
+        ],
+        "kind": "NUMERIC_TOLERANCE",
+        "passed": true,
+        "path": "/recommended_price",
+        "raw_content_returned": false,
+        "reason_code": "NUMERIC_TOLERANCE_MATCH",
+        "rule_id": "recommended-price-tolerance"
+      }
+    ],
+    "rule_id": "glassbox.pricing-recommendation",
+    "rule_version": "1.0.0",
+    "selected": true,
+    "structural_change_count": 1
+  },
+  "source_receipt": {
+    "aspect_names": [
+      "browsePathsV2",
+      "documentInfo",
+      "documentKey",
+      "documentSettings",
+      "subTypes"
+    ],
+    "document_urn": "urn:li:document:glassbox.receipt.a2e599e0fe8a1c44889cb0666fef17431b5c77159813fc46de6a60f0630d4af4",
+    "emissions": 2,
+    "receipt_id": "gbx:receipt:sha256:a2e599e0fe8a1c44889cb0666fef17431b5c77159813fc46de6a60f0630d4af4",
+    "valid": true
+  },
+  "supersession": {
+    "aspect_names": [
+      "browsePathsV2",
+      "documentInfo",
+      "documentKey",
+      "documentSettings",
+      "subTypes"
+    ],
+    "document_urn": "urn:li:document:glassbox.replay.supersession.de91a9c36c9e5a42bdef9a601c9264ebae1ae1d611812f0ba46eb3377bbc8722",
+    "emissions": 2,
+    "supersession_id": "gbx:replay-supersession:sha256:de91a9c36c9e5a42bdef9a601c9264ebae1ae1d611812f0ba46eb3377bbc8722",
+    "valid": true,
+    "verified_property_count": 19
+  },
+  "valid": true
+}

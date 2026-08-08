@@ -1,0 +1,259 @@
+{
+  "change_count": 23,
+  "changes": [
+    {
+      "change": "MODIFIED",
+      "path": ".claude-plugin/marketplace.json",
+      "sha256": "3f3a4b6ddb5f36530c9d7304aa7d498782347c7f2e576f123051de851c9da030",
+      "size": 637
+    },
+    {
+      "change": "MODIFIED",
+      "path": ".claude-plugin/plugin.json",
+      "sha256": "033ff9557441a8a873592a319bd66043040be5c8d61d2e3d3a615d700b1bedf0",
+      "size": 335
+    },
+    {
+      "change": "MODIFIED",
+      "path": ".github/workflows/lint.yml",
+      "sha256": "2a9886b07d73c3514ee5e5c337ea8bc7158520e7d970039ef4c8f7c3682ac6d0",
+      "size": 584
+    },
+    {
+      "change": "MODIFIED",
+      "path": "README.md",
+      "sha256": "23d385bd352a7c08af0ca0221e24419a8cf041a195dece79d6b91ef05d341362",
+      "size": 15336
+    },
+    {
+      "change": "ADDED",
+      "path": "commands/catalog-agent-forensics.md",
+      "sha256": "57e91b73771a22410e68caaee82261542db583445f8c57faca9336e0b4dc3740",
+      "size": 1036
+    },
+    {
+      "change": "ADDED",
+      "path": "skills/datahub-agent-forensics/README.md",
+      "sha256": "b500bdb1f1d4e4c5b1a720d3bc24c3a05eeb42a24bb4cbecfb1c820725c9b415",
+      "size": 2580
+    },
+    {
+      "change": "ADDED",
+      "path": "skills/datahub-agent-forensics/SKILL.md",
+      "sha256": "ad58bd5327e5f9002f40f9ad1558dbac736b4f353919073765d8d5deae80554f",
+      "size": 15702
+    },
+    {
+      "change": "ADDED",
+      "path": "skills/datahub-agent-forensics/evaluations/block-unsafe-replay.json",
+      "sha256": "91b9541d5b6cc1d70570e5ded6f8666c3a8ed4b54c387eb73adfe80195064b57",
+      "size": 642
+    },
+    {
+      "change": "ADDED",
+      "path": "skills/datahub-agent-forensics/evaluations/explain-stale-decision.json",
+      "sha256": "594e8378b3e2a80a2459d557328a2996334975eb9f901370c912ee7fc670394e",
+      "size": 698
+    },
+    {
+      "change": "ADDED",
+      "path": "skills/datahub-agent-forensics/evaluations/fixtures/document-projection.json",
+      "sha256": "80ec84b417535307841c48b65a54b19288612f83c80263dab31ce9e120d45517",
+      "size": 378
+    },
+    {
+      "change": "ADDED",
+      "path": "skills/datahub-agent-forensics/evaluations/prefer-read-only-forensics-mcp.json",
+      "sha256": "cfec2bf9c77ec6b6e92a64cf204e7ae5e253af6db4c37aa18e8cd2cc3f194721",
+      "size": 1288
+    },
+    {
+      "change": "ADDED",
+      "path": "skills/datahub-agent-forensics/evaluations/preserve-dual-mcp-evidence-boundaries.json",
+      "sha256": "f99362770679c8598c4f0533db26f5c409cc0538f0659ef1fb2a137e8def03db",
+      "size": 1166
+    },
+    {
+      "change": "ADDED",
+      "path": "skills/datahub-agent-forensics/evaluations/refuse-false-unaffected.json",
+      "sha256": "634294f7e53914428b404d7b5cc1408f5776ac254410c72d5d43d00908311ee1",
+      "size": 619
+    },
+    {
+      "change": "ADDED",
+      "path": "skills/datahub-agent-forensics/references/datahub-core.md",
+      "sha256": "3afdd998a57ddd591d22d1fff3b514c3e8234c4f54aca19d05ce17725d6da05d",
+      "size": 1413
+    },
+    {
+      "change": "ADDED",
+      "path": "skills/datahub-agent-forensics/references/dbom.md",
+      "sha256": "61ad7f52d65f618d5fd6e4991c2626d3288cca69684543c5ccb2772002adac2f",
+      "size": 1668
+    },
+    {
+      "change": "ADDED",
+      "path": "skills/datahub-agent-forensics/references/evidence-and-impact.md",
+      "sha256": "c321b35b87a0afedf202223a79c6bdbded4704a44954321aad130d5f4afc0324",
+      "size": 1940
+    },
+    {
+      "change": "ADDED",
+      "path": "skills/datahub-agent-forensics/references/narration-contract.md",
+      "sha256": "73b5e8dd6987d2796a6b1bfe93ab30c300ce93be04df4a6b7d289a914a7ddfaf",
+      "size": 2091
+    },
+    {
+      "change": "ADDED",
+      "path": "skills/datahub-agent-forensics/references/replay-safety.md",
+      "sha256": "631c3298d341d8c4d59f7e230b3fb5a47475b9214eafd6e6ac76de996f9747b0",
+      "size": 1467
+    },
+    {
+      "change": "ADDED",
+      "path": "skills/datahub-agent-forensics/scripts/classify_impact.py",
+      "sha256": "77f18c9be2dc13d4689c459fd5c449e5fcf19c6047315b8a2a96e111aa149614",
+      "size": 4642
+    },
+    {
+      "change": "ADDED",
+      "path": "skills/datahub-agent-forensics/scripts/inspect_receipt.py",
+      "sha256": "a2bd35c14a817e907d486b2c2321db71e60b94db5b856fc1f4d15c009a0dfb78",
+      "size": 12144
+    },
+    {
+      "change": "ADDED",
+      "path": "skills/datahub-agent-forensics/templates/forensic-report.template.md",
+      "sha256": "2178dd198e8525ff0646eeb13047054fcbd9fc6416a4aa8255d6bb0edb11eb9c",
+      "size": 1195
+    },
+    {
+      "change": "MODIFIED",
+      "path": "skills/using-datahub/SKILL.md",
+      "sha256": "d5445c26f69b1f7299dae25e27e22f212f4eec7afab90f63594ae3305f98ed63",
+      "size": 5194
+    },
+    {
+      "change": "ADDED",
+      "path": "tests/test_agent_forensics_scripts.py",
+      "sha256": "479c458abca802e768ede86fe42d06943194bf8ad2ac23ceb31e9efa07a7b2fe",
+      "size": 1128
+    }
+  ],
+  "contract": "glassbox.upstream-contribution-packet.v1",
+  "glassbox_release": {
+    "artifacts": [
+      {
+        "filename": "glassbox_core-0.1.0-py3-none-any.whl",
+        "sha256": "9cdc67d2ec6ae35d916fa26a957c0a36f9b70e3026891f73b8f735bc0b929ccd",
+        "size": 251614
+      },
+      {
+        "filename": "glassbox_core-0.1.0.tar.gz",
+        "sha256": "2ec820ec097db72ea65a734af65144c3e8bacb6a18a9d89ba28cf3fce3e3a077",
+        "size": 749202
+      }
+    ],
+    "project": "glassbox-core",
+    "reproducible_build": true,
+    "version": "0.1.0"
+  },
+  "implementation_proofs": [
+    {
+      "contract": "glassbox.dual-mcp-forensics.v1",
+      "path": "docs/compatibility/datahub-1.6.0-dual-mcp-forensics.live.json",
+      "sha256": "7c59003f6ad70940f1b8695bf9c69c3accfe00db8fe744ffbb3befe2a153205c",
+      "size": 3472,
+      "valid": true
+    },
+    {
+      "contract": "glassbox.agent-narration-forward-test.v1",
+      "path": "docs/compatibility/datahub-1.6.0-dual-mcp-agent-narration.eval.json",
+      "sha256": "9e17830ab73d66d2f13168a676aa4cb95edbbd8ef4c3710889566d408b7cd2b8",
+      "size": 2954,
+      "valid": true
+    },
+    {
+      "contract": "glassbox.durable-causal-recovery-crash.v1",
+      "path": "docs/compatibility/datahub-1.6.0-durable-recovery-crash.live.json",
+      "sha256": "1f969010fa86d5092e07126bbbdd776467b668c56f930642d0cc1c2d4ce1b912",
+      "size": 20639,
+      "valid": true
+    },
+    {
+      "contract": "glassbox.durable-uncertain-completion-crash.v1",
+      "path": "docs/compatibility/datahub-1.6.0-durable-recovery-uncertain-crash.live.json",
+      "sha256": "9b573b32c32ad6e17ce44031320717d9e48bfb0587aff5ca7f24301f909f8825",
+      "size": 28005,
+      "valid": true
+    },
+    {
+      "contract": "glassbox.datahub-semantic-policy.v1",
+      "path": "docs/compatibility/datahub-1.6.0-semantic-policy.live.json",
+      "sha256": "58e696393fa2486cd990bf169a3071172068477bb73ede99c0cfee281f05ac84",
+      "size": 4494,
+      "valid": true
+    },
+    {
+      "contract": "glassbox.datahub-kafka-invalidation-live-proof.v2",
+      "path": "docs/compatibility/datahub-1.6.0-kafka-invalidation.live.json",
+      "sha256": "e76344f5fce55f7c82435cc822de11f22219af4c4134bb8598043a6482cb40f0",
+      "size": 4809,
+      "valid": true
+    },
+    {
+      "contract": "glassbox.datahub-pgqueue-invalidation-live-proof.v1",
+      "path": "docs/compatibility/datahub-1.6.0-pgqueue-invalidation.live.json",
+      "sha256": "74f8f29c9eff3825160a90931b0eeaf710005a2d09a7ef6e9e150e4d3ab09803",
+      "size": 3781,
+      "valid": true
+    }
+  ],
+  "maintainer_documents": [
+    {
+      "path": "docs/upstream/agent-decision-rfc-discussion.md",
+      "sha256": "7e58e8e7f036ca56597395a846fc5cd4c8320ac7b43b370933c9ae81ec8c1179",
+      "size": 5976
+    },
+    {
+      "path": "docs/upstream/datahub-agent-forensics-pr.md",
+      "sha256": "37d45d36a2409ac68563e9e227d8700eed2903aec3437f315c451c06b63eaf7c",
+      "size": 7525
+    },
+    {
+      "path": "docs/upstream/datahub-actions-contribution.md",
+      "sha256": "0d90808072fb2d8506edf31ed78fcb99d476f8d107639c85397c5fe5972cc0ed",
+      "size": 6475
+    },
+    {
+      "path": "docs/upstream/release-readiness.md",
+      "sha256": "b9a2b33652f78ca8c4030ae940b60118210bb4d75ed1e03586cdd25da919a4f1",
+      "size": 5830
+    }
+  ],
+  "patch": {
+    "applies_to_exact_baseline": true,
+    "filename": "datahub-skills-agent-forensics-f22f930.patch",
+    "sha256": "4329ef23a25c3682bf73abfe74fc8b3b116cce1321157c9a48cc485b23e4f41d",
+    "size": 72289
+  },
+  "publication": {
+    "discussion_posted": false,
+    "package_published": false,
+    "pull_request_opened": false,
+    "release_created": false
+  },
+  "raw_content_returned": false,
+  "scope": {
+    "datahub_core_patch_included": false,
+    "glassbox_runtime_copied_into_skill_repository": false,
+    "raw_prompt_or_response_included": false
+  },
+  "target": {
+    "baseline": "f22f93074cf265ba6f9401947404f090c2584d9d",
+    "baseline_verified_date": "2026-08-07",
+    "branch": "feat/agent-decision-forensics",
+    "repository": "https://github.com/datahub-project/datahub-skills"
+  },
+  "valid": true
+}

@@ -1,0 +1,15 @@
+{
+  "description": "Change one hexadecimal character while preserving JSON Schema validity.",
+  "base_fixture": "valid-read-only.json",
+  "operation": {
+    "json_pointer": "/output/digest/value",
+    "replace_first_character_with": "0-unless-already-0-then-1"
+  },
+  "expected": {
+    "schema_valid": true,
+    "payload_digest_valid": false,
+    "receipt_id_valid": false,
+    "merkle_root_valid": false,
+    "valid": false
+  }
+}

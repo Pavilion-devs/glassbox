@@ -1,0 +1,42 @@
+{
+  "contract": "glassbox.forensics.v1",
+  "date": "2026-08-07",
+  "engine": {
+    "dsn_persisted_or_reported": false,
+    "name": "postgresql",
+    "schema_version": 2,
+    "server_version": "16.14"
+  },
+  "forensics_boundary": {
+    "automatic_compiler_registration_tested_in_suite": true,
+    "campaign_mutation_tools": 0,
+    "mcp_tools": 6,
+    "raw_content_returned": false,
+    "shared_action_schema": true,
+    "transport_annotations_tested_separately": true
+  },
+  "proof": {
+    "action_campaign_completed": true,
+    "campaigns_scanned": 1,
+    "datahub_writeback_state": "VERIFIED",
+    "finding_state": "STALE",
+    "persisted_campaign_read": "PROVEN",
+    "receipt_artifact_reverified": true,
+    "receipt_findings_read": "PROVEN",
+    "workflow_status": "COMPLETED"
+  },
+  "scope": {
+    "authenticated_remote_mcp": "UNVERIFIED",
+    "direct_postgresql_forensics_service": "PROVEN",
+    "multi_tenant_authorization": "UNVERIFIED",
+    "official_mcp_client_six_tool_contract": "PROVEN_SEPARATELY",
+    "postgres_16_real_server": "PROVEN",
+    "retention_completeness": "CONFIGURATION_DEPENDENT"
+  },
+  "suite": {
+    "failed": 0,
+    "passed": 19,
+    "test_file": "tests/integration/test_postgres_invalidation.py"
+  },
+  "valid": true
+}

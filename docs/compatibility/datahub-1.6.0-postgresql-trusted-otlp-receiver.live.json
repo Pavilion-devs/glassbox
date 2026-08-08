@@ -1,0 +1,64 @@
+{
+  "contract": "glassbox.trusted-otlp-receipt-publication.v1",
+  "datahub": {
+    "completed_redelivery_writes": 0,
+    "direct_reads_including_urn_resolution": 4,
+    "document_urn": "urn:li:document:glassbox.receipt.04957d06b1d09c745d9cb09ea246c486bb14cfafc0b92e407b2f68002fdaeb7b",
+    "first_delivery_writes": 2,
+    "sealed_aspects": [
+      "browsePathsV2",
+      "documentInfo",
+      "documentKey",
+      "documentSettings",
+      "subTypes"
+    ],
+    "server_version": "1.6.0"
+  },
+  "date": "2026-08-07",
+  "scope": {
+    "authenticated_otlp_http": "PROVEN",
+    "datahub_core_real_server": "PROVEN",
+    "operator_signer_startup_gate": "PROVEN",
+    "postgres_16_real_server": "PROVEN",
+    "postgres_signer_admission_evidence": "PROVEN",
+    "zero_write_completed_redelivery": "PROVEN"
+  },
+  "signer_trust": {
+    "minimum_trusted_signatures": 1,
+    "policy_id": "glassbox-live-proof-trust-v1",
+    "private_key_returned": false,
+    "signer_key_id": "glassbox-live-otlp-ephemeral",
+    "signer_public_key_sha256": "c9dd74c3252a7586bf2c756d317cd4929b3ddc3ccdd8c24f19869c95ba5de185",
+    "startup_signing_key_authorized": true
+  },
+  "state": {
+    "attempt_count": 1,
+    "engine": "PostgreSQL",
+    "publication_status": "COMPLETED",
+    "registration": {
+      "field_lineage": {
+        "coverage": "NONE",
+        "rule_id": null,
+        "wildcard_query": null
+      },
+      "readback_verified": true,
+      "registration": "INSERTED"
+    },
+    "schema_version": 3,
+    "sealed_evidence": true,
+    "signer_admission_evidence_verified": true
+  },
+  "transport": {
+    "bearer_auth": "PROVEN",
+    "endpoint": "/v1/traces",
+    "first_status": 200,
+    "raw_content_returned": false,
+    "redelivery_status": 200
+  },
+  "valid": true,
+  "versions": {
+    "datahub_core": "1.6.0",
+    "datahub_sdk": "1.6.0.15",
+    "postgresql": "16.14"
+  }
+}

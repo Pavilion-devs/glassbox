@@ -1,0 +1,15 @@
+{
+  "schema_version": "glassbox.signer-trust.v1",
+  "policy_id": "replace-with-your-receipt-signing-policy-id",
+  "minimum_trusted_signatures": 1,
+  "signers": [
+    {
+      "key_id": "replace-with-your-key-id",
+      "public_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "public_key_sha256": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925",
+      "status": "ACTIVE",
+      "not_before": "2026-08-01T00:00:00Z",
+      "not_after": null
+    }
+  ]
+}
