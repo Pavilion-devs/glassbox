@@ -1,9 +1,10 @@
 # Release readiness and provenance
 
-**Status:** local release candidate verified; not published
+**Status:** public RC1 source established; package and release not published
 **Package:** `glassbox-core==0.1.0`
 **Declared Python:** 3.11–3.13
 **DataHub compatibility target:** Core 1.6.0, SDK and Actions 1.6.0.15
+**Public source:** `https://github.com/Pavilion-devs/glassbox`
 
 The Python distribution carries the portable DBOM verifier, runtime SDK, compiler,
 DataHub adapter, invalidation Action, read-only forensic MCP server, deterministic
@@ -106,9 +107,8 @@ target-repository change; records that no package, release, discussion, or pull
 request has been published; and excludes raw prompts and responses. The packet
 builder's adversarial unit suite has 21 tests and 98.25% focused coverage.
 
-## Still required before publication
+## Still required before package publication
 
-- create or confirm the public source repository and canonical package URLs;
 - choose the package registry name and verify that it is available;
 - configure PyPI trusted publishing with a protected GitHub environment;
 - sign release artifacts through an identity-backed mechanism and attach

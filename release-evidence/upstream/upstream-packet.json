@@ -150,8 +150,8 @@
       },
       {
         "filename": "glassbox_core-0.1.0.tar.gz",
-        "sha256": "2ec820ec097db72ea65a734af65144c3e8bacb6a18a9d89ba28cf3fce3e3a077",
-        "size": 749202
+        "sha256": "ac84b60e5d3f23bcdd26ee403af95555fee5f2b7854931b2a22b57e8611ec27f",
+        "size": 749198
       }
     ],
     "project": "glassbox-core",
@@ -227,8 +227,8 @@
     },
     {
       "path": "docs/upstream/release-readiness.md",
-      "sha256": "b9a2b33652f78ca8c4030ae940b60118210bb4d75ed1e03586cdd25da919a4f1",
-      "size": 5830
+      "sha256": "af004f99075de01854ce1fd734f99336ea4001e2bdb88cbe56fb6dd53eb79c77",
+      "size": 5841
     }
   ],
   "patch": {
