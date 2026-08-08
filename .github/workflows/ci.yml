@@ -84,7 +84,7 @@ jobs:
       - run: .release-venv/bin/glassbox-forensics-mcp --help
       - run: .release-venv/bin/glassbox-agent-narration --help
       - run: .release-venv/bin/glassbox-otlp-receiver --help
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: glassbox-release-candidate
           path: |
