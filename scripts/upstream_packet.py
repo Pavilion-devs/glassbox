@@ -14,6 +14,7 @@ PACKET_CONTRACT = "glassbox.upstream-contribution-packet.v1"
 TARGET_REPOSITORY = "https://github.com/datahub-project/datahub-skills"
 TARGET_BRANCH = "feat/agent-decision-forensics"
 TARGET_BASELINE = "f22f93074cf265ba6f9401947404f090c2584d9d"
+TARGET_PULL_REQUEST_PREFIX = f"{TARGET_REPOSITORY}/pull/"
 
 _ALLOWED_EXACT = frozenset(
     {
@@ -72,26 +73,77 @@ def build_packet(
     required_paths: frozenset[str] = _REQUIRED_PATHS,
     proof_paths: Sequence[str] = _PROOF_PATHS,
     packet_documents: Sequence[str] = _PACKET_DOCUMENTS,
+    pull_request_url: str | None = None,
+    expected_head: str | None = None,
 ) -> tuple[dict[str, object], bytes]:
     """Validate contribution scope and return its manifest plus apply-ready patch."""
 
     root = worktree.resolve(strict=True)
     source_root = glassbox_root.resolve(strict=True)
-    baseline = _git_text(root, "rev-parse", "HEAD")
+    head = _git_text(root, "rev-parse", "HEAD")
     branch = _git_text(root, "branch", "--show-current")
-    if baseline != expected_baseline:
-        raise UpstreamPacketError("upstream worktree baseline does not match the packet contract")
     if branch != expected_branch:
         raise UpstreamPacketError("upstream worktree branch does not match the packet contract")
-    whitespace_check = _git(root, "diff", "--check", check=False)
+    status_raw = _git(root, "status", "--porcelain=v1", "-z", "--untracked-files=all").stdout
+    whitespace_args: tuple[str, ...]
+    target: dict[str, object] = {
+        "repository": TARGET_REPOSITORY,
+        "baseline": expected_baseline,
+        "branch": branch,
+        "baseline_verified_date": "2026-08-07",
+    }
+    if expected_head is None:
+        if head != expected_baseline:
+            raise UpstreamPacketError(
+                "upstream worktree baseline does not match the packet contract"
+            )
+        changes = _parse_status(status_raw)
+        tracked = sorted(path for change, path in changes if change != "??")
+        untracked = sorted(path for change, path in changes if change == "??")
+        patch = _build_patch(root, tracked=tracked, untracked=untracked)
+        whitespace_args = ("diff", "--check")
+    else:
+        if head != expected_head:
+            raise UpstreamPacketError("upstream worktree head does not match the packet contract")
+        if status_raw:
+            raise UpstreamPacketError("committed upstream worktree must be clean")
+        ancestry = _git(
+            root,
+            "merge-base",
+            "--is-ancestor",
+            expected_baseline,
+            expected_head,
+            check=False,
+        )
+        if ancestry.returncode != 0:
+            raise UpstreamPacketError("upstream baseline is not an ancestor of the committed head")
+        changes = _parse_committed_changes(
+            _git(
+                root,
+                "diff",
+                "--name-status",
+                "-z",
+                expected_baseline,
+                expected_head,
+            ).stdout
+        )
+        patch = _git(
+            root,
+            "diff",
+            "--binary",
+            "--full-index",
+            expected_baseline,
+            expected_head,
+        ).stdout
+        whitespace_args = ("diff", "--check", expected_baseline, expected_head)
+        target["head"] = expected_head
+
+    whitespace_check = _git(root, *whitespace_args, check=False)
     if whitespace_check.stdout:
         raise UpstreamPacketError("upstream worktree has whitespace errors")
     if whitespace_check.returncode != 0:
         raise UpstreamPacketError("git could not inspect the upstream worktree")
 
-    changes = _parse_status(
-        _git(root, "status", "--porcelain=v1", "-z", "--untracked-files=all").stdout
-    )
     if not changes:
         raise UpstreamPacketError("upstream worktree has no contribution changes")
     paths = {path for _, path in changes}
@@ -100,8 +152,6 @@ def build_packet(
         raise UpstreamPacketError("upstream contribution is missing required paths")
 
     records: list[dict[str, object]] = []
-    tracked: list[str] = []
-    untracked: list[str] = []
     for status, path in changes:
         _validate_change_path(path, allowed_exact=allowed_exact, allowed_prefixes=allowed_prefixes)
         candidate = root / path
@@ -112,8 +162,7 @@ def build_packet(
             raise UpstreamPacketError("upstream contribution file exceeds the size limit")
         if any(marker in content for marker in _FORBIDDEN_BYTES):
             raise UpstreamPacketError("upstream contribution contains forbidden secret material")
-        kind = "ADDED" if status == "??" else "MODIFIED"
-        (untracked if status == "??" else tracked).append(path)
+        kind = "ADDED" if status in {"??", "A"} else "MODIFIED"
         records.append(
             {
                 "path": path,
@@ -123,7 +172,6 @@ def build_packet(
             }
         )
 
-    patch = _build_patch(root, tracked=sorted(tracked), untracked=sorted(untracked))
     if not patch or len(patch) > 4_194_304:
         raise UpstreamPacketError("upstream patch is empty or exceeds the size limit")
     if any(marker in patch for marker in _FORBIDDEN_BYTES):
@@ -141,16 +189,11 @@ def build_packet(
     manifest: dict[str, object] = {
         "contract": PACKET_CONTRACT,
         "valid": True,
-        "target": {
-            "repository": TARGET_REPOSITORY,
-            "baseline": baseline,
-            "branch": branch,
-            "baseline_verified_date": "2026-08-07",
-        },
+        "target": target,
         "changes": sorted(records, key=lambda item: str(item["path"])),
         "change_count": len(records),
         "patch": {
-            "filename": f"datahub-skills-agent-forensics-{baseline[:7]}.patch",
+            "filename": f"datahub-skills-agent-forensics-{expected_baseline[:7]}.patch",
             "sha256": _sha256(patch),
             "size": len(patch),
             "applies_to_exact_baseline": True,
@@ -163,12 +206,7 @@ def build_packet(
         },
         "implementation_proofs": proofs,
         "maintainer_documents": documents,
-        "publication": {
-            "discussion_posted": False,
-            "pull_request_opened": False,
-            "package_published": False,
-            "release_created": False,
-        },
+        "publication": _publication_record(pull_request_url),
         "scope": {
             "datahub_core_patch_included": False,
             "glassbox_runtime_copied_into_skill_repository": False,
@@ -207,6 +245,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-dir", type=Path, default=Path("release-evidence/upstream"))
     parser.add_argument("--expected-baseline", default=TARGET_BASELINE)
     parser.add_argument("--expected-branch", default=TARGET_BRANCH)
+    parser.add_argument("--expected-head")
+    parser.add_argument("--pull-request-url")
     return parser
 
 
@@ -218,6 +258,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             glassbox_root=args.glassbox_root,
             expected_baseline=args.expected_baseline,
             expected_branch=args.expected_branch,
+            expected_head=args.expected_head,
+            pull_request_url=args.pull_request_url,
         )
         write_packet(args.output_dir, manifest, patch)
     except (OSError, UnicodeError, ValueError, subprocess.SubprocessError, UpstreamPacketError):
@@ -238,6 +280,28 @@ def main(argv: Sequence[str] | None = None) -> int:
     return 0
 
 
+def _publication_record(pull_request_url: str | None) -> dict[str, object]:
+    publication: dict[str, object] = {
+        "discussion_posted": False,
+        "pull_request_opened": False,
+        "package_published": False,
+        "release_created": False,
+    }
+    if pull_request_url is None:
+        return publication
+    number = pull_request_url.removeprefix(TARGET_PULL_REQUEST_PREFIX)
+    if (
+        not pull_request_url.startswith(TARGET_PULL_REQUEST_PREFIX)
+        or not number.isascii()
+        or not number.isdigit()
+        or int(number) < 1
+    ):
+        raise UpstreamPacketError("pull request URL does not match the target repository")
+    publication["pull_request_opened"] = True
+    publication["pull_request_url"] = pull_request_url
+    return publication
+
+
 def _parse_status(raw: bytes) -> list[tuple[str, str]]:
     changes: list[tuple[str, str]] = []
     for encoded in raw.split(b"\0"):
@@ -252,6 +316,25 @@ def _parse_status(raw: bytes) -> list[tuple[str, str]]:
         status, path = entry[:2], entry[3:]
         if status not in {" M", "M ", "MM", "??"}:
             raise UpstreamPacketError("upstream contribution contains unsupported git changes")
+        changes.append((status, path))
+    return changes
+
+
+def _parse_committed_changes(raw: bytes) -> list[tuple[str, str]]:
+    if raw and not raw.endswith(b"\0"):
+        raise UpstreamPacketError("committed upstream change list is malformed")
+    encoded = [item for item in raw.split(b"\0") if item]
+    if len(encoded) % 2:
+        raise UpstreamPacketError("committed upstream change list is malformed")
+    changes: list[tuple[str, str]] = []
+    for index in range(0, len(encoded), 2):
+        try:
+            status = encoded[index].decode("ascii")
+            path = encoded[index + 1].decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise UpstreamPacketError("committed upstream change list is not UTF-8") from exc
+        if status not in {"A", "M"}:
+            raise UpstreamPacketError("committed upstream contribution has unsupported changes")
         changes.append((status, path))
     return changes
 

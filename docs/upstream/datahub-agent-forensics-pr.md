@@ -3,9 +3,11 @@
 **Target:** `datahub-project/datahub-skills`
 **Prepared baseline:** commit `f22f930` on 2026-08-07
 **Proposed title:** `feat: add agent decision forensics skill`
+**Published draft:** [`datahub-project/datahub-skills#120`](https://github.com/datahub-project/datahub-skills/pull/120)
+**Published commit:** `fc14058eebafaf50d445a38642059929f218c03c`
 
-This text is ready to adapt into the pull-request description after the branch has a
-public fork remote. No pull request is currently claimed.
+This packet was adapted into the published draft after the exact contribution scope,
+baseline, fork branch, and local validation were reverified.
 
 ## Summary
 
@@ -105,8 +107,9 @@ git diff --check
 All component checks pass in the prepared worktree with the repository-pinned
 Prettier `4.0.0-alpha.8` and markdownlint-cli2 `0.21.0`. The generated patch also
 applies cleanly to a separate clone at exact baseline `f22f930`; the same checks pass
-after application there. The packet manifest hashes all 23 changed files and keeps
-every publication claim explicitly false.
+after application there. The packet manifest hashes all 23 changed files and binds
+the published draft only when its canonical target-repository PR URL passes strict
+validation.
 
 GlassBox also carries a guarded live interoperability proof outside the proposed
 Skill-only patch. It runs the official DataHub MCP server `0.6.0` and the optional

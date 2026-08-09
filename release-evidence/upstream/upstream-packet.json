@@ -150,8 +150,8 @@
       },
       {
         "filename": "glassbox_core-0.1.0.tar.gz",
-        "sha256": "7cfe98aded60ae365b8967f8eb64bfc80722d035b89585721498c4ccc475a8f3",
-        "size": 749196
+        "sha256": "0d10705823b27746b926c187f645b779bf11056865cada89a06585300864d5e7",
+        "size": 750409
       }
     ],
     "project": "glassbox-core",
@@ -217,8 +217,8 @@
     },
     {
       "path": "docs/upstream/datahub-agent-forensics-pr.md",
-      "sha256": "37d45d36a2409ac68563e9e227d8700eed2903aec3437f315c451c06b63eaf7c",
-      "size": 7525
+      "sha256": "cff55fe1c523ef20534771387d19d5ded611632508bab4e17154686ea6e4ee40",
+      "size": 7766
     },
     {
       "path": "docs/upstream/datahub-actions-contribution.md",
@@ -227,20 +227,21 @@
     },
     {
       "path": "docs/upstream/release-readiness.md",
-      "sha256": "af004f99075de01854ce1fd734f99336ea4001e2bdb88cbe56fb6dd53eb79c77",
-      "size": 5841
+      "sha256": "406c24aa944dd4a5304c03f8304c593d145c02757df3d737c51b1e0cf115b90a",
+      "size": 5984
     }
   ],
   "patch": {
     "applies_to_exact_baseline": true,
     "filename": "datahub-skills-agent-forensics-f22f930.patch",
-    "sha256": "4329ef23a25c3682bf73abfe74fc8b3b116cce1321157c9a48cc485b23e4f41d",
-    "size": 72289
+    "sha256": "c94a89505e8861111e2cf7979b4d938ba82da9b072811fc02301a6b2cd7df5ec",
+    "size": 73477
   },
   "publication": {
     "discussion_posted": false,
     "package_published": false,
-    "pull_request_opened": false,
+    "pull_request_opened": true,
+    "pull_request_url": "https://github.com/datahub-project/datahub-skills/pull/120",
     "release_created": false
   },
   "raw_content_returned": false,
@@ -253,6 +254,7 @@
     "baseline": "f22f93074cf265ba6f9401947404f090c2584d9d",
     "baseline_verified_date": "2026-08-07",
     "branch": "feat/agent-decision-forensics",
+    "head": "fc14058eebafaf50d445a38642059929f218c03c",
     "repository": "https://github.com/datahub-project/datahub-skills"
   },
   "valid": true

@@ -141,76 +141,9 @@ index 51efc061eb855539eec8c894febbd9b4f65316c2..3310f25430eda84d57f4d489451958e4
  - Shared references: `skills/shared-references/`
  - Connector standards: `standards/`
  - Review checklists: `skills/datahub-connector-pr-review/SKILL.md`
-diff --git a/skills/using-datahub/SKILL.md b/skills/using-datahub/SKILL.md
-index 293cf5ab17ef43cd63470ea9bb2e29aeb3a2b841..54503097e90f47b198f02679fc9f4641893e7a72 100644
---- a/skills/using-datahub/SKILL.md
-+++ b/skills/using-datahub/SKILL.md
-@@ -6,22 +6,23 @@ description: |
- 
- # Using DataHub Skills
- 
--You have access to 5 DataHub catalog interaction skills. Use this guide to route the user's request to the correct skill.
-+You have access to 6 DataHub catalog interaction skills. Use this guide to route the user's request to the correct skill.
- 
- ---
- 
- ## Skill Routing Table
- 
--| User Intent                                                                      | Skill       | Command            |
--| -------------------------------------------------------------------------------- | ----------- | ------------------ |
--| **Find or discover entities** (search, browse, filter, list)                     | **Search**  | `/datahub-search`  |
--| **Answer a question** about the catalog ("who owns X?", "how many X?")           | **Search**  | `/datahub-search`  |
--| **Update metadata** (descriptions, tags, glossary terms, ownership, deprecation) | **Enrich**  | `/datahub-enrich`  |
--| **Explore lineage** (upstream, downstream, impact, root cause, dependencies)     | **Lineage** | `/datahub-lineage` |
--| **Data quality** (assertions, incidents, health checks)                          | **Quality** | `/datahub-quality` |
--| **Notifications** (subscribe to assertion failures, incidents)                   | **Quality** | `/datahub-quality` |
--| **Install CLI, authenticate, verify connection**                                 | **Setup**   | `/datahub-setup`   |
--| **Configure default scopes and profiles**                                        | **Setup**   | `/datahub-setup`   |
-+| User Intent                                                                           | Skill               | Command                    |
-+| ------------------------------------------------------------------------------------- | ------------------- | -------------------------- |
-+| **Find or discover entities** (search, browse, filter, list)                          | **Search**          | `/datahub-search`          |
-+| **Answer a question** about the catalog ("who owns X?", "how many X?")                | **Search**          | `/datahub-search`          |
-+| **Update metadata** (descriptions, tags, glossary terms, ownership, deprecation)      | **Enrich**          | `/datahub-enrich`          |
-+| **Explore lineage** (upstream, downstream, impact, root cause, dependencies)          | **Lineage**         | `/datahub-lineage`         |
-+| **Data quality** (assertions, incidents, health checks)                               | **Quality**         | `/datahub-quality`         |
-+| **Notifications** (subscribe to assertion failures, incidents)                        | **Quality**         | `/datahub-quality`         |
-+| **Install CLI, authenticate, verify connection**                                      | **Setup**           | `/datahub-setup`           |
-+| **Investigate a specific agent decision, receipt, stale output, approval, or replay** | **Agent Forensics** | `/datahub-agent-forensics` |
-+| **Configure default scopes and profiles**                                             | **Setup**           | `/datahub-setup`           |
- 
- ---
- 
-@@ -51,6 +52,14 @@ When the intent is ambiguous, use these rules:
- - **"What dashboards use table X"** → **Lineage** (relationship traversal)
- - **"Who owns X" / "what is X"** → **Search** (metadata lookup)
- 
-+### Lineage vs. Agent Forensics
-+
-+- **"What data assets depend on X?"** → **Lineage** (general graph traversal)
-+- **"Which agent decisions actually used X?"** → **Agent Forensics** (run-specific evidence)
-+- **"What could break if X changes?"** → **Lineage** (potential downstream impact)
-+- **"Which existing agent outputs became stale when X changed?"** → **Agent Forensics** (continuing validity)
-+- **"Why did this agent decide X?" / "was this action approved?" / "can this run be replayed?"** → **Agent Forensics**
-+
- ### Setup vs. other skills
- 
- - **"Set up" / "install" / "authenticate" / "verify connection"** → **Setup**
-@@ -67,6 +76,7 @@ When running `datahub` CLI commands, pass `-C skill=<name>` on the root command
- datahub -C skill=datahub-search search "revenue"
- datahub -C skill=datahub-enrich graphql --query '...'
- datahub -C skill=datahub-lineage lineage --urn "..."
-+datahub -C skill=datahub-agent-forensics get --urn "..."
- ```
- 
- Use the skill name from the YAML frontmatter. If `-C` is not recognized, omit it — the command works the same without it.
-@@ -82,3 +92,4 @@ Use the skill name from the YAML frontmatter. If `-C` is not recognized, omit it
- 5. **Enrich handles all metadata writes** — descriptions, tags, glossary terms, ownership, deprecation.
- 6. **Quality handles data quality** — assertions, incidents, health checks, subscriptions.
- 7. **Setup handles environment and configuration** — CLI install, auth, connectivity, default scopes.
-+8. **Agent Forensics handles decision evidence and continuing validity** — never route ordinary dataset lineage here, and never let search or generic lineage stand in for a verified receipt.
 diff --git a/commands/catalog-agent-forensics.md b/commands/catalog-agent-forensics.md
 new file mode 100644
-index 0000000..8b918e0
+index 0000000000000000000000000000000000000000..8b918e068cba414cb9f8ede435d56c14697c8344
 --- /dev/null
 +++ b/commands/catalog-agent-forensics.md
 @@ -0,0 +1,30 @@
@@ -246,7 +179,7 @@ index 0000000..8b918e0
 +to investigate.
 diff --git a/skills/datahub-agent-forensics/README.md b/skills/datahub-agent-forensics/README.md
 new file mode 100644
-index 0000000..50c0953
+index 0000000000000000000000000000000000000000..50c09534231d500c9dccca4b4e743340f5d5d334
 --- /dev/null
 +++ b/skills/datahub-agent-forensics/README.md
 @@ -0,0 +1,53 @@
@@ -305,7 +238,7 @@ index 0000000..50c0953
 +semantics.
 diff --git a/skills/datahub-agent-forensics/SKILL.md b/skills/datahub-agent-forensics/SKILL.md
 new file mode 100644
-index 0000000..941c00d
+index 0000000000000000000000000000000000000000..941c00d552b579a7e56334f8ac314bee4d7984e7
 --- /dev/null
 +++ b/skills/datahub-agent-forensics/SKILL.md
 @@ -0,0 +1,329 @@
@@ -640,7 +573,7 @@ index 0000000..941c00d
 +  root cause or organization-wide conclusion.
 diff --git a/skills/datahub-agent-forensics/evaluations/block-unsafe-replay.json b/skills/datahub-agent-forensics/evaluations/block-unsafe-replay.json
 new file mode 100644
-index 0000000..a77398c
+index 0000000000000000000000000000000000000000..a77398c1e63dbd534062ef878cd9e27d628c84cd
 --- /dev/null
 +++ b/skills/datahub-agent-forensics/evaluations/block-unsafe-replay.json
 @@ -0,0 +1,11 @@
@@ -657,7 +590,7 @@ index 0000000..a77398c
 +}
 diff --git a/skills/datahub-agent-forensics/evaluations/explain-stale-decision.json b/skills/datahub-agent-forensics/evaluations/explain-stale-decision.json
 new file mode 100644
-index 0000000..de2fea9
+index 0000000000000000000000000000000000000000..de2fea9a2c69b84e8a700d309e8904f147e13aee
 --- /dev/null
 +++ b/skills/datahub-agent-forensics/evaluations/explain-stale-decision.json
 @@ -0,0 +1,12 @@
@@ -675,7 +608,7 @@ index 0000000..de2fea9
 +}
 diff --git a/skills/datahub-agent-forensics/evaluations/fixtures/document-projection.json b/skills/datahub-agent-forensics/evaluations/fixtures/document-projection.json
 new file mode 100644
-index 0000000..500a87f
+index 0000000000000000000000000000000000000000..500a87fc8524ab18904fcbbc03ce9be151c4c260
 --- /dev/null
 +++ b/skills/datahub-agent-forensics/evaluations/fixtures/document-projection.json
 @@ -0,0 +1,10 @@
@@ -691,7 +624,7 @@ index 0000000..500a87f
 +}
 diff --git a/skills/datahub-agent-forensics/evaluations/prefer-read-only-forensics-mcp.json b/skills/datahub-agent-forensics/evaluations/prefer-read-only-forensics-mcp.json
 new file mode 100644
-index 0000000..ffe44a5
+index 0000000000000000000000000000000000000000..ffe44a58c440c702c16555ba3ca7246bd53b61df
 --- /dev/null
 +++ b/skills/datahub-agent-forensics/evaluations/prefer-read-only-forensics-mcp.json
 @@ -0,0 +1,14 @@
@@ -711,7 +644,7 @@ index 0000000..ffe44a5
 +}
 diff --git a/skills/datahub-agent-forensics/evaluations/preserve-dual-mcp-evidence-boundaries.json b/skills/datahub-agent-forensics/evaluations/preserve-dual-mcp-evidence-boundaries.json
 new file mode 100644
-index 0000000..4d0a9a0
+index 0000000000000000000000000000000000000000..4d0a9a0b4e48d8612b0f75415501e11cbc28b046
 --- /dev/null
 +++ b/skills/datahub-agent-forensics/evaluations/preserve-dual-mcp-evidence-boundaries.json
 @@ -0,0 +1,12 @@
@@ -729,7 +662,7 @@ index 0000000..4d0a9a0
 +}
 diff --git a/skills/datahub-agent-forensics/evaluations/refuse-false-unaffected.json b/skills/datahub-agent-forensics/evaluations/refuse-false-unaffected.json
 new file mode 100644
-index 0000000..2d8f93e
+index 0000000000000000000000000000000000000000..2d8f93e1e4b76ea1739724a4c873ee7bf68f47c4
 --- /dev/null
 +++ b/skills/datahub-agent-forensics/evaluations/refuse-false-unaffected.json
 @@ -0,0 +1,11 @@
@@ -746,7 +679,7 @@ index 0000000..2d8f93e
 +}
 diff --git a/skills/datahub-agent-forensics/references/datahub-core.md b/skills/datahub-agent-forensics/references/datahub-core.md
 new file mode 100644
-index 0000000..c7f99f6
+index 0000000000000000000000000000000000000000..c7f99f6e74e6ee46cbbcbaf33f99cd0da4ce2c6d
 --- /dev/null
 +++ b/skills/datahub-agent-forensics/references/datahub-core.md
 @@ -0,0 +1,42 @@
@@ -794,7 +727,7 @@ index 0000000..c7f99f6
 +asset. Require DBOM influence evidence for that claim.
 diff --git a/skills/datahub-agent-forensics/references/dbom.md b/skills/datahub-agent-forensics/references/dbom.md
 new file mode 100644
-index 0000000..3be90cc
+index 0000000000000000000000000000000000000000..3be90cccaed9ca8b78cc9b52268997ea5049e898
 --- /dev/null
 +++ b/skills/datahub-agent-forensics/references/dbom.md
 @@ -0,0 +1,39 @@
@@ -839,7 +772,7 @@ index 0000000..3be90cc
 +signature verified” unless the signed DBOM was actually checked.
 diff --git a/skills/datahub-agent-forensics/references/evidence-and-impact.md b/skills/datahub-agent-forensics/references/evidence-and-impact.md
 new file mode 100644
-index 0000000..7d69ea6
+index 0000000000000000000000000000000000000000..7d69ea690496ece467a2c6aa7053f5d8a1d575a9
 --- /dev/null
 +++ b/skills/datahub-agent-forensics/references/evidence-and-impact.md
 @@ -0,0 +1,37 @@
@@ -882,7 +815,7 @@ index 0000000..7d69ea6
 +replacement implementation.
 diff --git a/skills/datahub-agent-forensics/references/narration-contract.md b/skills/datahub-agent-forensics/references/narration-contract.md
 new file mode 100644
-index 0000000..518767a
+index 0000000000000000000000000000000000000000..518767ae4a919150c178bb0007b18e37cde5784e
 --- /dev/null
 +++ b/skills/datahub-agent-forensics/references/narration-contract.md
 @@ -0,0 +1,56 @@
@@ -944,7 +877,7 @@ index 0000000..518767a
 +model-based and cannot replace integrity, materiality, or authorization checks.
 diff --git a/skills/datahub-agent-forensics/references/replay-safety.md b/skills/datahub-agent-forensics/references/replay-safety.md
 new file mode 100644
-index 0000000..c242f63
+index 0000000000000000000000000000000000000000..c242f63e4e174a891630fb12fb0943bb251e309a
 --- /dev/null
 +++ b/skills/datahub-agent-forensics/references/replay-safety.md
 @@ -0,0 +1,35 @@
@@ -985,7 +918,7 @@ index 0000000..c242f63
 +OS/network sandbox.
 diff --git a/skills/datahub-agent-forensics/scripts/classify_impact.py b/skills/datahub-agent-forensics/scripts/classify_impact.py
 new file mode 100644
-index 0000000..e219715
+index 0000000000000000000000000000000000000000..e219715da61684368589ff29dc857436d9eff226
 --- /dev/null
 +++ b/skills/datahub-agent-forensics/scripts/classify_impact.py
 @@ -0,0 +1,129 @@
@@ -1120,7 +1053,7 @@ index 0000000..e219715
 +    raise SystemExit(main())
 diff --git a/skills/datahub-agent-forensics/scripts/inspect_receipt.py b/skills/datahub-agent-forensics/scripts/inspect_receipt.py
 new file mode 100644
-index 0000000..53a27f2
+index 0000000000000000000000000000000000000000..53a27f2123ce440030007789885acd389b082494
 --- /dev/null
 +++ b/skills/datahub-agent-forensics/scripts/inspect_receipt.py
 @@ -0,0 +1,323 @@
@@ -1449,7 +1382,7 @@ index 0000000..53a27f2
 +    raise SystemExit(main())
 diff --git a/skills/datahub-agent-forensics/templates/forensic-report.template.md b/skills/datahub-agent-forensics/templates/forensic-report.template.md
 new file mode 100644
-index 0000000..87ebbdb
+index 0000000000000000000000000000000000000000..87ebbdb613376a13458bbe1ad72568d6d036dcc4
 --- /dev/null
 +++ b/skills/datahub-agent-forensics/templates/forensic-report.template.md
 @@ -0,0 +1,49 @@
@@ -1502,9 +1435,76 @@ index 0000000..87ebbdb
 +
 +<Separate missing evidence, truth uncertainty, transport verification, and any
 +explicitly authorized mutation.>
+diff --git a/skills/using-datahub/SKILL.md b/skills/using-datahub/SKILL.md
+index 293cf5ab17ef43cd63470ea9bb2e29aeb3a2b841..54503097e90f47b198f02679fc9f4641893e7a72 100644
+--- a/skills/using-datahub/SKILL.md
++++ b/skills/using-datahub/SKILL.md
+@@ -6,22 +6,23 @@ description: |
+ 
+ # Using DataHub Skills
+ 
+-You have access to 5 DataHub catalog interaction skills. Use this guide to route the user's request to the correct skill.
++You have access to 6 DataHub catalog interaction skills. Use this guide to route the user's request to the correct skill.
+ 
+ ---
+ 
+ ## Skill Routing Table
+ 
+-| User Intent                                                                      | Skill       | Command            |
+-| -------------------------------------------------------------------------------- | ----------- | ------------------ |
+-| **Find or discover entities** (search, browse, filter, list)                     | **Search**  | `/datahub-search`  |
+-| **Answer a question** about the catalog ("who owns X?", "how many X?")           | **Search**  | `/datahub-search`  |
+-| **Update metadata** (descriptions, tags, glossary terms, ownership, deprecation) | **Enrich**  | `/datahub-enrich`  |
+-| **Explore lineage** (upstream, downstream, impact, root cause, dependencies)     | **Lineage** | `/datahub-lineage` |
+-| **Data quality** (assertions, incidents, health checks)                          | **Quality** | `/datahub-quality` |
+-| **Notifications** (subscribe to assertion failures, incidents)                   | **Quality** | `/datahub-quality` |
+-| **Install CLI, authenticate, verify connection**                                 | **Setup**   | `/datahub-setup`   |
+-| **Configure default scopes and profiles**                                        | **Setup**   | `/datahub-setup`   |
++| User Intent                                                                           | Skill               | Command                    |
++| ------------------------------------------------------------------------------------- | ------------------- | -------------------------- |
++| **Find or discover entities** (search, browse, filter, list)                          | **Search**          | `/datahub-search`          |
++| **Answer a question** about the catalog ("who owns X?", "how many X?")                | **Search**          | `/datahub-search`          |
++| **Update metadata** (descriptions, tags, glossary terms, ownership, deprecation)      | **Enrich**          | `/datahub-enrich`          |
++| **Explore lineage** (upstream, downstream, impact, root cause, dependencies)          | **Lineage**         | `/datahub-lineage`         |
++| **Data quality** (assertions, incidents, health checks)                               | **Quality**         | `/datahub-quality`         |
++| **Notifications** (subscribe to assertion failures, incidents)                        | **Quality**         | `/datahub-quality`         |
++| **Install CLI, authenticate, verify connection**                                      | **Setup**           | `/datahub-setup`           |
++| **Investigate a specific agent decision, receipt, stale output, approval, or replay** | **Agent Forensics** | `/datahub-agent-forensics` |
++| **Configure default scopes and profiles**                                             | **Setup**           | `/datahub-setup`           |
+ 
+ ---
+ 
+@@ -51,6 +52,14 @@ When the intent is ambiguous, use these rules:
+ - **"What dashboards use table X"** → **Lineage** (relationship traversal)
+ - **"Who owns X" / "what is X"** → **Search** (metadata lookup)
+ 
++### Lineage vs. Agent Forensics
++
++- **"What data assets depend on X?"** → **Lineage** (general graph traversal)
++- **"Which agent decisions actually used X?"** → **Agent Forensics** (run-specific evidence)
++- **"What could break if X changes?"** → **Lineage** (potential downstream impact)
++- **"Which existing agent outputs became stale when X changed?"** → **Agent Forensics** (continuing validity)
++- **"Why did this agent decide X?" / "was this action approved?" / "can this run be replayed?"** → **Agent Forensics**
++
+ ### Setup vs. other skills
+ 
+ - **"Set up" / "install" / "authenticate" / "verify connection"** → **Setup**
+@@ -67,6 +76,7 @@ When running `datahub` CLI commands, pass `-C skill=<name>` on the root command
+ datahub -C skill=datahub-search search "revenue"
+ datahub -C skill=datahub-enrich graphql --query '...'
+ datahub -C skill=datahub-lineage lineage --urn "..."
++datahub -C skill=datahub-agent-forensics get --urn "..."
+ ```
+ 
+ Use the skill name from the YAML frontmatter. If `-C` is not recognized, omit it — the command works the same without it.
+@@ -82,3 +92,4 @@ Use the skill name from the YAML frontmatter. If `-C` is not recognized, omit it
+ 5. **Enrich handles all metadata writes** — descriptions, tags, glossary terms, ownership, deprecation.
+ 6. **Quality handles data quality** — assertions, incidents, health checks, subscriptions.
+ 7. **Setup handles environment and configuration** — CLI install, auth, connectivity, default scopes.
++8. **Agent Forensics handles decision evidence and continuing validity** — never route ordinary dataset lineage here, and never let search or generic lineage stand in for a verified receipt.
 diff --git a/tests/test_agent_forensics_scripts.py b/tests/test_agent_forensics_scripts.py
 new file mode 100644
-index 0000000..f45e0f3
+index 0000000000000000000000000000000000000000..f45e0f348a22d627f638799e815d084ef35a8f14
 --- /dev/null
 +++ b/tests/test_agent_forensics_scripts.py
 @@ -0,0 +1,35 @@

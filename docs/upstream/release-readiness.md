@@ -97,7 +97,9 @@ DataHub Skills contribution without publishing anything:
 python -m scripts.upstream_packet \
   --skills-worktree ../datahub-skills-glassbox \
   --glassbox-root . \
-  --output-dir release-evidence/upstream
+  --output-dir release-evidence/upstream \
+  --expected-head fc14058eebafaf50d445a38642059929f218c03c \
+  --pull-request-url https://github.com/datahub-project/datahub-skills/pull/120
 ```
 
 The command verifies the exact target baseline and contribution scope, then writes

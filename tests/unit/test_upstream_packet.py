@@ -12,6 +12,7 @@ import scripts.upstream_packet as packet_module
 from scripts.upstream_packet import (
     PACKET_CONTRACT,
     UpstreamPacketError,
+    _parse_committed_changes,
     _parse_status,
     _validate_change_path,
     build_packet,
@@ -122,6 +123,116 @@ def test_packet_binds_modified_and_added_files_to_release_and_proofs(tmp_path: P
     written = json.loads((output / "upstream-packet.json").read_text(encoding="utf-8"))
     assert written == manifest
     assert (output / manifest["patch"]["filename"]).read_bytes() == patch
+
+
+def test_packet_binds_publication_to_the_target_pull_request(tmp_path: Path) -> None:
+    worktree, baseline = _worktree(tmp_path)
+    source = _source_root(tmp_path)
+    pull_request_url = "https://github.com/datahub-project/datahub-skills/pull/120"
+
+    manifest, _ = build_packet(
+        worktree=worktree,
+        glassbox_root=source,
+        expected_baseline=baseline,
+        expected_branch="feature",
+        allowed_exact=frozenset({"README.md", "skill/new.md"}),
+        allowed_prefixes=(),
+        required_paths=frozenset({"README.md", "skill/new.md"}),
+        proof_paths=("proof.json",),
+        packet_documents=("packet.md",),
+        pull_request_url=pull_request_url,
+    )
+
+    assert manifest["publication"] == {
+        "discussion_posted": False,
+        "package_published": False,
+        "pull_request_opened": True,
+        "pull_request_url": pull_request_url,
+        "release_created": False,
+    }
+
+
+def test_packet_builds_from_an_exact_clean_committed_head(tmp_path: Path) -> None:
+    worktree, baseline = _worktree(tmp_path)
+    source = _source_root(tmp_path)
+    _git(worktree, "add", "README.md", "skill/new.md")
+    _git(worktree, "commit", "-m", "feat: contribution")
+    head = _git(worktree, "rev-parse", "HEAD")
+
+    manifest, patch = build_packet(
+        worktree=worktree,
+        glassbox_root=source,
+        expected_baseline=baseline,
+        expected_branch="feature",
+        expected_head=head,
+        allowed_exact=frozenset({"README.md", "skill/new.md"}),
+        allowed_prefixes=(),
+        required_paths=frozenset({"README.md", "skill/new.md"}),
+        proof_paths=("proof.json",),
+        packet_documents=("packet.md",),
+    )
+
+    assert manifest["target"]["baseline"] == baseline
+    assert manifest["target"]["head"] == head
+    assert [item["change"] for item in manifest["changes"]] == ["MODIFIED", "ADDED"]
+    assert b"diff --git a/README.md b/README.md" in patch
+    assert b"diff --git a/skill/new.md b/skill/new.md" in patch
+
+
+def test_committed_packet_rejects_wrong_head_and_dirty_worktree(tmp_path: Path) -> None:
+    worktree, baseline = _worktree(tmp_path)
+    source = _source_root(tmp_path)
+    _git(worktree, "add", "README.md", "skill/new.md")
+    _git(worktree, "commit", "-m", "feat: contribution")
+    head = _git(worktree, "rev-parse", "HEAD")
+    common = {
+        "worktree": worktree,
+        "glassbox_root": source,
+        "expected_baseline": baseline,
+        "expected_branch": "feature",
+        "allowed_exact": frozenset({"README.md", "skill/new.md"}),
+        "allowed_prefixes": (),
+        "required_paths": frozenset({"README.md", "skill/new.md"}),
+        "proof_paths": ("proof.json",),
+        "packet_documents": ("packet.md",),
+    }
+
+    with pytest.raises(UpstreamPacketError, match="head"):
+        build_packet(**common, expected_head="0" * 40)
+
+    (worktree / "README.md").write_text("dirty\n", encoding="utf-8")
+    with pytest.raises(UpstreamPacketError, match="must be clean"):
+        build_packet(**common, expected_head=head)
+
+
+@pytest.mark.parametrize(
+    "pull_request_url",
+    [
+        "https://github.com/Pavilion-devs/datahub-skills/pull/120",
+        "https://github.com/datahub-project/datahub-skills/pull/not-a-number",
+        "https://github.com/datahub-project/datahub-skills/pull/0",
+    ],
+)
+def test_packet_rejects_non_target_pull_request_urls(
+    pull_request_url: str,
+    tmp_path: Path,
+) -> None:
+    worktree, baseline = _worktree(tmp_path)
+    source = _source_root(tmp_path)
+
+    with pytest.raises(UpstreamPacketError, match="pull request URL"):
+        build_packet(
+            worktree=worktree,
+            glassbox_root=source,
+            expected_baseline=baseline,
+            expected_branch="feature",
+            allowed_exact=frozenset({"README.md", "skill/new.md"}),
+            allowed_prefixes=(),
+            required_paths=frozenset({"README.md", "skill/new.md"}),
+            proof_paths=("proof.json",),
+            packet_documents=("packet.md",),
+            pull_request_url=pull_request_url,
+        )
 
 
 @pytest.mark.parametrize(
@@ -270,6 +381,14 @@ def test_packet_rejects_missing_changes_patch_and_release_evidence(
 def test_status_parser_rejects_malformed_or_unsupported_entries(raw: bytes) -> None:
     with pytest.raises(UpstreamPacketError):
         _parse_status(raw)
+
+
+@pytest.mark.parametrize("raw", [b"A\0path", b"D\0path\0", b"A\0\xff\0"])
+def test_committed_status_parser_rejects_malformed_or_unsupported_entries(
+    raw: bytes,
+) -> None:
+    with pytest.raises(UpstreamPacketError):
+        _parse_committed_changes(raw)
 
 
 @pytest.mark.parametrize(
