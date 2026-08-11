@@ -67,6 +67,6 @@ def test_compose_binds_public_and_console_hosts_to_distinct_boundaries() -> None
         "https://${GLASSBOX_CONSOLE_DOMAIN:?set GLASSBOX_CONSOLE_DOMAIN}/oauth2/callback" in compose
     )
     assert "--github-user" not in compose
-    assert "OAUTH2_PROXY_SCOPE: user:email" in compose
+    assert "OAUTH2_PROXY_SCOPE: user:email read:org" in compose
     assert "GLASSBOX_ADMIN_USERS: ${GITHUB_ADMIN_USERS:-}" in compose
     assert "GITHUB_ALLOWED_USERS" not in compose

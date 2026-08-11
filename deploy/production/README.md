@@ -19,9 +19,12 @@ absent from the production image. The release check requires a zero-finding
    reference pair is `glassboxhq.xyz` and `app.glassboxhq.xyz`.
 3. A GitHub OAuth App whose callback is
    `https://app.glassboxhq.xyz/oauth2/callback` (replace the host for another domain).
-   The reference proxy requests only `user:email`. Any authenticated GitHub user
-   becomes a read-only viewer; only usernames in `GITHUB_ADMIN_USERS` may change
-   the DataHub connection or issue and revoke ingestion keys.
+   The reference proxy requests `user:email read:org`. OAuth2 Proxy's GitHub
+   provider resolves organization membership while creating every session, so
+   `read:org` is required even though GlassBox does not restrict sign-in by
+   organization. Any authenticated GitHub user becomes a read-only viewer; only
+   usernames in `GITHUB_ADMIN_USERS` may change the DataHub connection or issue
+   and revoke ingestion keys.
 4. A scoped DataHub service account that can read catalog entities and upsert the
    GlassBox Document/Incident aspects used by the compiler and invalidation Action.
 5. A receipt signing key and matching operator trust policy.
