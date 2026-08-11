@@ -38,7 +38,9 @@ services:
       OAUTH2_PROXY_EMAIL_DOMAINS: "*"
       # Authentication is open to any GitHub account. Authorization remains in
       # GlassBox: authenticated users are viewers unless explicitly named below.
-      OAUTH2_PROXY_SCOPE: user:email
+      # OAuth2 Proxy still resolves GitHub organization membership while creating
+      # every session, so read:org is required even without an organization gate.
+      OAUTH2_PROXY_SCOPE: user:email read:org
       OAUTH2_PROXY_REVERSE_PROXY: "true"
       OAUTH2_PROXY_SET_XAUTHREQUEST: "true"
       OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
