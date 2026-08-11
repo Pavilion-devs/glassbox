@@ -1,0 +1,97 @@
+<Eyebrow>Assessment</Eyebrow>
+
+# Evidence completeness
+
+<Lede>
+An assessment can only be as exact as the evidence underneath it. Completeness is
+how GlassBox says so out loud.
+</Lede>
+
+## Three independent questions
+
+Every receipt carries a `completeness` block answering three separate things. They
+are tracked separately because they fail separately.
+
+<CardGroup cols={3}>
+  <Card title="Dependency resolution" icon="solar:link-linear">
+    Did every observed dependency resolve to a real DataHub URN?
+    `COMPLETE` or `INCOMPLETE`, plus resolved and recorded counts.
+  </Card>
+  <Card title="Field-lineage coverage" icon="solar:list-linear">
+    Do we know which **columns** the decision read, or only which datasets?
+  </Card>
+  <Card title="Wildcard query" icon="solar:scanner-linear">
+    Did the run issue a `SELECT *`-shaped read, where the used columns cannot be
+    enumerated from the query alone?
+  </Card>
+</CardGroup>
+
+## What each state permits
+
+| Coverage | A field change can be judged as… |
+|---|---|
+| `COMPLETE`, no wildcard | `STALE` or `UNAFFECTED` — both verdicts are provable |
+| `INCOMPLETE` | `STALE` if a used field matched; otherwise `UNKNOWN` |
+| Wildcard `true` | `UNKNOWN` for field-level changes — every column is potentially read |
+
+The asymmetry is deliberate. Proving a decision **was** affected needs only one
+matching dependency. Proving it **was not** affected needs to know the complete set
+of what it read.
+
+<Callout type="note" title="Wildcard queries are not a bug">
+A `SELECT *` is a normal thing for an agent to write. GlassBox does not reject it —
+it records that column-level lineage is unavailable for that read, and downgrades
+the confidence of any later field-level verdict accordingly.
+</Callout>
+
+## Resolution counts in the console
+
+The console renders resolution as `resolved / recorded`. A receipt showing `1/1`
+with `COMPLETE` coverage supports an exact verdict either way. A receipt showing
+`3/5` cannot support `UNAFFECTED`, because two of the things it read are unknown.
+
+## Recording coverage explicitly
+
+Coverage is asserted at registration, not inferred later. When importing or
+repairing state manually, it is supplied on the command line:
+
+<CodeGroup>
+```bash title="SQLite"
+uv run glassbox-invalidation-state register-receipt \
+  .glassbox/invalidation.sqlite3 receipt.json \
+  --field-coverage COMPLETE \
+  --field-rule glassbox.sql-column-lineage.v1 \
+  --wildcard-query false
+```
+
+```bash title="PostgreSQL"
+uv run glassbox-invalidation-state postgres-register-receipt receipt.json \
+  --dsn-env GLASSBOX_STATE_POSTGRES_DSN \
+  --schema glassbox \
+  --field-coverage COMPLETE \
+  --field-rule glassbox.sql-column-lineage.v1 \
+  --wildcard-query false
+```
+</CodeGroup>
+
+`--field-rule` names the lineage rule that produced the claim. Recording *which*
+rule established coverage means a later change to that rule does not silently
+revalidate old receipts.
+
+<Callout type="warning" title="Live paths register automatically">
+`register-receipt` and `postgres-register-receipt` exist for historical imports and
+explicit repair. Live compiler paths register the receipt, its dependency index,
+and its publication obligation automatically, in one transaction.
+</Callout>
+
+## Why this is surfaced in the product
+
+The console shows coverage on every receipt, and the MCP tools return it with every
+influence projection. An operator looking at an `UNKNOWN` verdict needs to be able
+to tell the difference between *"nothing changed"* and *"we could not tell"* —
+those two are the same colour on almost every other tool.
+
+<Callout type="tip" title="Next">
+[Deterministic invalidation](/docs/assessment/deterministic) covers the reason
+codes these states feed into.
+</Callout>

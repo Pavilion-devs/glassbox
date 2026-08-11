@@ -362,15 +362,19 @@ class SQLiteInvalidationStore:
             raise TransactionalStoreError(
                 f"receipt {receipt_id} already has conflicting dependency metadata"
             )
+        admission = _signer_admission_evidence(self.signer_trust_policy, receipt)
         profile = ReceiptDependencyProfile.from_receipt(
             receipt,
             field_lineage=proof,
             superseded_by=superseded_by,
             require_signature=self.require_signature,
             signer_trust_policy=self.signer_trust_policy,
-            signer_trust_mode=SignerTrustMode.ADMISSION,
+            signer_trust_mode=(
+                SignerTrustMode.HISTORICAL
+                if self.signer_trust_policy is not None
+                else SignerTrustMode.ADMISSION
+            ),
         )
-        admission = _signer_admission_evidence(self.signer_trust_policy, receipt)
         material = {
             **core_material,
             "signer_admission": admission.to_dict() if admission is not None else None,

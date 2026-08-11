@@ -7,10 +7,14 @@ from pathlib import Path
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from mcp.client import Client
+from starlette.testclient import TestClient
 
 from glassbox_dbom import SigningKey, seal_receipt
 from glassbox_forensics import ForensicsService
-from glassbox_forensics.live_state import TransactionalCampaignReader
+from glassbox_forensics.live_state import (
+    TransactionalCampaignReader,
+    TransactionalReceiptPublicationReader,
+)
 from glassbox_forensics.server import build_server
 from glassbox_invalidation import SQLiteInvalidationStore, VerifiedReceiptStore
 from glassbox_policy import (
@@ -23,6 +27,59 @@ from tests.helpers import receipt_payload
 
 DATASET = "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"
 FIELD = f"urn:li:schemaField:({DATASET},revenue)"
+
+
+def test_loopback_console_api_reads_service_state_without_bundled_success(
+    tmp_path: Path,
+) -> None:
+    payload = receipt_payload()
+    payload["evidence"][0]["schema_field_urn"] = FIELD
+    receipt = seal_receipt(
+        payload,
+        signing_keys=[SigningKey("console-api-key", Ed25519PrivateKey.generate())],
+    )
+    store = VerifiedReceiptStore(tmp_path / "console-receipts.jsonl", sync=False)
+    store.register(receipt)
+    server = build_server(ForensicsService(store, artifacts=store))
+    app = server.streamable_http_app(stateless_http=True, json_response=True)
+
+    with TestClient(app) as client:
+        health = client.get("/health")
+        overview = client.get("/api/v1/overview")
+        receipts = client.get("/api/v1/receipts", params={"query": "commerce.orders"})
+        detail = client.get(f"/api/v1/receipts/{receipt['receipt_id']}")
+        invalid = client.get("/api/v1/receipts", params={"offset": -1})
+
+    assert health.status_code == 200
+    assert health.json()["contract_version"] == "glassbox.console-api.v1"
+    assert overview.json()["counts"]["receipts"] == 1
+    assert overview.json()["availability"]["campaign_store"] == "NOT_CONFIGURED"
+    assert receipts.json()["total"] == 1
+    assert receipts.json()["decisions"][0]["receipt_id"] == receipt["receipt_id"]
+    assert detail.json()["verification"]["verification_state"] == "VERIFIED_NOW"
+    assert detail.json()["influence"]["raw_content_returned"] is False
+    assert invalid.status_code == 400
+    assert invalid.json()["error"]["code"] == "INVALID_ARGUMENT"
+
+
+def test_console_api_bearer_auth_protects_every_read_route(tmp_path: Path) -> None:
+    store = VerifiedReceiptStore(tmp_path / "protected-receipts.jsonl", sync=False)
+    server = build_server(
+        ForensicsService(store, artifacts=store),
+        http_bearer_token="private-forensics-token",
+    )
+    app = server.streamable_http_app(stateless_http=True, json_response=True)
+
+    with TestClient(app) as client:
+        rejected = client.get("/api/v1/overview")
+        accepted = client.get(
+            "/api/v1/overview",
+            headers={"authorization": "Bearer private-forensics-token"},
+        )
+
+    assert rejected.status_code == 401
+    assert rejected.json()["error"]["code"] == "UNAUTHENTICATED"
+    assert accepted.status_code == 200
 
 
 def test_official_client_discovers_only_read_only_tools_and_calls_every_contract(
@@ -67,6 +124,7 @@ def test_official_client_discovers_only_read_only_tools_and_calls_every_contract
                 store,
                 artifacts=store,
                 findings=TransactionalCampaignReader(store),
+                publications=TransactionalReceiptPublicationReader(store),
             )
         )
 
@@ -75,6 +133,7 @@ def test_official_client_discovers_only_read_only_tools_and_calls_every_contract
             assert [tool.name for tool in discovered.tools] == [
                 "verify_decision_receipt",
                 "get_decision_influence",
+                "get_decision_publication",
                 "classify_decision_impact",
                 "list_affected_decisions",
                 "get_invalidation_campaign",
@@ -91,6 +150,9 @@ def test_official_client_discovers_only_read_only_tools_and_calls_every_contract
             )
             influence = await client.call_tool(
                 "get_decision_influence", {"receipt_id": receipt["receipt_id"]}
+            )
+            publication = await client.call_tool(
+                "get_decision_publication", {"receipt_id": receipt["receipt_id"]}
             )
             change = {
                 "event_id": "mcl-schema-001",
@@ -115,6 +177,8 @@ def test_official_client_discovers_only_read_only_tools_and_calls_every_contract
             assert verified.is_error is False
             assert verified.structured_content["verification_state"] == "VERIFIED_NOW"
             assert influence.structured_content["raw_content_returned"] is False
+            assert publication.structured_content["availability"] == "AVAILABLE"
+            assert publication.structured_content["durability"]["workflow_status"] == "READY"
             assert impact.structured_content["assessment"]["state"] == "STALE"
             assert reverse.structured_content["review_required_total"] == 1
             assert reverse.structured_content["scan_complete"] is True

@@ -1372,7 +1372,9 @@
         "pkg:pypi/pytest-cov@7.1.0",
         "pkg:pypi/pytest@9.1.1",
         "pkg:pypi/rfc8785@0.1.4",
-        "pkg:pypi/ruff@0.15.22"
+        "pkg:pypi/ruff@0.15.22",
+        "pkg:pypi/starlette@1.4.1",
+        "pkg:pypi/uvicorn@0.52.1"
       ],
       "ref": "pkg:pypi/glassbox-core@0.1.0"
     },

@@ -49,3 +49,10 @@ change coverage, and raw-free assessment evidence. Transport recovery is defined
 [ADR-0024](0024-independent-transport-acknowledgement-recovery.md), which separately
 proves Kafka commit-retry exhaustion and pgQueue visibility/ack recovery through
 persisted source authority rather than in-process replay.
+[ADR-0025](0025-pinned-flagship-estate-and-evidence-ablation.md) pins the flagship
+estate and requires causal ablation rather than presentation-only success.
+[ADR-0026](0026-loopback-console-read-model.md) makes the operational console a
+bounded read model over verified live state and refuses unauthenticated remote
+exposure. [ADR-0027](0027-authenticated-control-plane-and-self-hosted-deployment.md)
+adds the OAuth-gated self-hosted boundary, encrypted organization-level DataHub
+connection, named revocable agent keys, and private production service network.

@@ -8,10 +8,15 @@ from pathlib import Path
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
+from glassbox_datahub import receipt_document_urn
 from glassbox_dbom import SigningKey, seal_receipt
 from glassbox_forensics import ForensicsInputError, ForensicsNotFoundError, ForensicsService
-from glassbox_forensics.live_state import TransactionalCampaignReader
+from glassbox_forensics.live_state import (
+    TransactionalCampaignReader,
+    TransactionalReceiptPublicationReader,
+)
 from glassbox_invalidation import SQLiteInvalidationStore, VerifiedReceiptStore
+from glassbox_invalidation.transactional_store import ReceiptPublicationEvidence
 from glassbox_policy import (
     ChangeKind,
     InvalidationWriteEvidence,
@@ -166,6 +171,9 @@ def test_live_campaign_findings_come_from_shared_transactional_state(tmp_path: P
 
     persisted = service.get_invalidation_campaign(campaign.campaign_id)
     findings = service.list_decision_findings(receipt["receipt_id"])
+    overview = service.get_console_overview()
+    decisions = service.list_decisions(query="commerce.orders")
+    campaigns = service.list_invalidation_campaigns()
 
     assert persisted["availability"] == "AVAILABLE"
     assert persisted["campaign"]["processing"] == {
@@ -180,8 +188,73 @@ def test_live_campaign_findings_come_from_shared_transactional_state(tmp_path: P
     assert findings["findings_total"] == 1
     assert findings["findings"][0]["campaign_id"] == campaign.campaign_id
     assert findings["findings"][0]["assessment"]["state"] == "STALE"
+    assert overview["counts"] == {
+        "receipts": 1,
+        "dependencies": 1,
+        "unresolved_dependencies": 0,
+        "campaigns": 1,
+        "review_required": 1,
+    }
+    assert overview["state_counts"] == {"STALE": 1}
+    assert decisions["total"] == 1
+    assert decisions["decisions"][0]["state"] == "STALE"
+    assert decisions["decisions"][0]["latest_finding"]["campaign_id"] == campaign.campaign_id
+    assert campaigns["availability"] == "AVAILABLE"
+    assert campaigns["campaigns"][0]["campaign_id"] == campaign.campaign_id
     assert secret not in repr(persisted)
     assert secret not in repr(findings)
+    assert secret not in repr(overview)
+    assert secret not in repr(decisions)
+    assert secret not in repr(campaigns)
+
+
+def test_publication_proof_comes_from_sealed_transactional_state(tmp_path: Path) -> None:
+    receipt = _signed_receipt(secret="never-return-publication-secret")
+    receipt_id = receipt["receipt_id"]
+    store = SQLiteInvalidationStore(tmp_path / "publication-state.sqlite3")
+    store.register(receipt)
+    claimed = store.claim_receipt_publication(
+        receipt_id,
+        worker_id="receipt-publisher",
+        now_ms=1,
+        lease_duration_ms=10_000,
+    )
+    assert claimed is not None
+    store.complete_receipt_publication(
+        receipt_id,
+        ReceiptPublicationEvidence(
+            document_urn=receipt_document_urn(receipt_id),
+            aspect_names=("documentInfo", "globalTags", "status"),
+        ),
+        worker_id="receipt-publisher",
+    )
+    service = ForensicsService(
+        store,
+        artifacts=store,
+        publications=TransactionalReceiptPublicationReader(
+            store,
+            durability_authority="POSTGRESQL",
+        ),
+    )
+
+    publication = service.get_decision_publication(receipt_id)
+
+    assert publication["availability"] == "AVAILABLE"
+    assert publication["durability"] == {
+        "authority": "POSTGRESQL",
+        "workflow_status": "COMPLETED",
+        "attempt_count": 1,
+        "last_error_recorded": False,
+        "sealed_evidence": True,
+    }
+    assert publication["datahub"] == {
+        "document_urn": receipt_document_urn(receipt_id),
+        "aspect_names": ["documentInfo", "globalTags", "status"],
+        "aspect_count": 3,
+        "emission_count": 2,
+    }
+    assert publication["raw_content_returned"] is False
+    assert "never-return-publication-secret" not in repr(publication)
 
 
 def test_campaign_tools_expose_unavailable_state_without_inventing_history(
@@ -193,9 +266,17 @@ def test_campaign_tools_expose_unavailable_state_without_inventing_history(
 
     campaign = service.get_invalidation_campaign(campaign_id)
     findings = service.list_decision_findings(receipt["receipt_id"])
+    overview = service.get_console_overview()
+    campaigns = service.list_invalidation_campaigns()
 
     assert campaign["availability"] == "CAMPAIGN_STORE_NOT_CONFIGURED"
     assert findings["availability"] == "CAMPAIGN_STORE_NOT_CONFIGURED"
     assert findings["scan_complete"] is False
+    assert overview["availability"]["campaign_store"] == "NOT_CONFIGURED"
+    assert overview["state_counts"] == {"NO_RECORDED_FINDING": 1}
+    assert campaigns["availability"] == "CAMPAIGN_STORE_NOT_CONFIGURED"
+    assert campaigns["campaigns"] == []
     with pytest.raises(ForensicsInputError, match="campaign_id"):
         service.get_invalidation_campaign("not-a-campaign")
+    with pytest.raises(ForensicsInputError, match="offset"):
+        service.list_decisions(offset=-1)

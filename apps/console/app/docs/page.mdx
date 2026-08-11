@@ -1,0 +1,137 @@
+<Eyebrow>Introduction</Eyebrow>
+
+# GlassBox
+
+<Lede>
+A DataHub-native execution-provenance and control layer for AI agents.
+</Lede>
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="solar:rocket-2-linear" href="/docs/quickstart">
+    Bring up the pinned estate, record a receipt, change a field, watch a decision go stale.
+  </Card>
+  <Card title="How GlassBox works" icon="solar:routing-2-linear" href="/docs/architecture#reading-the-diagram">
+    Capture, sign, project, assess, recover — end to end.
+  </Card>
+  <Card title="Architecture" icon="solar:diagram-up-linear" href="/docs/architecture">
+    The full runtime topology in one diagram.
+  </Card>
+  <Card title="Run it" icon="solar:command-linear" href="/docs/quickstart#run-the-whole-chain">
+    `glassbox-dbom`, `glassbox-otlp-receiver`, `glassbox-invalidation-state`.
+  </Card>
+</CardGroup>
+
+## The problem
+
+Data lineage tells you where data went. It does not tell you **what your agents
+believed, and what they did because of it**.
+
+When an agent writes a recommendation, an approval, or a price, that output is a
+claim about the state of the world at a moment in time. It depended on specific
+fields, in specific datasets, at specific versions. Nothing normally records that
+dependency — so when a schema field changes six weeks later, there is no
+mechanical way to answer the only question that matters: *which decisions are no
+longer safe to trust?*
+
+The usual substitute is a human reading dashboards and guessing. That does not
+scale, and it is not evidence.
+
+<Callout type="note" title="The one rule">
+Nothing in this system is proven by a screenshot or a mocked response. A DataHub
+capability is marked proven only after a live probe writes metadata and reads it
+back directly from the configured server. Every claim in these docs traces to a
+committed, raw-free evidence report.
+</Callout>
+
+## What GlassBox does
+
+GlassBox sits at the boundary between an agent run and the governed metadata
+graph, and does five things:
+
+<CardGroup cols={2}>
+  <Card title="Records a signed DBOM" icon="solar:document-text-linear">
+    Every consequential output gets a canonicalised, Ed25519-signed **Decision Bill
+    of Materials** — the dependencies it read, the tools it ran, and the
+    verification state of each.
+  </Card>
+  <Card title="Binds evidence to DataHub" icon="solar:database-linear">
+    Runtime evidence resolves to real DataHub URNs and publishes as a governed
+    projection, verified by direct entity readback rather than write acknowledgement.
+  </Card>
+  <Card title="Invalidates deterministically" icon="solar:target-linear">
+    A metadata change becomes a content-addressed campaign. Declarative rule packs
+    decide materiality — not a model — and the reason code is durable.
+  </Card>
+  <Card title="Recovers under authority" icon="solar:restart-linear">
+    Quarantine, fingerprint-authorized replay in a digest-pinned sandbox, and
+    append-only supersession that leaves both receipts intact.
+  </Card>
+</CardGroup>
+
+## The loop
+
+```text
+agent run ──OTLP──▶ compiler ──▶ signed receipt ──▶ DataHub projection
+                                       │                    │
+                                       │            metadata change
+                                       │                    │
+                                       │                    ▼
+                                       └──── campaign ── assessment ──▶ writeback
+                                                              │
+                                        quarantine ◀──────────┘
+                                             │
+                                    authorized replay ──▶ supersession ──▶ closure
+```
+
+The differentiator is not provenance in isolation. It is the complete closed
+chain: **runtime evidence → governed projection → deterministic assessment →
+durable quarantine → authorized recovery → verified closure**.
+
+<ArchitectureDiagram framed className="my-8" />
+
+## What GlassBox records
+
+| Record | Contract | Notes |
+|---|---|---|
+| Decision receipt | DBOM 0.1 | Canonicalised and signed; tamper tests are part of the suite |
+| Runtime influence | Qualified dependency set | Each dependency carries role, state, and evidence ID |
+| Field coverage | `COMPLETE` / `INCOMPLETE` | Drives whether an assessment can be exact |
+| Invalidation campaign | Content-addressed | Bound to the exact change event and policy version |
+| Assessment | Reason code + policy version | Raw-free and durable; no free text |
+| Replay bundle | Replay Bundle 0.1 | Digest-bound approvals, structurally non-executing dry run |
+| Supersession | Append-only | Both receipt Documents remain unchanged |
+
+## Adoption surfaces
+
+<CardGroup cols={3}>
+  <Card title="DataHub" icon="solar:database-linear" href="/settings">
+    Actions plugin, incident writeback, ownership routing.
+  </Card>
+  <Card title="OTLP & Kafka" icon="solar:global-linear" href="/docs/quickstart#run-the-whole-chain">
+    Authenticated receiver, durable obligations, independent recovery.
+  </Card>
+  <Card title="Forensics MCP" icon="solar:plug-circle-linear" href="/investigations">
+    Six proof-carrying read-only tools.
+  </Card>
+</CardGroup>
+
+Kafka and PostgreSQL Queue claims are deliberately independent: each is proven
+against its own live estate, and neither is presented as evidence for the other.
+
+## Honest boundaries
+
+- The SQLite profile coordinates processes on **one host**. It is not a
+  multi-node or network-filesystem deployment.
+- The PostgreSQL proof establishes real multi-connection coordination. It does
+  not claim physical multi-host deployment, managed failover, or
+  network-partition recovery.
+- Field-lineage coverage may be `INCOMPLETE`. When it is, an assessment says so
+  rather than inferring a result.
+- The reference OTLP receiver is single-flight and expects TLS termination and
+  rate limiting in a production proxy.
+
+<Callout type="tip" title="Next">
+Start with the [Quickstart](/docs/quickstart) to run the whole chain on your
+machine from one command, or read the [architecture guide](/docs/architecture) for
+the concepts first.
+</Callout>

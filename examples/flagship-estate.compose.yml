@@ -1,0 +1,88 @@
+# GlassBox overlay for DataHub's pinned quickstart compose.
+#
+# `!override` deliberately replaces every published upstream port so this estate
+# can coexist with an ordinary DataHub quickstart. Internal service names and
+# contracts remain the official DataHub ones used by the v1.6.0 compose file.
+name: glassbox-flagship
+
+services:
+  datahub-gms-quickstart:
+    ports: !override
+      - target: 8080
+        published: ${GLASSBOX_GMS_PORT:-18080}
+        protocol: tcp
+      - target: 4319
+        published: ${GLASSBOX_OTLP_PORT:-14319}
+        protocol: tcp
+    volumes: !override []
+
+  frontend-quickstart:
+    ports: !override
+      - target: 9002
+        published: ${GLASSBOX_FRONTEND_PORT:-19002}
+        protocol: tcp
+    volumes: !override []
+
+  datahub-actions-quickstart:
+    volumes: !override []
+
+  kafka-broker:
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: BROKER://broker:29092,EXTERNAL://localhost:${GLASSBOX_KAFKA_PORT:-19092}
+    ports: !override
+      - target: 9092
+        published: ${GLASSBOX_KAFKA_PORT:-19092}
+        protocol: tcp
+
+  mysql:
+    ports: !override
+      - target: 3306
+        published: ${GLASSBOX_MYSQL_PORT:-13306}
+        protocol: tcp
+
+  opensearch:
+    ports: !override
+      - target: 9200
+        published: ${GLASSBOX_OPENSEARCH_PORT:-19200}
+        protocol: tcp
+
+  system-update-quickstart:
+    volumes: !override []
+
+  glassbox-state-postgres:
+    profiles:
+      - quickstart
+    image: postgres:16
+    environment:
+      POSTGRES_DB: glassbox
+      POSTGRES_PASSWORD: glassbox-local-only
+      POSTGRES_USER: glassbox
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U glassbox -d glassbox
+      timeout: 5s
+      interval: 1s
+      retries: 30
+    ports:
+      - target: 5432
+        published: ${GLASSBOX_POSTGRES_PORT:-15432}
+        protocol: tcp
+    volumes:
+      - type: volume
+        source: glassbox-state
+        target: /var/lib/postgresql/data
+
+networks:
+  default:
+    name: glassbox_flagship_network
+
+volumes:
+  broker:
+    name: glassbox_flagship_broker
+  mysqldata:
+    name: glassbox_flagship_mysqldata
+  osdata:
+    name: glassbox_flagship_osdata
+  glassbox-state:
+    name: glassbox_flagship_state_postgres

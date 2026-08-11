@@ -68,6 +68,26 @@ class CampaignFindingReader(Protocol):
     def all_campaigns(self) -> tuple[PersistedCampaign, ...]: ...
 
 
+@dataclass(frozen=True)
+class PersistedReceiptPublication:
+    """Bounded projection of one durable receipt-publication obligation."""
+
+    receipt_id: str
+    workflow_status: str
+    attempt_count: int
+    last_error_recorded: bool
+    document_urn: str | None
+    aspect_names: tuple[str, ...]
+    emission_count: int | None
+    durability_authority: str
+
+
+class ReceiptPublicationReader(Protocol):
+    """Read-only projection over durable receipt-publication state."""
+
+    def get_publication(self, receipt_id: str) -> PersistedReceiptPublication | None: ...
+
+
 class ForensicsService:
     """Answer forensic questions without returning raw prompts, outputs, or values."""
 
@@ -77,12 +97,14 @@ class ForensicsService:
         *,
         artifacts: ReceiptArtifactReader | None = None,
         findings: CampaignFindingReader | None = None,
+        publications: ReceiptPublicationReader | None = None,
         require_signature: bool = True,
         signer_trust_policy: SignerTrustPolicy | None = None,
     ) -> None:
         self._profiles = profiles
         self._artifacts = artifacts
         self._findings = findings
+        self._publications = publications
         self._require_signature = require_signature
         self._signer_trust_policy = signer_trust_policy
 
@@ -195,6 +217,48 @@ class ForensicsService:
                 "wildcard_query": profile.field_lineage.wildcard_query,
             },
             "dependencies": dependencies,
+            "raw_content_returned": False,
+        }
+
+    def get_decision_publication(self, receipt_id: str) -> dict[str, object]:
+        """Return sealed durable publication evidence without querying DataHub."""
+
+        profile = self._find_profile(receipt_id)
+        if self._publications is None:
+            return {
+                "contract_version": CONTRACT_VERSION,
+                "scope": "CONFIGURED_PUBLICATION_STORE",
+                "receipt_id": profile.receipt_id,
+                "availability": "PUBLICATION_STORE_NOT_CONFIGURED",
+                "raw_content_returned": False,
+            }
+        publication = self._publications.get_publication(receipt_id)
+        if publication is None:
+            return {
+                "contract_version": CONTRACT_VERSION,
+                "scope": "CONFIGURED_PUBLICATION_STORE",
+                "receipt_id": profile.receipt_id,
+                "availability": "PUBLICATION_NOT_STAGED",
+                "raw_content_returned": False,
+            }
+        return {
+            "contract_version": CONTRACT_VERSION,
+            "scope": "CONFIGURED_PUBLICATION_STORE",
+            "receipt_id": profile.receipt_id,
+            "availability": "AVAILABLE",
+            "durability": {
+                "authority": publication.durability_authority,
+                "workflow_status": publication.workflow_status,
+                "attempt_count": publication.attempt_count,
+                "last_error_recorded": publication.last_error_recorded,
+                "sealed_evidence": publication.document_urn is not None,
+            },
+            "datahub": {
+                "document_urn": publication.document_urn,
+                "aspect_names": list(publication.aspect_names),
+                "aspect_count": len(publication.aspect_names),
+                "emission_count": publication.emission_count,
+            },
             "raw_content_returned": False,
         }
 
@@ -330,6 +394,119 @@ class ForensicsService:
             "raw_content_returned": False,
         }
 
+    def get_console_overview(self) -> dict[str, object]:
+        """Return a bounded operational summary without inventing decision state."""
+
+        profiles = self._profiles.all_profiles()
+        campaigns = self._findings.all_campaigns() if self._findings is not None else ()
+        latest = _latest_assessments(campaigns)
+        states = Counter(
+            _profile_state(profile, latest.get(profile.receipt_id)) for profile in profiles
+        )
+        return {
+            "contract_version": CONTRACT_VERSION,
+            "scope": "CONFIGURED_EVIDENCE_STORES",
+            "availability": {
+                "receipt_index": "AVAILABLE",
+                "campaign_store": ("AVAILABLE" if self._findings is not None else "NOT_CONFIGURED"),
+            },
+            "counts": {
+                "receipts": len(profiles),
+                "dependencies": sum(len(profile.dependencies) for profile in profiles),
+                "unresolved_dependencies": sum(
+                    not dependency.resolved
+                    for profile in profiles
+                    for dependency in profile.dependencies
+                ),
+                "campaigns": len(campaigns),
+                "review_required": sum(
+                    states[state.value]
+                    for state in sorted(_REVIEW_STATES, key=lambda item: item.value)
+                ),
+            },
+            "state_counts": {key: states[key] for key in sorted(states)},
+            "raw_content_returned": False,
+        }
+
+    def list_decisions(
+        self,
+        *,
+        query: str | None = None,
+        limit: int = DEFAULT_RESULT_LIMIT,
+        offset: int = 0,
+    ) -> dict[str, object]:
+        """List safe receipt projections for the operator console."""
+
+        _require_page(limit=limit, offset=offset)
+        selected_query = query.strip().lower() if query is not None else ""
+        profiles = self._profiles.all_profiles()
+        campaigns = self._findings.all_campaigns() if self._findings is not None else ()
+        latest = _latest_assessments(campaigns)
+        decisions = [
+            _decision_summary(profile, latest.get(profile.receipt_id)) for profile in profiles
+        ]
+        if selected_query:
+            decisions = [
+                item
+                for item in decisions
+                if selected_query in _searchable_decision_text(item).lower()
+            ]
+        decisions.sort(
+            key=lambda item: (str(item["ended_at"]), str(item["receipt_id"])),
+            reverse=True,
+        )
+        returned = decisions[offset : offset + limit]
+        return {
+            "contract_version": CONTRACT_VERSION,
+            "scope": "CONFIGURED_RECEIPT_INDEX",
+            "availability": "AVAILABLE",
+            "total": len(decisions),
+            "offset": offset,
+            "returned": len(returned),
+            "truncated": offset + len(returned) < len(decisions),
+            "decisions": returned,
+            "raw_content_returned": False,
+        }
+
+    def list_invalidation_campaigns(
+        self,
+        *,
+        limit: int = DEFAULT_RESULT_LIMIT,
+        offset: int = 0,
+    ) -> dict[str, object]:
+        """List persisted Action campaigns without exposing raw event bodies."""
+
+        _require_page(limit=limit, offset=offset)
+        if self._findings is None:
+            return {
+                "contract_version": CONTRACT_VERSION,
+                "scope": "CONFIGURED_CAMPAIGN_STORE",
+                "availability": "CAMPAIGN_STORE_NOT_CONFIGURED",
+                "total": 0,
+                "offset": offset,
+                "returned": 0,
+                "truncated": False,
+                "campaigns": [],
+                "raw_content_returned": False,
+            }
+        campaigns = sorted(
+            self._findings.all_campaigns(),
+            key=lambda item: (item.campaign.change.occurred_at, item.campaign.campaign_id),
+            reverse=True,
+        )
+        returned = campaigns[offset : offset + limit]
+        return {
+            "contract_version": CONTRACT_VERSION,
+            "scope": "CONFIGURED_CAMPAIGN_STORE",
+            "availability": "AVAILABLE",
+            "total": len(campaigns),
+            "offset": offset,
+            "returned": len(returned),
+            "truncated": offset + len(returned) < len(campaigns),
+            "campaigns": [_persisted_campaign_to_dict(item) for item in returned],
+            "raw_content_returned": False,
+        }
+
     def _profile_integrity(self, receipt_id: str) -> dict[str, object]:
         if self._artifacts is None:
             return {
@@ -424,3 +601,90 @@ def _processing_to_dict(value: PersistedCampaign) -> dict[str, object]:
         "datahub_writeback_state": writeback_state,
         "last_error_recorded": value.last_error_recorded,
     }
+
+
+def _latest_assessments(
+    campaigns: tuple[PersistedCampaign, ...],
+) -> dict[str, tuple[PersistedCampaign, ImpactAssessment]]:
+    latest: dict[str, tuple[PersistedCampaign, ImpactAssessment]] = {}
+    ordered = sorted(
+        campaigns,
+        key=lambda item: (item.campaign.change.occurred_at, item.campaign.campaign_id),
+        reverse=True,
+    )
+    for campaign in ordered:
+        for assessment in campaign.campaign.assessments:
+            latest.setdefault(assessment.receipt_id, (campaign, assessment))
+    return latest
+
+
+def _profile_state(
+    profile: ReceiptDependencyProfile,
+    latest: tuple[PersistedCampaign, ImpactAssessment] | None,
+) -> str:
+    if profile.superseded_by is not None:
+        return ImpactState.SUPERSEDED.value
+    if latest is None:
+        return "NO_RECORDED_FINDING"
+    return latest[1].state.value
+
+
+def _decision_summary(
+    profile: ReceiptDependencyProfile,
+    latest: tuple[PersistedCampaign, ImpactAssessment] | None,
+) -> dict[str, object]:
+    dependencies = [
+        {
+            "evidence_id": item.evidence_id,
+            "datahub_urn": item.datahub_urn,
+            "schema_field_urn": item.schema_field_urn,
+            "state": item.state.value,
+            "role": item.role.value,
+        }
+        for item in profile.dependencies
+    ]
+    finding = None
+    if latest is not None:
+        campaign, assessment = latest
+        finding = {
+            "campaign_id": campaign.campaign.campaign_id,
+            "incident_urn": campaign.campaign.incident_urn,
+            "occurred_at": campaign.campaign.change.occurred_at,
+            "assessment": _assessment_to_dict(assessment),
+            "processing": _processing_to_dict(campaign),
+        }
+    return {
+        "receipt_id": profile.receipt_id,
+        "document_urn": profile.document_urn,
+        "ended_at": profile.ended_at,
+        "superseded_by": profile.superseded_by,
+        "state": _profile_state(profile, latest),
+        "dependency_count": len(dependencies),
+        "resolved_dependency_count": sum(item.resolved for item in profile.dependencies),
+        "field_lineage_coverage": profile.field_lineage.coverage.value,
+        "wildcard_query": profile.field_lineage.wildcard_query,
+        "dependencies": dependencies,
+        "latest_finding": finding,
+    }
+
+
+def _searchable_decision_text(value: Mapping[str, object]) -> str:
+    dependencies = value.get("dependencies")
+    safe_parts = [str(value.get("receipt_id", "")), str(value.get("document_urn", ""))]
+    if isinstance(dependencies, list):
+        for dependency in dependencies:
+            if isinstance(dependency, Mapping):
+                safe_parts.extend(
+                    (
+                        str(dependency.get("datahub_urn", "")),
+                        str(dependency.get("schema_field_urn", "")),
+                    )
+                )
+    return " ".join(safe_parts)
+
+
+def _require_page(*, limit: int, offset: int) -> None:
+    if isinstance(limit, bool) or not 1 <= limit <= MAX_RESULT_LIMIT:
+        raise ForensicsInputError(f"limit must be between 1 and {MAX_RESULT_LIMIT}")
+    if isinstance(offset, bool) or offset < 0:
+        raise ForensicsInputError("offset must be a non-negative integer")

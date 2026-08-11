@@ -1,0 +1,110 @@
+<Eyebrow>Core concepts</Eyebrow>
+
+# The invalidation loop
+
+<Lede>
+One metadata change becomes a campaign, an assessment per affected decision, and a
+governed writeback — with no human in the path.
+</Lede>
+
+## The path a change takes
+
+<Steps>
+  <Step title="A change arrives">
+    DataHub emits a `MetadataChangeLogEvent_v1`. The Action normalises supported
+    payloads into a closed change model before any policy runs. Unsupported aspects
+    are acknowledged as no-ops; a **malformed supported** event raises, so the
+    Actions framework retries it rather than silently dropping it.
+  </Step>
+  <Step title="Reverse lookup">
+    The changed entity is looked up against the signed-receipt dependency index.
+    This is the step the whole design exists to make possible: without a recorded,
+    URN-resolved dependency set, there is nothing to look up.
+  </Step>
+  <Step title="A campaign is created">
+    Matching receipts become one content-addressed campaign, bound to the exact
+    change event and the exact policy version that will judge it.
+  </Step>
+  <Step title="Each decision is assessed">
+    The materiality engine runs — pure, deterministic, versioned — and produces a
+    state and a reason code per receipt.
+  </Step>
+  <Step title="Findings write back">
+    Material findings become DataHub incidents. Affected receipts can be
+    quarantined. Everything is recorded in an append-only audit.
+  </Step>
+</Steps>
+
+## Campaigns are content-addressed
+
+A campaign is identified by its content, so re-processing the same change event
+produces the same campaign rather than a duplicate. That is what makes redelivery
+safe: at-least-once transport plus content addressing gives you effectively-once
+outcomes without a distributed transaction.
+
+<Callout type="note" title="Feedback-loop protection">
+GlassBox writes incidents into DataHub, and DataHub emits change events. Without a
+guard, its own writeback would arrive back as a new change to assess. The Action
+recognises its own effects and does not re-enter on them.
+</Callout>
+
+## Leases, not locks
+
+Campaign work is leased, not locked.
+
+- A worker claims a campaign with an expiring lease.
+- If the worker dies, the lease expires and the work is recovered.
+- A restarting worker **cannot steal a live lease** held by another process.
+- SQLite uses the caller clock; PostgreSQL uses the database server clock, which is
+  what makes multi-worker coordination sound.
+
+## Two state profiles
+
+| | SQLite (WAL) | PostgreSQL 14+ |
+|---|---|---|
+| Scope | Multi-process, **one host** | Multiple workers |
+| Claims | Transactional | Row-locked |
+| Clock | Caller | Database server |
+| Bootstrap | `init` | Operator-only `postgres-init` |
+| Extra | built in | `--extra postgres` |
+
+Both profiles implement one behavioural protocol: signed receipt registration,
+reverse lookup, campaign leases, sealed DataHub evidence, and durable outboxes. A
+detector or a state transition cannot exist in one profile and silently not in the
+other.
+
+<Callout type="warning" title="Honest boundary">
+The SQLite profile coordinates processes on one host. It is deliberately not
+presented as a multi-node or network-filesystem deployment. The PostgreSQL proof
+establishes real multi-connection coordination on a real server; it does not claim
+physical multi-host deployment, managed failover, or network-partition recovery.
+</Callout>
+
+## Three durable outboxes
+
+Every effect that leaves the process is an obligation recorded in the same
+transaction as the state it describes:
+
+<CardGroup cols={3}>
+  <Card title="Receipt publication" icon="solar:document-text-linear">
+    Inserted `READY` with every new signed receipt. Drives the governed DataHub
+    projection.
+  </Card>
+  <Card title="Campaign writeback" icon="solar:target-linear">
+    Carries findings to DataHub incidents and receipt quarantine.
+  </Card>
+  <Card title="Owner routing" icon="solar:users-group-rounded-linear">
+    Created in the same transaction as verified writeback, so a notification cannot
+    exist without the finding that justified it.
+  </Card>
+</CardGroup>
+
+Each row carries `READY` / `LEASED` / `COMPLETED`, an attempt counter, a bounded
+error type, and worker ownership. Completed redelivery performs a fresh DataHub
+readback with **zero writes**.
+
+<Callout type="tip" title="Next">
+[Deterministic invalidation](/docs/assessment/deterministic) covers what the
+materiality engine actually decides, and [DataHub](/docs/integrations/datahub)
+covers the writeback side.
+</Callout>

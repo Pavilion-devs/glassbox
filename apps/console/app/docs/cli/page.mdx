@@ -1,0 +1,118 @@
+<Eyebrow>Reference</Eyebrow>
+
+# CLI reference
+
+<Lede>Every command across the nine GlassBox binaries.</Lede>
+
+## `glassbox-dbom`
+
+Validate and independently verify a receipt. Needs no network and no database.
+
+| Command | Purpose |
+|---|---|
+| `verify` | Verify schema and integrity material |
+| `verify-policy` | Validate a trusted-signer registry without loading a private key |
+| `signer-entry` | Derive a policy-ready public signer entry from an environment-indirect key |
+
+```bash title="Shell"
+uv run glassbox-dbom verify receipt.json \
+  --signer-trust-policy /etc/glassbox/trusted-signers.json \
+  --json
+```
+
+## `glassbox-invalidation-state`
+
+The state authority. Every SQLite command has a `postgres-` counterpart.
+
+| Command | Purpose |
+|---|---|
+| `init` | Initialize and verify a state database |
+| `verify` | Verify SQLite and all record checksums |
+| `status` | Show bounded receipt and outbox status |
+| `register-receipt` | Verify and transactionally index one signed receipt |
+| `export-transfer` | Verify and sign a portable receipt-state transfer |
+| `verify-transfer` | Verify a transfer artifact without importing it |
+| `import-transfer` | Import a verified transfer |
+| `postgres-init` | Operator-only bootstrap of the PostgreSQL schema |
+| `postgres-verify` | Verify the PostgreSQL profile |
+| `postgres-status` | Bounded status against PostgreSQL |
+| `postgres-register-receipt` | Manual import or repair path |
+| `postgres-export-transfer` | Export from PostgreSQL |
+| `postgres-import-transfer` | Import into PostgreSQL |
+
+<Callout type="note" title="Registration is usually automatic">
+`register-receipt` and its PostgreSQL counterpart exist for historical imports and
+explicit repair. Live compiler paths register automatically, in the same
+transaction as the publication obligation.
+</Callout>
+
+## `glassbox-otlp-receiver`
+
+| Command | Purpose |
+|---|---|
+| `serve` | Receive OTLP traces and publish receipts |
+| `drain` | Recover pending publication obligations |
+
+```bash title="Shell"
+uv run glassbox-otlp-receiver serve \
+  --signing-key-id glassbox-prod-2026-08 \
+  --environment PROD \
+  --output-kind agent-decision \
+  --output-mime-type application/json
+
+uv run glassbox-otlp-receiver drain --limit 100
+```
+
+## `glassbox-replay`
+
+| Command | Purpose |
+|---|---|
+| `bundle` | Build a signed replay bundle from one receipt |
+| `verify-bundle` | Verify a bundle and its source binding |
+| `dry-run` | Build, plan, and render a replay without invoking any tool |
+
+`dry-run` is structurally non-executing: the renderer has no path that can invoke a
+tool, so a plan can be reviewed with no risk of running it.
+
+## `glassbox-datahub-action`
+
+Offline packaging and configuration checks for the Actions plugin.
+
+| Command | Purpose |
+|---|---|
+| `validate-config` | Validate a pipeline locally without connecting to DataHub |
+| `inspect-install` | Verify the plugin entry point is installed exactly once |
+
+## `glassbox-datahub-probe`
+
+| Command | Purpose |
+|---|---|
+| `plan` | Show what the probe would do, with no network writes |
+
+Live probing is deliberately gated behind an explicit flag and a compatibility
+note.
+
+## `glassbox-forensics-mcp`
+
+Starts the read-only MCP adapter over `ForensicsService`. Opens an existing schema
+with `initialize_schema=false` and exposes read operations only.
+
+## `glassbox-control`
+
+The authenticated control plane. Humans authenticate at the edge through an
+operator-configured OAuth/OIDC provider; GlassBox itself uses one scoped DataHub
+service-account token.
+
+## `glassbox-agent-narration`
+
+Projects a validated dual-plane forensics report into the closed, raw-free
+`glassbox.agent-narration-brief.v1` fact ledger. Source evidence is rejected unless
+cross-plane identities match exactly and the DataHub catalog and incident-health
+evidence is proven.
+
+<Callout type="warning" title="Secrets go through the environment">
+Every command that needs a signing key, bearer token, or database DSN reads it from
+an environment variable by name (`--dsn-env`, `GLASSBOX_RECEIPT_SIGNING_KEY`,
+`GLASSBOX_OTLP_BEARER_TOKEN`). No secret value is ever accepted as a positional
+argument.
+</Callout>

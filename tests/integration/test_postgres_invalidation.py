@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import os
 import threading
-import time
 import uuid
 from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor
@@ -95,6 +94,7 @@ def _trust_policy(
     key: SigningKey,
     *,
     status: SignerStatus = SignerStatus.ACTIVE,
+    not_before: str = "2020-01-01T00:00:00Z",
 ) -> SignerTrustPolicy:
     return SignerTrustPolicy(
         policy_id="postgres-integration-trust-v1",
@@ -105,7 +105,7 @@ def _trust_policy(
                 public_key=signing_key_public_key(key),
                 public_key_sha256=signing_key_fingerprint(key),
                 status=status,
-                not_before="2020-01-01T00:00:00Z",
+                not_before=not_before,
                 not_after="2100-01-01T00:00:00Z",
             ),
         ),
@@ -335,6 +335,32 @@ def test_postgres_enforces_trusted_admission_and_rotation_history(
             signer_trust_policy=_trust_policy(key, status=SignerStatus.REVOKED),
             initialize_schema=False,
         )
+
+
+def test_postgres_rejects_receipt_from_before_signer_validity_without_writing(
+    postgres_schema: str,
+) -> None:
+    assert POSTGRES_DSN is not None
+    key = SigningKey("postgres-future-at-receipt-time", Ed25519PrivateKey.generate())
+    store = PostgresInvalidationStore(
+        POSTGRES_DSN,
+        schema=postgres_schema,
+        signer_trust_policy=_trust_policy(
+            key,
+            not_before="2026-08-07T00:00:00Z",
+        ),
+    )
+
+    with pytest.raises(PolicyInputError, match="BEFORE_VALIDITY_WINDOW"):
+        store.register(
+            _receipt(run_id="postgres-before-key-validity", signing_key=key),
+            field_lineage=_lineage(),
+        )
+
+    report = store.verify_integrity()
+    assert report.receipts == 0
+    assert report.dependencies == 0
+    assert report.receipt_publication_tasks == 0
 
 
 def test_signed_state_transfer_round_trips_between_sqlite_and_postgres(
@@ -638,15 +664,24 @@ def test_postgres_uses_server_clock_for_expired_lease_recovery(
         campaign.campaign_id,
         worker_id="first",
         now_ms=1,
-        lease_duration_ms=50,
+        lease_duration_ms=10_000,
     )
     blocked = store.claim(
         campaign.campaign_id,
         worker_id="second",
         now_ms=9_999_999_999_999,
-        lease_duration_ms=50,
+        lease_duration_ms=10_000,
     )
-    time.sleep(0.08)
+    with store._transaction() as cursor:
+        cursor.execute(
+            """
+            UPDATE campaign_outbox
+            SET lease_expires_at_ms =
+                FLOOR(EXTRACT(EPOCH FROM clock_timestamp()) * 1000)::BIGINT - 1
+            WHERE campaign_id = %s
+            """,
+            (campaign.campaign_id,),
+        )
     recovered = store.claim(
         campaign.campaign_id,
         worker_id="second",

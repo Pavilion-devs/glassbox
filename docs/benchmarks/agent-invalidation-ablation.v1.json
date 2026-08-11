@@ -1,0 +1,1231 @@
+{
+  "benchmark": "glassbox.agent-invalidation-ablation.v1",
+  "benchmark_id": "gbx:benchmark:sha256:6042398f7b96bd5ae0595063bd049d5c7183a4a26a652b3b515dbee51b83689b",
+  "case_count": 12,
+  "contract_version": "0.1.0",
+  "fixture_sha256": "20b3132e80827072b6f40f21ad0110c706902478864ff04a8ba148fc9a0de349",
+  "limitations": [
+    "Synthetic correctness fixtures measure a closed causal contract, not production prevalence.",
+    "Raw OpenTelemetry means spans without GlassBox-qualified DataHub field and snapshot attributes.",
+    "Offline latency excludes service, network, model-provider, and container startup time.",
+    "The live write unit is an adapter emission/aspect write, not an underlying database row.",
+    "A fresh-host success rate needs independent clean-host repetitions; this report does not invent it."
+  ],
+  "live_evidence": {
+    "completed_redelivery_zero_write_rate": {
+      "denominator": 3,
+      "numerator": 3,
+      "value": 1.0
+    },
+    "corrected_replay_success_rate": {
+      "denominator": 1,
+      "numerator": 1,
+      "value": 1.0
+    },
+    "datahub_write_units": {
+      "breakdown": {
+        "incident_closure_aspect_writes": 4,
+        "invalidation_emissions": 2,
+        "replay_receipt_emissions": 2,
+        "source_receipt_emissions": 2,
+        "supersession_emissions": 2
+      },
+      "measurement_unit": "adapter-reported proposal emissions or aspect writes; not storage rows",
+      "total": 12
+    },
+    "negative_control_zero_write_rate": {
+      "denominator": 1,
+      "numerator": 1,
+      "value": 1.0
+    },
+    "source_report": "datahub-1.6.0-flagship-causal-recovery.live.json",
+    "source_report_sha256": "645a5f16afb29e8550b1802d2c989edf96cd4f38d2edac830cf48b567cd6145d",
+    "status": "MEASURED_LIVE_REPORT",
+    "verified_incident_closure_rate": {
+      "denominator": 1,
+      "numerator": 1,
+      "value": 1.0
+    }
+  },
+  "metric_coverage": {
+    "agent_overhead_p50_p95": "MEASURED_OFFLINE",
+    "asset_resolution_precision_recall": "MEASURED_SYNTHETIC_EXACT",
+    "datahub_write_amplification": "MEASURED_LIVE_REPORT",
+    "false_and_missed_invalidation": "MEASURED_SYNTHETIC_EXACT",
+    "field_resolution_precision_recall": "MEASURED_SYNTHETIC_EXACT",
+    "fresh_checkout_setup": "NOT_MEASURED_ON_A_FRESH_HOST",
+    "idempotent_event_handling": "MEASURED_LIVE_REPORT",
+    "receipt_compilation_latency": "MEASURED_OFFLINE",
+    "replay_success_and_refusal": "MEASURED_DETERMINISTIC_AND_LIVE",
+    "secret_redaction_escape": "MEASURED_SYNTHETIC_EXACT",
+    "unknown_at_risk_honesty": "MEASURED_SYNTHETIC_EXACT"
+  },
+  "performance": {
+    "agent_runtime_microseconds": {
+      "baseline": {
+        "max": 9.833,
+        "min": 0.375,
+        "p50": 0.458,
+        "p95": 0.5,
+        "samples": 500
+      },
+      "glassbox_observed": {
+        "max": 351.459,
+        "min": 44.75,
+        "p50": 48.833,
+        "p95": 57.458,
+        "samples": 500
+      },
+      "overhead_p50": 48.375,
+      "overhead_p95": 56.958
+    },
+    "clock": "time.perf_counter_ns",
+    "environment": {
+      "implementation": "CPython",
+      "machine": "arm64",
+      "python": "3.12.13",
+      "system": "Darwin"
+    },
+    "policy_suite_latency_microseconds": {
+      "FULL_GLASSBOX": {
+        "max": 33.167,
+        "min": 15.542,
+        "p50": 17.542,
+        "p95": 17.833,
+        "samples": 500
+      },
+      "GLASSBOX_WITHOUT_FIELD_EVIDENCE": {
+        "max": 26.625,
+        "min": 13.916,
+        "p50": 15.625,
+        "p95": 15.875,
+        "samples": 500
+      },
+      "GLASSBOX_WITHOUT_METADATA_SNAPSHOTS": {
+        "max": 129.375,
+        "min": 15.375,
+        "p50": 16.125,
+        "p95": 18.0,
+        "samples": 500
+      },
+      "RAW_OTEL_TRACES": {
+        "max": 28.125,
+        "min": 13.166,
+        "p50": 14.833,
+        "p95": 15.042,
+        "samples": 500
+      },
+      "STATIC_DECLARED_LINEAGE": {
+        "max": 26.791,
+        "min": 13.292,
+        "p50": 15.25,
+        "p95": 15.583,
+        "samples": 500
+      }
+    },
+    "receipt_compilation_milliseconds": {
+      "max": 1.344875,
+      "min": 1.013917,
+      "p50": 1.065875,
+      "p95": 1.181292,
+      "samples": 50
+    },
+    "scope": "Single-process deterministic microbenchmark; excludes network, DataHub, MCP, PostgreSQL, container startup, and model-provider latency.",
+    "status": "MEASURED_OFFLINE"
+  },
+  "primary_result": {
+    "selected_variant": "FULL_GLASSBOX",
+    "selection_is_model_judged": false,
+    "selection_rule": "Minimize missed invalidation, then false invalidation, while requiring perfect indeterminate-case honesty."
+  },
+  "privacy": {
+    "credentials_retained": false,
+    "raw_action_inputs_retained": false,
+    "raw_evidence_retained": false,
+    "raw_outputs_retained": false,
+    "raw_prompts_retained": false,
+    "synthetic_fixtures_only": true
+  },
+  "redaction": {
+    "escape_rate": {
+      "denominator": 10,
+      "numerator": 0,
+      "value": 0.0
+    },
+    "plaintext_values_retained": 0,
+    "policy_id": "glassbox.default-deny-v1"
+  },
+  "replay_policy": {
+    "cases": [
+      {
+        "actual": "ALLOW",
+        "case_id": "safe-read-only",
+        "correct": true,
+        "expected": "ALLOW"
+      },
+      {
+        "actual": "BLOCK",
+        "case_id": "irreversible-refusal",
+        "correct": true,
+        "expected": "BLOCK"
+      },
+      {
+        "actual": "BLOCK",
+        "case_id": "missing-resource-refusal",
+        "correct": true,
+        "expected": "BLOCK"
+      },
+      {
+        "actual": "DRY_RUN_ONLY",
+        "case_id": "missing-execution-material-dry-only",
+        "correct": true,
+        "expected": "DRY_RUN_ONLY"
+      }
+    ],
+    "correctness": {
+      "denominator": 4,
+      "numerator": 4,
+      "value": 1.0
+    },
+    "policy_version": "glassbox.replay-policy.v1"
+  },
+  "truth_distribution": {
+    "CLEAN": 6,
+    "CONTAMINATED": 3,
+    "INDETERMINATE": 3
+  },
+  "variants": [
+    {
+      "cases": [
+        {
+          "case_id": "used-field-type-change",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 2,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CONTAMINATED"
+        },
+        {
+          "case_id": "unrelated-field-same-asset",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "matching-post-change-snapshot",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "other-asset-change",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 2,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "trace-alias-collision",
+          "matched_evidence_count": 0,
+          "quarantine_required": false,
+          "reason_code": "CHANGED_ASSET_NOT_IN_RESOLVED_INFLUENCE_SET",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "semantic-constraint-change",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "MATCHED_DEPENDENCY_NOT_OBSERVED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CONTAMINATED"
+        },
+        {
+          "case_id": "semantic-reference-unproven",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "MATCHED_DEPENDENCY_NOT_OBSERVED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "INDETERMINATE"
+        },
+        {
+          "case_id": "freshness-requirement-unrecorded",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "MATCHED_DEPENDENCY_NOT_OBSERVED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "INDETERMINATE"
+        },
+        {
+          "case_id": "wildcard-field-ambiguity",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "INDETERMINATE"
+        },
+        {
+          "case_id": "unresolved-runtime-context",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CONTAMINATED"
+        },
+        {
+          "case_id": "declared-but-not-observed-asset",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 2,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "new-field-non-wildcard",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CLEAN"
+        }
+      ],
+      "impact": {
+        "confident_stale_precision": {
+          "denominator": 0,
+          "numerator": 0,
+          "value": null
+        },
+        "confident_stale_recall": {
+          "denominator": 3,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "dishonest_indeterminate_cases": [],
+        "false_invalidation_cases": [
+          "declared-but-not-observed-asset",
+          "matching-post-change-snapshot",
+          "new-field-non-wildcard",
+          "other-asset-change",
+          "unrelated-field-same-asset"
+        ],
+        "false_invalidation_rate": {
+          "denominator": 6,
+          "numerator": 5,
+          "value": 0.833333
+        },
+        "missed_invalidation_cases": [],
+        "missed_invalidation_rate": {
+          "denominator": 3,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "quarantine_precision": {
+          "denominator": 8,
+          "numerator": 3,
+          "value": 0.375
+        },
+        "quarantine_recall": {
+          "denominator": 3,
+          "numerator": 3,
+          "value": 1.0
+        },
+        "unknown_at_risk_honesty_rate": {
+          "denominator": 3,
+          "numerator": 3,
+          "value": 1.0
+        }
+      },
+      "policy_version": "glassbox.materiality.v1",
+      "removed_capabilities": [
+        "runtime observation state",
+        "field identity",
+        "metadata snapshot binding"
+      ],
+      "resolution": {
+        "asset_precision": {
+          "denominator": 15,
+          "numerator": 12,
+          "value": 0.8
+        },
+        "asset_recall": {
+          "denominator": 12,
+          "numerator": 12,
+          "value": 1.0
+        },
+        "asset_resolution_failed_cases": [
+          "declared-but-not-observed-asset",
+          "other-asset-change",
+          "used-field-type-change"
+        ],
+        "field_precision": {
+          "denominator": 0,
+          "numerator": 0,
+          "value": null
+        },
+        "field_recall": {
+          "denominator": 9,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "field_resolution_failed_cases": [
+          "declared-but-not-observed-asset",
+          "matching-post-change-snapshot",
+          "new-field-non-wildcard",
+          "other-asset-change",
+          "trace-alias-collision",
+          "unrelated-field-same-asset",
+          "unresolved-runtime-context",
+          "used-field-type-change",
+          "wildcard-field-ambiguity"
+        ]
+      },
+      "variant": "STATIC_DECLARED_LINEAGE"
+    },
+    {
+      "cases": [
+        {
+          "case_id": "used-field-type-change",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CONTAMINATED"
+        },
+        {
+          "case_id": "unrelated-field-same-asset",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "matching-post-change-snapshot",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "other-asset-change",
+          "matched_evidence_count": 0,
+          "quarantine_required": false,
+          "reason_code": "CHANGED_ASSET_NOT_IN_RESOLVED_INFLUENCE_SET",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "trace-alias-collision",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "semantic-constraint-change",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "MATCHED_DEPENDENCY_NOT_OBSERVED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CONTAMINATED"
+        },
+        {
+          "case_id": "semantic-reference-unproven",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "MATCHED_DEPENDENCY_NOT_OBSERVED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "INDETERMINATE"
+        },
+        {
+          "case_id": "freshness-requirement-unrecorded",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "MATCHED_DEPENDENCY_NOT_OBSERVED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "INDETERMINATE"
+        },
+        {
+          "case_id": "wildcard-field-ambiguity",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "INDETERMINATE"
+        },
+        {
+          "case_id": "unresolved-runtime-context",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "UNRESOLVED_DEPENDENCY_PREVENTS_ASSET_EXCLUSION",
+          "resolved_asset_count": 0,
+          "resolved_field_count": 0,
+          "state": "UNKNOWN",
+          "truth": "CONTAMINATED"
+        },
+        {
+          "case_id": "declared-but-not-observed-asset",
+          "matched_evidence_count": 0,
+          "quarantine_required": false,
+          "reason_code": "CHANGED_ASSET_NOT_IN_RESOLVED_INFLUENCE_SET",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "new-field-non-wildcard",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CLEAN"
+        }
+      ],
+      "impact": {
+        "confident_stale_precision": {
+          "denominator": 0,
+          "numerator": 0,
+          "value": null
+        },
+        "confident_stale_recall": {
+          "denominator": 3,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "dishonest_indeterminate_cases": [],
+        "false_invalidation_cases": [
+          "matching-post-change-snapshot",
+          "new-field-non-wildcard",
+          "trace-alias-collision",
+          "unrelated-field-same-asset"
+        ],
+        "false_invalidation_rate": {
+          "denominator": 6,
+          "numerator": 4,
+          "value": 0.666667
+        },
+        "missed_invalidation_cases": [],
+        "missed_invalidation_rate": {
+          "denominator": 3,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "quarantine_precision": {
+          "denominator": 7,
+          "numerator": 3,
+          "value": 0.428571
+        },
+        "quarantine_recall": {
+          "denominator": 3,
+          "numerator": 3,
+          "value": 1.0
+        },
+        "unknown_at_risk_honesty_rate": {
+          "denominator": 3,
+          "numerator": 3,
+          "value": 1.0
+        }
+      },
+      "policy_version": "glassbox.materiality.v1",
+      "removed_capabilities": [
+        "verified DataHub resolution authority",
+        "field identity",
+        "metadata snapshot binding"
+      ],
+      "resolution": {
+        "asset_precision": {
+          "denominator": 11,
+          "numerator": 10,
+          "value": 0.909091
+        },
+        "asset_recall": {
+          "denominator": 12,
+          "numerator": 10,
+          "value": 0.833333
+        },
+        "asset_resolution_failed_cases": [
+          "trace-alias-collision",
+          "unresolved-runtime-context"
+        ],
+        "field_precision": {
+          "denominator": 0,
+          "numerator": 0,
+          "value": null
+        },
+        "field_recall": {
+          "denominator": 9,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "field_resolution_failed_cases": [
+          "declared-but-not-observed-asset",
+          "matching-post-change-snapshot",
+          "new-field-non-wildcard",
+          "other-asset-change",
+          "trace-alias-collision",
+          "unrelated-field-same-asset",
+          "unresolved-runtime-context",
+          "used-field-type-change",
+          "wildcard-field-ambiguity"
+        ]
+      },
+      "variant": "RAW_OTEL_TRACES"
+    },
+    {
+      "cases": [
+        {
+          "case_id": "used-field-type-change",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CONTAMINATED"
+        },
+        {
+          "case_id": "unrelated-field-same-asset",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "matching-post-change-snapshot",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "other-asset-change",
+          "matched_evidence_count": 0,
+          "quarantine_required": false,
+          "reason_code": "CHANGED_ASSET_NOT_IN_RESOLVED_INFLUENCE_SET",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "trace-alias-collision",
+          "matched_evidence_count": 0,
+          "quarantine_required": false,
+          "reason_code": "CHANGED_ASSET_NOT_IN_RESOLVED_INFLUENCE_SET",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "semantic-constraint-change",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "OBSERVED_SEMANTIC_CONSTRAINT_CHANGED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "STALE",
+          "truth": "CONTAMINATED"
+        },
+        {
+          "case_id": "semantic-reference-unproven",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "SEMANTIC_REFERENCE_MATERIALITY_UNPROVEN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "INDETERMINATE"
+        },
+        {
+          "case_id": "freshness-requirement-unrecorded",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FRESHNESS_REQUIREMENT_NOT_RECORDED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "INDETERMINATE"
+        },
+        {
+          "case_id": "wildcard-field-ambiguity",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "INDETERMINATE"
+        },
+        {
+          "case_id": "unresolved-runtime-context",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "UNRESOLVED_DEPENDENCY_PREVENTS_ASSET_EXCLUSION",
+          "resolved_asset_count": 0,
+          "resolved_field_count": 0,
+          "state": "UNKNOWN",
+          "truth": "CONTAMINATED"
+        },
+        {
+          "case_id": "declared-but-not-observed-asset",
+          "matched_evidence_count": 0,
+          "quarantine_required": false,
+          "reason_code": "CHANGED_ASSET_NOT_IN_RESOLVED_INFLUENCE_SET",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "new-field-non-wildcard",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "CLEAN"
+        }
+      ],
+      "impact": {
+        "confident_stale_precision": {
+          "denominator": 1,
+          "numerator": 1,
+          "value": 1.0
+        },
+        "confident_stale_recall": {
+          "denominator": 3,
+          "numerator": 1,
+          "value": 0.333333
+        },
+        "dishonest_indeterminate_cases": [],
+        "false_invalidation_cases": [
+          "matching-post-change-snapshot",
+          "new-field-non-wildcard",
+          "unrelated-field-same-asset"
+        ],
+        "false_invalidation_rate": {
+          "denominator": 6,
+          "numerator": 3,
+          "value": 0.5
+        },
+        "missed_invalidation_cases": [],
+        "missed_invalidation_rate": {
+          "denominator": 3,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "quarantine_precision": {
+          "denominator": 6,
+          "numerator": 3,
+          "value": 0.5
+        },
+        "quarantine_recall": {
+          "denominator": 3,
+          "numerator": 3,
+          "value": 1.0
+        },
+        "unknown_at_risk_honesty_rate": {
+          "denominator": 3,
+          "numerator": 3,
+          "value": 1.0
+        }
+      },
+      "policy_version": "glassbox.materiality.v1",
+      "removed_capabilities": [
+        "field identity",
+        "field-lineage proof"
+      ],
+      "resolution": {
+        "asset_precision": {
+          "denominator": 11,
+          "numerator": 11,
+          "value": 1.0
+        },
+        "asset_recall": {
+          "denominator": 12,
+          "numerator": 11,
+          "value": 0.916667
+        },
+        "asset_resolution_failed_cases": [
+          "unresolved-runtime-context"
+        ],
+        "field_precision": {
+          "denominator": 0,
+          "numerator": 0,
+          "value": null
+        },
+        "field_recall": {
+          "denominator": 9,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "field_resolution_failed_cases": [
+          "declared-but-not-observed-asset",
+          "matching-post-change-snapshot",
+          "new-field-non-wildcard",
+          "other-asset-change",
+          "trace-alias-collision",
+          "unrelated-field-same-asset",
+          "unresolved-runtime-context",
+          "used-field-type-change",
+          "wildcard-field-ambiguity"
+        ]
+      },
+      "variant": "GLASSBOX_WITHOUT_FIELD_EVIDENCE"
+    },
+    {
+      "cases": [
+        {
+          "case_id": "used-field-type-change",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "OBSERVED_MATERIAL_DEPENDENCY_CHANGED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 1,
+          "state": "STALE",
+          "truth": "CONTAMINATED"
+        },
+        {
+          "case_id": "unrelated-field-same-asset",
+          "matched_evidence_count": 1,
+          "quarantine_required": false,
+          "reason_code": "COMPLETE_FIELD_LINEAGE_PROVES_FIELD_UNUSED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 1,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "matching-post-change-snapshot",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "OBSERVED_MATERIAL_DEPENDENCY_CHANGED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 1,
+          "state": "STALE",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "other-asset-change",
+          "matched_evidence_count": 0,
+          "quarantine_required": false,
+          "reason_code": "CHANGED_ASSET_NOT_IN_RESOLVED_INFLUENCE_SET",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 1,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "trace-alias-collision",
+          "matched_evidence_count": 0,
+          "quarantine_required": false,
+          "reason_code": "CHANGED_ASSET_NOT_IN_RESOLVED_INFLUENCE_SET",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 1,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "semantic-constraint-change",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "OBSERVED_SEMANTIC_CONSTRAINT_CHANGED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "STALE",
+          "truth": "CONTAMINATED"
+        },
+        {
+          "case_id": "semantic-reference-unproven",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "SEMANTIC_REFERENCE_MATERIALITY_UNPROVEN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "INDETERMINATE"
+        },
+        {
+          "case_id": "freshness-requirement-unrecorded",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FRESHNESS_REQUIREMENT_NOT_RECORDED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "INDETERMINATE"
+        },
+        {
+          "case_id": "wildcard-field-ambiguity",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 1,
+          "state": "AT_RISK",
+          "truth": "INDETERMINATE"
+        },
+        {
+          "case_id": "unresolved-runtime-context",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "UNRESOLVED_DEPENDENCY_PREVENTS_ASSET_EXCLUSION",
+          "resolved_asset_count": 0,
+          "resolved_field_count": 0,
+          "state": "UNKNOWN",
+          "truth": "CONTAMINATED"
+        },
+        {
+          "case_id": "declared-but-not-observed-asset",
+          "matched_evidence_count": 0,
+          "quarantine_required": false,
+          "reason_code": "CHANGED_ASSET_NOT_IN_RESOLVED_INFLUENCE_SET",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 1,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "new-field-non-wildcard",
+          "matched_evidence_count": 1,
+          "quarantine_required": false,
+          "reason_code": "COMPLETE_FIELD_LINEAGE_PROVES_FIELD_UNUSED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 1,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        }
+      ],
+      "impact": {
+        "confident_stale_precision": {
+          "denominator": 3,
+          "numerator": 2,
+          "value": 0.666667
+        },
+        "confident_stale_recall": {
+          "denominator": 3,
+          "numerator": 2,
+          "value": 0.666667
+        },
+        "dishonest_indeterminate_cases": [],
+        "false_invalidation_cases": [
+          "matching-post-change-snapshot"
+        ],
+        "false_invalidation_rate": {
+          "denominator": 6,
+          "numerator": 1,
+          "value": 0.166667
+        },
+        "missed_invalidation_cases": [],
+        "missed_invalidation_rate": {
+          "denominator": 3,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "quarantine_precision": {
+          "denominator": 4,
+          "numerator": 3,
+          "value": 0.75
+        },
+        "quarantine_recall": {
+          "denominator": 3,
+          "numerator": 3,
+          "value": 1.0
+        },
+        "unknown_at_risk_honesty_rate": {
+          "denominator": 3,
+          "numerator": 3,
+          "value": 1.0
+        }
+      },
+      "policy_version": "glassbox.materiality.v1",
+      "removed_capabilities": [
+        "observation timestamp and representation digest"
+      ],
+      "resolution": {
+        "asset_precision": {
+          "denominator": 11,
+          "numerator": 11,
+          "value": 1.0
+        },
+        "asset_recall": {
+          "denominator": 12,
+          "numerator": 11,
+          "value": 0.916667
+        },
+        "asset_resolution_failed_cases": [
+          "unresolved-runtime-context"
+        ],
+        "field_precision": {
+          "denominator": 8,
+          "numerator": 8,
+          "value": 1.0
+        },
+        "field_recall": {
+          "denominator": 9,
+          "numerator": 8,
+          "value": 0.888889
+        },
+        "field_resolution_failed_cases": [
+          "unresolved-runtime-context"
+        ]
+      },
+      "variant": "GLASSBOX_WITHOUT_METADATA_SNAPSHOTS"
+    },
+    {
+      "cases": [
+        {
+          "case_id": "used-field-type-change",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "OBSERVED_MATERIAL_DEPENDENCY_CHANGED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 1,
+          "state": "STALE",
+          "truth": "CONTAMINATED"
+        },
+        {
+          "case_id": "unrelated-field-same-asset",
+          "matched_evidence_count": 1,
+          "quarantine_required": false,
+          "reason_code": "COMPLETE_FIELD_LINEAGE_PROVES_FIELD_UNUSED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 1,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "matching-post-change-snapshot",
+          "matched_evidence_count": 1,
+          "quarantine_required": false,
+          "reason_code": "MATCHED_POST_CHANGE_SNAPSHOT",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 1,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "other-asset-change",
+          "matched_evidence_count": 0,
+          "quarantine_required": false,
+          "reason_code": "CHANGED_ASSET_NOT_IN_RESOLVED_INFLUENCE_SET",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 1,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "trace-alias-collision",
+          "matched_evidence_count": 0,
+          "quarantine_required": false,
+          "reason_code": "CHANGED_ASSET_NOT_IN_RESOLVED_INFLUENCE_SET",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 1,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "semantic-constraint-change",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "OBSERVED_SEMANTIC_CONSTRAINT_CHANGED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "STALE",
+          "truth": "CONTAMINATED"
+        },
+        {
+          "case_id": "semantic-reference-unproven",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "SEMANTIC_REFERENCE_MATERIALITY_UNPROVEN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "INDETERMINATE"
+        },
+        {
+          "case_id": "freshness-requirement-unrecorded",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FRESHNESS_REQUIREMENT_NOT_RECORDED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 0,
+          "state": "AT_RISK",
+          "truth": "INDETERMINATE"
+        },
+        {
+          "case_id": "wildcard-field-ambiguity",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "FIELD_LINEAGE_INCOMPLETE_OR_WILDCARD_UNKNOWN",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 1,
+          "state": "AT_RISK",
+          "truth": "INDETERMINATE"
+        },
+        {
+          "case_id": "unresolved-runtime-context",
+          "matched_evidence_count": 1,
+          "quarantine_required": true,
+          "reason_code": "UNRESOLVED_DEPENDENCY_PREVENTS_ASSET_EXCLUSION",
+          "resolved_asset_count": 0,
+          "resolved_field_count": 0,
+          "state": "UNKNOWN",
+          "truth": "CONTAMINATED"
+        },
+        {
+          "case_id": "declared-but-not-observed-asset",
+          "matched_evidence_count": 0,
+          "quarantine_required": false,
+          "reason_code": "CHANGED_ASSET_NOT_IN_RESOLVED_INFLUENCE_SET",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 1,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        },
+        {
+          "case_id": "new-field-non-wildcard",
+          "matched_evidence_count": 1,
+          "quarantine_required": false,
+          "reason_code": "COMPLETE_FIELD_LINEAGE_PROVES_FIELD_UNUSED",
+          "resolved_asset_count": 1,
+          "resolved_field_count": 1,
+          "state": "UNAFFECTED",
+          "truth": "CLEAN"
+        }
+      ],
+      "impact": {
+        "confident_stale_precision": {
+          "denominator": 2,
+          "numerator": 2,
+          "value": 1.0
+        },
+        "confident_stale_recall": {
+          "denominator": 3,
+          "numerator": 2,
+          "value": 0.666667
+        },
+        "dishonest_indeterminate_cases": [],
+        "false_invalidation_cases": [],
+        "false_invalidation_rate": {
+          "denominator": 6,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "missed_invalidation_cases": [],
+        "missed_invalidation_rate": {
+          "denominator": 3,
+          "numerator": 0,
+          "value": 0.0
+        },
+        "quarantine_precision": {
+          "denominator": 3,
+          "numerator": 3,
+          "value": 1.0
+        },
+        "quarantine_recall": {
+          "denominator": 3,
+          "numerator": 3,
+          "value": 1.0
+        },
+        "unknown_at_risk_honesty_rate": {
+          "denominator": 3,
+          "numerator": 3,
+          "value": 1.0
+        }
+      },
+      "policy_version": "glassbox.materiality.v1",
+      "removed_capabilities": [],
+      "resolution": {
+        "asset_precision": {
+          "denominator": 11,
+          "numerator": 11,
+          "value": 1.0
+        },
+        "asset_recall": {
+          "denominator": 12,
+          "numerator": 11,
+          "value": 0.916667
+        },
+        "asset_resolution_failed_cases": [
+          "unresolved-runtime-context"
+        ],
+        "field_precision": {
+          "denominator": 8,
+          "numerator": 8,
+          "value": 1.0
+        },
+        "field_recall": {
+          "denominator": 9,
+          "numerator": 8,
+          "value": 0.888889
+        },
+        "field_resolution_failed_cases": [
+          "unresolved-runtime-context"
+        ]
+      },
+      "variant": "FULL_GLASSBOX"
+    }
+  ]
+}

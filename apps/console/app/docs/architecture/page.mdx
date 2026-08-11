@@ -1,0 +1,97 @@
+<Eyebrow>Resources</Eyebrow>
+
+# Architecture
+
+<Lede>
+Evidence plane on the wire, control plane off it, and one transactional state
+authority connecting them.
+</Lede>
+
+<ArchitectureDiagram framed className="my-8" />
+
+## Reading the diagram
+
+<CardGroup cols={3}>
+  <Card title="Left — capture" icon="solar:users-group-rounded-linear">
+    Instrumented agent runs emit OTLP. The compiler resolves dependencies to real
+    DataHub URNs and produces a canonical, signed receipt.
+  </Card>
+  <Card title="Centre — evidence" icon="solar:chart-square-linear">
+    Transactional state is the single authority. Receipts, dependency indexes, and
+    publication obligations are registered before anything is published.
+  </Card>
+  <Card title="Right — control" icon="solar:settings-linear">
+    The DataHub Action turns metadata changes into campaigns, assessments, incident
+    writeback, and quarantine.
+  </Card>
+</CardGroup>
+
+## Component map
+
+| Component | Responsibility | Boundary |
+|---|---|---|
+| Runtime | Nested-run correlation, evidence capture, risk-typed tool execution | Framework-neutral; adapters for LangChain/LangGraph and Google ADK |
+| OTLP receiver | Authenticated, bounded ingest of protobuf JSON | Returns 200 only after publication evidence is sealed |
+| Provenance compiler | Canonicalisation, URN resolution, signing | Fail-safe replay classification |
+| State authority | Receipts, three outboxes, leases, audit | SQLite WAL on one host, or PostgreSQL 14+ across workers |
+| DataHub Action | Materiality, campaigns, writeback, quarantine | Installable through the public external-plugin contract |
+| Recovery orchestrator | Replay, supersession, closure | Separately versioned state machine |
+| Forensics service | Read-only projections for operators and agents | Raw content never returned |
+
+## The two planes
+
+The **evidence plane** is what an agent run produces and what DataHub stores. It
+is append-only. A receipt is never edited: a correction produces a new signed
+receipt and an immutable supersession relation, and both Documents remain
+byte-unchanged.
+
+The **control plane** is what operators and the Action do about it. It reads the
+evidence plane, writes campaigns and incidents, and can quarantine — but it
+cannot rewrite history.
+
+<Callout type="note" title="Why they are separate">
+If containment could edit evidence, the evidence would no longer be evidence. The
+separation is what lets a quarantine be reversed without any archaeology about
+what the original decision actually depended on.
+</Callout>
+
+## Failure behaviour
+
+Publication is a durable obligation, not a side effect of a successful HTTP call.
+
+- The receiver returns **200** only after the signed receipt, dependency index,
+  and publication obligation exist and DataHub direct-read evidence is sealed.
+- A **503** means the sender should retry. The obligation survives the sender
+  disappearing entirely and can be drained later.
+- Completed redelivery performs a fresh DataHub readback with **zero writes**.
+- Campaign work is leased. An expired lease is recovered; a restart cannot steal
+  a live one.
+
+```bash title="Repair a stranded obligation"
+uv run glassbox-otlp-receiver drain --limit 100
+```
+
+## Known boundaries
+
+- The SQLite profile coordinates processes on one host. It is deliberately not
+  presented as a multi-node or network-filesystem deployment.
+- The PostgreSQL proof establishes real server, multi-connection coordination. It
+  does not claim physical multi-host deployment, managed failover, or
+  network-partition recovery.
+- Kafka and PostgreSQL Queue claims are independent. Each is proven against its
+  own estate and neither substitutes for the other.
+- Replay executes inside a digest-pinned OCI profile with network denial, a
+  read-only root, dropped capabilities, resource ceilings, and bounded transport.
+  That is a strong sandbox, not a formal isolation guarantee.
+
+## Source files
+
+The diagram is authored by hand and lives in `docs/architecture/` at the
+repository root. The copy under `apps/console/public/media/` is produced as part
+of the site build rather than kept as a second source of truth.
+
+<Callout type="tip" title="Related">
+The [overview](/docs) explains the invalidation loop; the [quickstart](/docs/quickstart)
+runs it against a real DataHub estate. Operators can inspect quarantined decisions
+and governed recovery in [Recovery](/recovery).
+</Callout>

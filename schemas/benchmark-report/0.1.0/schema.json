@@ -1,0 +1,419 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glassbox.dev/schemas/benchmark-report/0.1.0/schema.json",
+  "title": "GlassBox Agent Invalidation Benchmark Report 0.1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "benchmark_id",
+    "benchmark",
+    "contract_version",
+    "fixture_sha256",
+    "case_count",
+    "variants",
+    "replay_policy",
+    "redaction",
+    "truth_distribution",
+    "primary_result",
+    "performance",
+    "live_evidence",
+    "metric_coverage",
+    "limitations",
+    "privacy"
+  ],
+  "properties": {
+    "benchmark_id": {
+      "type": "string",
+      "pattern": "^gbx:benchmark:sha256:[0-9a-f]{64}$"
+    },
+    "benchmark": { "const": "glassbox.agent-invalidation-ablation.v1" },
+    "contract_version": { "const": "0.1.0" },
+    "fixture_sha256": { "$ref": "#/$defs/sha256" },
+    "case_count": { "type": "integer", "minimum": 1 },
+    "variants": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": { "$ref": "#/$defs/variant" }
+    },
+    "replay_policy": { "$ref": "#/$defs/replayPolicy" },
+    "redaction": { "$ref": "#/$defs/redaction" },
+    "truth_distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["CONTAMINATED", "CLEAN", "INDETERMINATE"],
+      "properties": {
+        "CONTAMINATED": { "type": "integer", "minimum": 1 },
+        "CLEAN": { "type": "integer", "minimum": 1 },
+        "INDETERMINATE": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "primary_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selected_variant", "selection_rule", "selection_is_model_judged"],
+      "properties": {
+        "selected_variant": { "const": "FULL_GLASSBOX" },
+        "selection_rule": { "type": "string", "minLength": 1 },
+        "selection_is_model_judged": { "const": false }
+      }
+    },
+    "performance": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status"],
+          "properties": { "status": { "const": "NOT_MEASURED" } }
+        },
+        { "$ref": "#/$defs/measuredPerformance" }
+      ]
+    },
+    "live_evidence": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status"],
+          "properties": { "status": { "const": "NOT_REQUESTED" } }
+        },
+        { "$ref": "#/$defs/liveEvidence" }
+      ]
+    },
+    "metric_coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asset_resolution_precision_recall",
+        "field_resolution_precision_recall",
+        "false_and_missed_invalidation",
+        "unknown_at_risk_honesty",
+        "receipt_compilation_latency",
+        "agent_overhead_p50_p95",
+        "datahub_write_amplification",
+        "idempotent_event_handling",
+        "replay_success_and_refusal",
+        "secret_redaction_escape",
+        "fresh_checkout_setup"
+      ],
+      "properties": {
+        "asset_resolution_precision_recall": { "type": "string" },
+        "field_resolution_precision_recall": { "type": "string" },
+        "false_and_missed_invalidation": { "type": "string" },
+        "unknown_at_risk_honesty": { "type": "string" },
+        "receipt_compilation_latency": { "type": "string" },
+        "agent_overhead_p50_p95": { "type": "string" },
+        "datahub_write_amplification": { "type": "string" },
+        "idempotent_event_handling": { "type": "string" },
+        "replay_success_and_refusal": { "type": "string" },
+        "secret_redaction_escape": { "type": "string" },
+        "fresh_checkout_setup": { "type": "string" }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "synthetic_fixtures_only",
+        "raw_prompts_retained",
+        "raw_evidence_retained",
+        "raw_action_inputs_retained",
+        "raw_outputs_retained",
+        "credentials_retained"
+      ],
+      "properties": {
+        "synthetic_fixtures_only": { "const": true },
+        "raw_prompts_retained": { "const": false },
+        "raw_evidence_retained": { "const": false },
+        "raw_action_inputs_retained": { "const": false },
+        "raw_outputs_retained": { "const": false },
+        "credentials_retained": { "const": false }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "ratio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["numerator", "denominator", "value"],
+      "properties": {
+        "numerator": { "type": "integer", "minimum": 0 },
+        "denominator": { "type": "integer", "minimum": 0 },
+        "value": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "stringList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "resolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asset_precision",
+        "asset_recall",
+        "field_precision",
+        "field_recall",
+        "asset_resolution_failed_cases",
+        "field_resolution_failed_cases"
+      ],
+      "properties": {
+        "asset_precision": { "$ref": "#/$defs/ratio" },
+        "asset_recall": { "$ref": "#/$defs/ratio" },
+        "field_precision": { "$ref": "#/$defs/ratio" },
+        "field_recall": { "$ref": "#/$defs/ratio" },
+        "asset_resolution_failed_cases": { "$ref": "#/$defs/stringList" },
+        "field_resolution_failed_cases": { "$ref": "#/$defs/stringList" }
+      }
+    },
+    "impact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "quarantine_precision",
+        "quarantine_recall",
+        "false_invalidation_rate",
+        "missed_invalidation_rate",
+        "confident_stale_precision",
+        "confident_stale_recall",
+        "unknown_at_risk_honesty_rate",
+        "false_invalidation_cases",
+        "missed_invalidation_cases",
+        "dishonest_indeterminate_cases"
+      ],
+      "properties": {
+        "quarantine_precision": { "$ref": "#/$defs/ratio" },
+        "quarantine_recall": { "$ref": "#/$defs/ratio" },
+        "false_invalidation_rate": { "$ref": "#/$defs/ratio" },
+        "missed_invalidation_rate": { "$ref": "#/$defs/ratio" },
+        "confident_stale_precision": { "$ref": "#/$defs/ratio" },
+        "confident_stale_recall": { "$ref": "#/$defs/ratio" },
+        "unknown_at_risk_honesty_rate": { "$ref": "#/$defs/ratio" },
+        "false_invalidation_cases": { "$ref": "#/$defs/stringList" },
+        "missed_invalidation_cases": { "$ref": "#/$defs/stringList" },
+        "dishonest_indeterminate_cases": { "$ref": "#/$defs/stringList" }
+      }
+    },
+    "caseResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_id",
+        "truth",
+        "state",
+        "reason_code",
+        "quarantine_required",
+        "matched_evidence_count",
+        "resolved_asset_count",
+        "resolved_field_count"
+      ],
+      "properties": {
+        "case_id": { "type": "string", "minLength": 1 },
+        "truth": { "enum": ["CONTAMINATED", "CLEAN", "INDETERMINATE"] },
+        "state": { "enum": ["UNAFFECTED", "STALE", "AT_RISK", "UNKNOWN", "SUPERSEDED"] },
+        "reason_code": { "type": "string", "minLength": 1 },
+        "quarantine_required": { "type": "boolean" },
+        "matched_evidence_count": { "type": "integer", "minimum": 0 },
+        "resolved_asset_count": { "type": "integer", "minimum": 0 },
+        "resolved_field_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variant",
+        "policy_version",
+        "removed_capabilities",
+        "resolution",
+        "impact",
+        "cases"
+      ],
+      "properties": {
+        "variant": {
+          "enum": [
+            "STATIC_DECLARED_LINEAGE",
+            "RAW_OTEL_TRACES",
+            "GLASSBOX_WITHOUT_FIELD_EVIDENCE",
+            "GLASSBOX_WITHOUT_METADATA_SNAPSHOTS",
+            "FULL_GLASSBOX"
+          ]
+        },
+        "policy_version": { "const": "glassbox.materiality.v1" },
+        "removed_capabilities": { "$ref": "#/$defs/stringList" },
+        "resolution": { "$ref": "#/$defs/resolution" },
+        "impact": { "$ref": "#/$defs/impact" },
+        "cases": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/caseResult" }
+        }
+      }
+    },
+    "replayCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["case_id", "actual", "expected", "correct"],
+      "properties": {
+        "case_id": { "type": "string", "minLength": 1 },
+        "actual": { "type": "string", "minLength": 1 },
+        "expected": { "type": "string", "minLength": 1 },
+        "correct": { "type": "boolean" }
+      }
+    },
+    "replayPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_version", "correctness", "cases"],
+      "properties": {
+        "policy_version": { "const": "glassbox.replay-policy.v1" },
+        "correctness": { "$ref": "#/$defs/ratio" },
+        "cases": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/replayCase" }
+        }
+      }
+    },
+    "redaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_id", "escape_rate", "plaintext_values_retained"],
+      "properties": {
+        "policy_id": { "type": "string", "minLength": 1 },
+        "escape_rate": { "$ref": "#/$defs/ratio" },
+        "plaintext_values_retained": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "percentiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["samples", "p50", "p95", "min", "max"],
+      "properties": {
+        "samples": { "type": "integer", "minimum": 1 },
+        "p50": { "type": "number", "minimum": 0 },
+        "p95": { "type": "number", "minimum": 0 },
+        "min": { "type": "number", "minimum": 0 },
+        "max": { "type": "number", "minimum": 0 }
+      }
+    },
+    "measuredPerformance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "clock",
+        "environment",
+        "policy_suite_latency_microseconds",
+        "agent_runtime_microseconds",
+        "receipt_compilation_milliseconds",
+        "scope"
+      ],
+      "properties": {
+        "status": { "const": "MEASURED_OFFLINE" },
+        "clock": { "const": "time.perf_counter_ns" },
+        "environment": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["python", "implementation", "system", "machine"],
+          "properties": {
+            "python": { "type": "string" },
+            "implementation": { "type": "string" },
+            "system": { "type": "string" },
+            "machine": { "type": "string" }
+          }
+        },
+        "policy_suite_latency_microseconds": {
+          "type": "object",
+          "minProperties": 5,
+          "maxProperties": 5,
+          "propertyNames": {
+            "enum": [
+              "STATIC_DECLARED_LINEAGE",
+              "RAW_OTEL_TRACES",
+              "GLASSBOX_WITHOUT_FIELD_EVIDENCE",
+              "GLASSBOX_WITHOUT_METADATA_SNAPSHOTS",
+              "FULL_GLASSBOX"
+            ]
+          },
+          "additionalProperties": { "$ref": "#/$defs/percentiles" }
+        },
+        "agent_runtime_microseconds": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["baseline", "glassbox_observed", "overhead_p50", "overhead_p95"],
+          "properties": {
+            "baseline": { "$ref": "#/$defs/percentiles" },
+            "glassbox_observed": { "$ref": "#/$defs/percentiles" },
+            "overhead_p50": { "type": "number" },
+            "overhead_p95": { "type": "number" }
+          }
+        },
+        "receipt_compilation_milliseconds": { "$ref": "#/$defs/percentiles" },
+        "scope": { "type": "string", "minLength": 1 }
+      }
+    },
+    "liveEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "source_report",
+        "source_report_sha256",
+        "datahub_write_units",
+        "completed_redelivery_zero_write_rate",
+        "negative_control_zero_write_rate",
+        "corrected_replay_success_rate",
+        "verified_incident_closure_rate"
+      ],
+      "properties": {
+        "status": { "const": "MEASURED_LIVE_REPORT" },
+        "source_report": { "type": "string", "minLength": 1 },
+        "source_report_sha256": { "$ref": "#/$defs/sha256" },
+        "datahub_write_units": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["measurement_unit", "breakdown", "total"],
+          "properties": {
+            "measurement_unit": { "type": "string", "minLength": 1 },
+            "breakdown": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source_receipt_emissions",
+                "invalidation_emissions",
+                "replay_receipt_emissions",
+                "supersession_emissions",
+                "incident_closure_aspect_writes"
+              ],
+              "properties": {
+                "source_receipt_emissions": { "type": "integer", "minimum": 0 },
+                "invalidation_emissions": { "type": "integer", "minimum": 0 },
+                "replay_receipt_emissions": { "type": "integer", "minimum": 0 },
+                "supersession_emissions": { "type": "integer", "minimum": 0 },
+                "incident_closure_aspect_writes": { "type": "integer", "minimum": 0 }
+              }
+            },
+            "total": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "completed_redelivery_zero_write_rate": { "$ref": "#/$defs/ratio" },
+        "negative_control_zero_write_rate": { "$ref": "#/$defs/ratio" },
+        "corrected_replay_success_rate": { "$ref": "#/$defs/ratio" },
+        "verified_incident_closure_rate": { "$ref": "#/$defs/ratio" }
+      }
+    }
+  }
+}

@@ -1,0 +1,447 @@
+{
+  "schema_version": "0.1.0",
+  "benchmark": "glassbox.agent-invalidation-ablation.v1",
+  "cases": [
+    {
+      "case_id": "used-field-type-change",
+      "description": "A type change lands after an agent observed the exact revenue field.",
+      "truth": "CONTAMINATED",
+      "ground_truth": {
+        "assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "fields": ["urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)"]
+      },
+      "signals": {
+        "static_declared_assets": [
+          "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.customers,PROD)",
+          "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"
+        ],
+        "raw_otel_assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"]
+      },
+      "dependency": {
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)",
+        "state": "OBSERVED",
+        "role": "INPUT",
+        "observed_at": "2026-08-06T12:00:00Z",
+        "snapshot_version": "orders-v1"
+      },
+      "lineage": {
+        "coverage": "COMPLETE",
+        "rule_id": "glassbox.benchmark.sql-column-lineage.v1",
+        "wildcard_query": false
+      },
+      "change": {
+        "event_id": "change-used-field-type",
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "aspect_name": "schemaMetadata",
+        "kind": "SCHEMA_FIELD_TYPE_CHANGED",
+        "occurred_at": "2026-08-07T12:00:00Z",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)",
+        "before_version": "orders-v1",
+        "after_version": "orders-v2"
+      }
+    },
+    {
+      "case_id": "unrelated-field-same-asset",
+      "description": "A different field changes on the same dataset under complete non-wildcard lineage.",
+      "truth": "CLEAN",
+      "ground_truth": {
+        "assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "fields": ["urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)"]
+      },
+      "signals": {
+        "static_declared_assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "raw_otel_assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"]
+      },
+      "dependency": {
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)",
+        "state": "OBSERVED",
+        "role": "INPUT",
+        "observed_at": "2026-08-06T12:00:00Z",
+        "snapshot_version": "orders-v1"
+      },
+      "lineage": {
+        "coverage": "COMPLETE",
+        "rule_id": "glassbox.benchmark.sql-column-lineage.v1",
+        "wildcard_query": false
+      },
+      "change": {
+        "event_id": "change-unrelated-field",
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "aspect_name": "schemaMetadata",
+        "kind": "SCHEMA_FIELD_TYPE_CHANGED",
+        "occurred_at": "2026-08-07T12:00:00Z",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),internal_note)",
+        "before_version": "note-v1",
+        "after_version": "note-v2"
+      }
+    },
+    {
+      "case_id": "matching-post-change-snapshot",
+      "description": "The receipt observed the exact changed field after the new metadata version existed.",
+      "truth": "CLEAN",
+      "ground_truth": {
+        "assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "fields": ["urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)"]
+      },
+      "signals": {
+        "static_declared_assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "raw_otel_assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"]
+      },
+      "dependency": {
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)",
+        "state": "OBSERVED",
+        "role": "INPUT",
+        "observed_at": "2026-08-08T12:00:00Z",
+        "snapshot_version": "orders-v2"
+      },
+      "lineage": {
+        "coverage": "COMPLETE",
+        "rule_id": "glassbox.benchmark.sql-column-lineage.v1",
+        "wildcard_query": false
+      },
+      "change": {
+        "event_id": "change-before-observation",
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "aspect_name": "schemaMetadata",
+        "kind": "SCHEMA_FIELD_TYPE_CHANGED",
+        "occurred_at": "2026-08-07T12:00:00Z",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)",
+        "before_version": "orders-v1",
+        "after_version": "orders-v2"
+      }
+    },
+    {
+      "case_id": "other-asset-change",
+      "description": "A field changes on a resolved asset outside the observed influence set.",
+      "truth": "CLEAN",
+      "ground_truth": {
+        "assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "fields": ["urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)"]
+      },
+      "signals": {
+        "static_declared_assets": [
+          "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.customers,PROD)",
+          "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"
+        ],
+        "raw_otel_assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"]
+      },
+      "dependency": {
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)",
+        "state": "OBSERVED",
+        "role": "INPUT",
+        "observed_at": "2026-08-06T12:00:00Z",
+        "snapshot_version": "orders-v1"
+      },
+      "lineage": {
+        "coverage": "COMPLETE",
+        "rule_id": "glassbox.benchmark.sql-column-lineage.v1",
+        "wildcard_query": false
+      },
+      "change": {
+        "event_id": "change-other-asset",
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.customers,PROD)",
+        "aspect_name": "schemaMetadata",
+        "kind": "SCHEMA_FIELD_TYPE_CHANGED",
+        "occurred_at": "2026-08-07T12:00:00Z",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.customers,PROD),id)",
+        "before_version": "customers-v1",
+        "after_version": "customers-v2"
+      }
+    },
+    {
+      "case_id": "trace-alias-collision",
+      "description": "A raw trace alias points at a similarly named asset that the run did not use.",
+      "truth": "CLEAN",
+      "ground_truth": {
+        "assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "fields": ["urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)"]
+      },
+      "signals": {
+        "static_declared_assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "raw_otel_assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,marketing.orders,PROD)"]
+      },
+      "dependency": {
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)",
+        "state": "OBSERVED",
+        "role": "INPUT",
+        "observed_at": "2026-08-06T12:00:00Z",
+        "snapshot_version": "orders-v1"
+      },
+      "lineage": {
+        "coverage": "COMPLETE",
+        "rule_id": "glassbox.benchmark.sql-column-lineage.v1",
+        "wildcard_query": false
+      },
+      "change": {
+        "event_id": "change-alias-collision",
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,marketing.orders,PROD)",
+        "aspect_name": "schemaMetadata",
+        "kind": "SCHEMA_FIELD_TYPE_CHANGED",
+        "occurred_at": "2026-08-07T12:00:00Z",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,marketing.orders,PROD),revenue)",
+        "before_version": "marketing-orders-v1",
+        "after_version": "marketing-orders-v2"
+      }
+    },
+    {
+      "case_id": "semantic-constraint-change",
+      "description": "An observed glossary constraint used by the decision changes materially.",
+      "truth": "CONTAMINATED",
+      "ground_truth": {
+        "assets": ["urn:li:glossaryTerm:Revenue"],
+        "fields": []
+      },
+      "signals": {
+        "static_declared_assets": ["urn:li:glossaryTerm:Revenue"],
+        "raw_otel_assets": ["urn:li:glossaryTerm:Revenue"]
+      },
+      "dependency": {
+        "entity_urn": "urn:li:glossaryTerm:Revenue",
+        "schema_field_urn": null,
+        "state": "OBSERVED",
+        "role": "CONSTRAINT",
+        "observed_at": "2026-08-06T12:00:00Z",
+        "snapshot_version": "revenue-term-v1"
+      },
+      "lineage": {
+        "coverage": "NONE",
+        "rule_id": null,
+        "wildcard_query": null
+      },
+      "change": {
+        "event_id": "change-semantic-constraint",
+        "entity_urn": "urn:li:glossaryTerm:Revenue",
+        "aspect_name": "glossaryTermInfo",
+        "kind": "GLOSSARY_DEFINITION_CHANGED",
+        "occurred_at": "2026-08-07T12:00:00Z",
+        "schema_field_urn": null,
+        "before_version": "revenue-term-v1",
+        "after_version": "revenue-term-v2"
+      }
+    },
+    {
+      "case_id": "semantic-reference-unproven",
+      "description": "A glossary reference changes but the receipt does not prove it was a constraint.",
+      "truth": "INDETERMINATE",
+      "ground_truth": {
+        "assets": ["urn:li:glossaryTerm:Revenue"],
+        "fields": []
+      },
+      "signals": {
+        "static_declared_assets": ["urn:li:glossaryTerm:Revenue"],
+        "raw_otel_assets": ["urn:li:glossaryTerm:Revenue"]
+      },
+      "dependency": {
+        "entity_urn": "urn:li:glossaryTerm:Revenue",
+        "schema_field_urn": null,
+        "state": "OBSERVED",
+        "role": "REFERENCE",
+        "observed_at": "2026-08-06T12:00:00Z",
+        "snapshot_version": "revenue-term-v1"
+      },
+      "lineage": {
+        "coverage": "NONE",
+        "rule_id": null,
+        "wildcard_query": null
+      },
+      "change": {
+        "event_id": "change-semantic-reference",
+        "entity_urn": "urn:li:glossaryTerm:Revenue",
+        "aspect_name": "glossaryTermInfo",
+        "kind": "GLOSSARY_DEFINITION_CHANGED",
+        "occurred_at": "2026-08-07T12:00:00Z",
+        "schema_field_urn": null,
+        "before_version": "revenue-term-v1",
+        "after_version": "revenue-term-v2"
+      }
+    },
+    {
+      "case_id": "freshness-requirement-unrecorded",
+      "description": "A freshness incident lands without a recorded freshness constraint.",
+      "truth": "INDETERMINATE",
+      "ground_truth": {
+        "assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "fields": []
+      },
+      "signals": {
+        "static_declared_assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "raw_otel_assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"]
+      },
+      "dependency": {
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "schema_field_urn": null,
+        "state": "OBSERVED",
+        "role": "INPUT",
+        "observed_at": "2026-08-06T12:00:00Z",
+        "snapshot_version": "orders-v1"
+      },
+      "lineage": {
+        "coverage": "NONE",
+        "rule_id": null,
+        "wildcard_query": null
+      },
+      "change": {
+        "event_id": "change-freshness",
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "aspect_name": "assertionRunEvent",
+        "kind": "FRESHNESS_INCIDENT",
+        "occurred_at": "2026-08-07T12:00:00Z",
+        "schema_field_urn": null,
+        "before_version": null,
+        "after_version": null
+      }
+    },
+    {
+      "case_id": "wildcard-field-ambiguity",
+      "description": "An unrelated field changes but wildcard query behavior prevents a safe exclusion.",
+      "truth": "INDETERMINATE",
+      "ground_truth": {
+        "assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "fields": ["urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)"]
+      },
+      "signals": {
+        "static_declared_assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "raw_otel_assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"]
+      },
+      "dependency": {
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)",
+        "state": "OBSERVED",
+        "role": "INPUT",
+        "observed_at": "2026-08-06T12:00:00Z",
+        "snapshot_version": "orders-v1"
+      },
+      "lineage": {
+        "coverage": "COMPLETE",
+        "rule_id": "glassbox.benchmark.sql-column-lineage.v1",
+        "wildcard_query": true
+      },
+      "change": {
+        "event_id": "change-wildcard-unrelated",
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "aspect_name": "schemaMetadata",
+        "kind": "SCHEMA_FIELD_TYPE_CHANGED",
+        "occurred_at": "2026-08-07T12:00:00Z",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),internal_note)",
+        "before_version": "note-v1",
+        "after_version": "note-v2"
+      }
+    },
+    {
+      "case_id": "unresolved-runtime-context",
+      "description": "The runtime dependency cannot be resolved to a DataHub URN after a material change.",
+      "truth": "CONTAMINATED",
+      "ground_truth": {
+        "assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "fields": ["urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)"]
+      },
+      "signals": {
+        "static_declared_assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "raw_otel_assets": []
+      },
+      "dependency": {
+        "entity_urn": null,
+        "schema_field_urn": null,
+        "state": "UNKNOWN",
+        "role": "INPUT",
+        "observed_at": null,
+        "snapshot_version": null
+      },
+      "lineage": {
+        "coverage": "NONE",
+        "rule_id": null,
+        "wildcard_query": null
+      },
+      "change": {
+        "event_id": "change-unresolved-context",
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "aspect_name": "schemaMetadata",
+        "kind": "SCHEMA_FIELD_TYPE_CHANGED",
+        "occurred_at": "2026-08-07T12:00:00Z",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)",
+        "before_version": "orders-v1",
+        "after_version": "orders-v2"
+      }
+    },
+    {
+      "case_id": "declared-but-not-observed-asset",
+      "description": "Static configuration declares an asset that this execution did not observe.",
+      "truth": "CLEAN",
+      "ground_truth": {
+        "assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "fields": ["urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)"]
+      },
+      "signals": {
+        "static_declared_assets": [
+          "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.customers,PROD)",
+          "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"
+        ],
+        "raw_otel_assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"]
+      },
+      "dependency": {
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)",
+        "state": "OBSERVED",
+        "role": "INPUT",
+        "observed_at": "2026-08-06T12:00:00Z",
+        "snapshot_version": "orders-v1"
+      },
+      "lineage": {
+        "coverage": "COMPLETE",
+        "rule_id": "glassbox.benchmark.sql-column-lineage.v1",
+        "wildcard_query": false
+      },
+      "change": {
+        "event_id": "change-declared-unused-asset",
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.customers,PROD)",
+        "aspect_name": "schemaMetadata",
+        "kind": "SCHEMA_FIELD_TYPE_CHANGED",
+        "occurred_at": "2026-08-07T12:00:00Z",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.customers,PROD),email)",
+        "before_version": "customers-v1",
+        "after_version": "customers-v2"
+      }
+    },
+    {
+      "case_id": "new-field-non-wildcard",
+      "description": "A new field is added to an asset with complete non-wildcard field lineage.",
+      "truth": "CLEAN",
+      "ground_truth": {
+        "assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "fields": ["urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)"]
+      },
+      "signals": {
+        "static_declared_assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"],
+        "raw_otel_assets": ["urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)"]
+      },
+      "dependency": {
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),revenue)",
+        "state": "OBSERVED",
+        "role": "INPUT",
+        "observed_at": "2026-08-06T12:00:00Z",
+        "snapshot_version": "orders-v1"
+      },
+      "lineage": {
+        "coverage": "COMPLETE",
+        "rule_id": "glassbox.benchmark.sql-column-lineage.v1",
+        "wildcard_query": false
+      },
+      "change": {
+        "event_id": "change-new-field",
+        "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "aspect_name": "schemaMetadata",
+        "kind": "SCHEMA_FIELD_ADDED",
+        "occurred_at": "2026-08-07T12:00:00Z",
+        "schema_field_urn": "urn:li:schemaField:(urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD),new_note)",
+        "before_version": null,
+        "after_version": "new-note-v1"
+      }
+    }
+  ]
+}

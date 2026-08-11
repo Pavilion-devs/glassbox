@@ -1,0 +1,108 @@
+{
+  "contract_version": "glassbox.hosted-production-proof.v1",
+  "valid": true,
+  "observed_on": "2026-08-10",
+  "glassbox": {
+    "console_url": "https://glassboxhq.xyz",
+    "otlp_endpoint": "https://glassboxhq.xyz/v1/traces",
+    "github_oauth": "PROVEN",
+    "operator_role": "ADMIN",
+    "credential_state": "ENCRYPTED",
+    "active_ingestion_keys": 1,
+    "unrecoverable_key_state": "REVOKED"
+  },
+  "datahub": {
+    "server_version": "1.6.0",
+    "sdk_version": "1.6.0.15",
+    "topology": "SEPARATE_BACKEND_ONLY_COMPOSE_PROJECT",
+    "published_ports": 0,
+    "ui_available": false,
+    "metadata_authentication": true,
+    "rest_authorization": true,
+    "anonymous_graphql_access": "DENIED",
+    "service_identity": {
+      "native_service_account": true,
+      "role_assignment": null,
+      "document_authority": [
+        "CREATE_ENTITY",
+        "EDIT_ENTITY",
+        "GET_ENTITY_PRIVILEGE",
+        "VIEW_ENTITY_PAGE"
+      ],
+      "dataset_property_write": false,
+      "direct_authenticated_readback": "PROVEN"
+    },
+    "connection_proof": {
+      "connection": "PROVEN",
+      "authentication": "PROVEN",
+      "sdk_compatibility": "PROVEN",
+      "write_readback": "PROVEN",
+      "probe_document_urn": "urn:li:document:glassbox.connection.probe"
+    }
+  },
+  "agent_run": {
+    "synthetic": true,
+    "producer": "examples.deterministic_pricing_agent",
+    "span_count": 2,
+    "dependency_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+    "receipt_id": "gbx:receipt:sha256:4b44ec412f7959667705beb3f0a01403dacc28bc8082aa1022983078e8023876",
+    "document_urn": "urn:li:document:glassbox.receipt.4b44ec412f7959667705beb3f0a01403dacc28bc8082aa1022983078e8023876"
+  },
+  "first_delivery": {
+    "http_status": 200,
+    "registration": "INSERTED",
+    "postgres_readback": "PROVEN",
+    "outbox_status": "COMPLETED",
+    "publication_attempt_count": 1,
+    "datahub_emissions": 2,
+    "datahub_write_performed": true,
+    "datahub_direct_readback": "PROVEN",
+    "aspect_names": [
+      "browsePathsV2",
+      "documentInfo",
+      "documentKey",
+      "documentSettings",
+      "subTypes"
+    ]
+  },
+  "identical_redelivery": {
+    "http_status": 200,
+    "registration": "REUSED",
+    "same_receipt_identity": true,
+    "same_document_identity": true,
+    "postgres_readback": "PROVEN",
+    "datahub_direct_readback": "PROVEN",
+    "datahub_write_performed": false
+  },
+  "post_hardening_redelivery": {
+    "http_status": 200,
+    "registration": "REUSED",
+    "same_receipt_identity": true,
+    "same_document_identity": true,
+    "postgres_readback": "PROVEN",
+    "datahub_direct_readback": "PROVEN",
+    "datahub_write_performed": false,
+    "raw_content_returned": false
+  },
+  "admission_consistency": {
+    "active_at_admission_required": true,
+    "valid_at_receipt_time_required": true,
+    "postgres_before_validity_window_rejected": true,
+    "rejected_receipt_rows": 0,
+    "rejected_dependency_rows": 0,
+    "rejected_publication_tasks": 0
+  },
+  "runtime_health": {
+    "glassbox_restarts": 0,
+    "datahub_restarts": 0,
+    "oom_kills": 0
+  },
+  "limitations": {
+    "customer_owned_datahub_tenant": false,
+    "datahub_ui": false,
+    "multi_node_high_availability": "NOT_MEASURED",
+    "disaster_recovery": "NOT_MEASURED"
+  },
+  "raw_content_returned": false,
+  "secrets_returned": false
+}

@@ -8,6 +8,7 @@ import ipaddress
 import json
 import os
 import sys
+import time
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from http import HTTPStatus
@@ -43,6 +44,7 @@ class OTLPReceiverConfig:
     """Transport limits and authentication for one receiver instance."""
 
     bearer_token: str | None = field(default=None, repr=False)
+    bearer_token_validator: Callable[[str], bool] | None = field(default=None, repr=False)
     max_body_bytes: int = 4 * 1024 * 1024
     max_spans: int = 10_000
     request_timeout_seconds: float = 30.0
@@ -209,12 +211,17 @@ def make_otlp_handler(
 
         def _authorized(self) -> bool:
             token = selected_config.bearer_token
-            if token is None:
+            validator = selected_config.bearer_token_validator
+            if token is None and validator is None:
                 return True
             authorization = self.headers.get("Authorization")
-            return authorization is not None and hmac.compare_digest(
-                authorization.encode(), f"Bearer {token}".encode()
+            if authorization is None or not authorization.startswith("Bearer "):
+                return False
+            presented = authorization.removeprefix("Bearer ")
+            static_match = token is not None and hmac.compare_digest(
+                presented.encode(), token.encode()
             )
+            return static_match or (validator is not None and validator(presented))
 
         def _respond(
             self,
@@ -260,6 +267,12 @@ def _parser() -> argparse.ArgumentParser:
     serve.add_argument("--request-timeout-seconds", type=float, default=30.0)
     serve.add_argument("--run-span-id")
     serve.add_argument("--signing-key-env", default="GLASSBOX_RECEIPT_SIGNING_KEY")
+    serve.add_argument(
+        "--startup-retry-seconds",
+        type=float,
+        default=0.0,
+        help="retry live dependency initialization instead of exiting (zero disables)",
+    )
     serve.add_argument("--signing-key-id", required=True)
     serve.add_argument("--environment", choices=[item.value for item in Environment], required=True)
     serve.add_argument("--output-kind", required=True)
@@ -286,6 +299,15 @@ def _add_live_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--datahub-server", default="http://localhost:8080")
     parser.add_argument("--datahub-token-env", default="DATAHUB_GMS_TOKEN")
     parser.add_argument("--allow-remote-datahub", action="store_true")
+    parser.add_argument(
+        "--control-database",
+        type=Path,
+        default=None,
+        help="control database containing the saved DataHub connection",
+    )
+    parser.add_argument("--control-master-key-env", default="GLASSBOX_CONTROL_MASTER_KEY")
+    parser.add_argument("--control-master-key-id", default="control-v1")
+    parser.add_argument("--control-organization", default="default")
     parser.add_argument("--worker-id")
     parser.add_argument("--lease-duration-ms", type=int, default=60_000)
     parser.add_argument(
@@ -338,8 +360,17 @@ def _live_components(
         connect_timeout_seconds=args.state_connect_timeout_seconds,
         signer_trust_policy=trust_policy,
     ).connect()
-    server = validate_probe_target(args.datahub_server, allow_remote=args.allow_remote_datahub)
-    backend = DataHubReceiptBackend(server=server, token=_optional_secret(args.datahub_token_env))
+    control_connection = _control_connection(args)
+    server = validate_probe_target(
+        control_connection.server_url if control_connection is not None else args.datahub_server,
+        allow_remote=(True if control_connection is not None else args.allow_remote_datahub),
+    )
+    token = (
+        control_connection.token
+        if control_connection is not None
+        else _optional_secret(args.datahub_token_env)
+    )
+    backend = DataHubReceiptBackend(server=server, token=token)
     backend.test_connection()
     return (
         state,
@@ -350,7 +381,7 @@ def _live_components(
 
 
 def _run(args: argparse.Namespace) -> int:
-    state, emitter, backend, trust_policy = _live_components(args)
+    state, emitter, backend, trust_policy = _startup_live_components(args)
     if args.command == "drain":
         worker = ReceiptPublicationWorker(
             state,
@@ -376,9 +407,11 @@ def _run(args: argparse.Namespace) -> int:
         return 0 if not failures else 1
 
     bearer_token = _optional_secret(args.bearer_token_env)
+    bearer_token_validator = _control_ingestion_key_validator(args)
     if (
         not _loopback_bind(args.bind)
         and bearer_token is None
+        and bearer_token_validator is None
         and not (args.allow_unauthenticated_remote)
     ):
         raise ValueError(
@@ -406,6 +439,7 @@ def _run(args: argparse.Namespace) -> int:
     )
     config = OTLPReceiverConfig(
         bearer_token=bearer_token,
+        bearer_token_validator=bearer_token_validator,
         max_body_bytes=args.max_body_bytes,
         max_spans=args.max_spans,
         request_timeout_seconds=args.request_timeout_seconds,
@@ -428,6 +462,83 @@ def _run(args: argparse.Namespace) -> int:
     finally:
         server.server_close()
     return 0
+
+
+def _startup_live_components(
+    args: argparse.Namespace,
+) -> tuple[Any, ReceiptEmitter, DataHubReceiptBackend, SignerTrustPolicy]:
+    """Load live dependencies, optionally waiting through onboarding or outages."""
+
+    retry_seconds = float(getattr(args, "startup_retry_seconds", 0.0))
+    if retry_seconds < 0:
+        raise ValueError("startup retry interval cannot be negative")
+    attempt = 0
+    previous_error_type: str | None = None
+    while True:
+        try:
+            return _live_components(args)
+        except Exception as exc:
+            if args.command != "serve" or retry_seconds == 0:
+                raise
+            attempt += 1
+            error_type = type(exc).__name__
+            if attempt == 1 or error_type != previous_error_type or attempt % 12 == 0:
+                print(
+                    json.dumps(
+                        {
+                            "valid": False,
+                            "state": "WAITING_FOR_LIVE_DEPENDENCIES",
+                            "error_type": error_type,
+                            "retry_seconds": retry_seconds,
+                            "raw_content_returned": False,
+                        },
+                        sort_keys=True,
+                    ),
+                    file=sys.stderr,
+                )
+            previous_error_type = error_type
+            time.sleep(retry_seconds)
+
+
+def _control_store(args: argparse.Namespace) -> Any | None:
+    database = getattr(args, "control_database", None)
+    if database is None:
+        return None
+    from glassbox_control import ControlStore, SecretBox
+
+    secret_box = SecretBox.from_base64url(
+        _required_secret(args.control_master_key_env, "control master key"),
+        key_id=args.control_master_key_id,
+    )
+    return ControlStore(
+        database,
+        secret_box,
+        organization=args.control_organization,
+    )
+
+
+def _control_connection(args: argparse.Namespace) -> Any | None:
+    store = _control_store(args)
+    if store is None:
+        return None
+    connection = store.load_datahub_connection()
+    if connection is None:
+        raise ValueError("control database does not contain a verified DataHub connection")
+    return connection
+
+
+def _control_ingestion_key_validator(args: argparse.Namespace) -> Callable[[str], bool] | None:
+    store = _control_store(args)
+    if store is None:
+        return None
+
+    def validate(clear: str) -> bool:
+        try:
+            return bool(store.authorize_ingestion_key(clear))
+        except Exception:
+            return False
+
+    return validate
 
 
 def main(argv: Sequence[str] | None = None) -> int:

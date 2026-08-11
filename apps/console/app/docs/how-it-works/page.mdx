@@ -1,0 +1,93 @@
+<Eyebrow>Core concepts</Eyebrow>
+
+# How GlassBox works
+
+<Lede>Capture, sign, project, assess, recover. Five steps, one connected chain.</Lede>
+
+GlassBox is a compiler from runtime telemetry to governed metadata. Everything
+below follows from that one framing: the runtime produces evidence, the compiler
+turns it into a signed assertion, and DataHub is where that assertion becomes
+something the rest of the organisation can act on.
+
+<Steps>
+  <Step title="Capture">
+    The runtime normalises every instrumentation mode into immutable `RuntimeEvent`
+    records. Nested agent runs correlate through task-local context: a child run
+    inherits its parent's trace ID and keeps explicit parent run and span IDs, so a
+    sub-agent's reads are still attributable to the decision that caused them.
+
+    Raw tool arguments and results stay on the application call stack. They are
+    never placed on a span.
+  </Step>
+  <Step title="Sign">
+    The compiler accepts normalised events, exporter-neutral OpenTelemetry spans, or
+    strict OTLP/HTTP protobuf-JSON envelopes. It pins the supported GenAI semantic
+    schema URL and rejects dropped attributes, dropped events, duplicate span
+    identities, and ambiguous agent-span selection rather than guessing.
+
+    What survives is canonicalised with RFC 8785, digested with SHA-256, and signed
+    with Ed25519.
+  </Step>
+  <Step title="Project">
+    Every dependency resolves to a real DataHub URN before anything is published.
+    The signed receipt registers in transactional state together with its dependency
+    index and a durable publication obligation, in one transaction — then publishes
+    a governed DataHub projection and verifies it by reading the entity back.
+  </Step>
+  <Step title="Assess">
+    A DataHub metadata change becomes a content-addressed campaign. A deterministic,
+    versioned materiality engine decides whether each indexed receipt is affected,
+    and records a reason code. Findings write back to DataHub as incidents.
+  </Step>
+  <Step title="Recover">
+    An affected receipt can be quarantined. Recovery is a separate, explicitly
+    authorized path: a content-addressed replay bundle, a digest-bound approval,
+    execution inside a digest-pinned container, and an append-only supersession.
+  </Step>
+</Steps>
+
+## Why the order matters
+
+Registration happens **before** publication, not after. If the state write and the
+DataHub write could succeed independently, you would eventually have a receipt in
+DataHub that no worker knows about, or an index entry pointing at something that
+was never published. Both make later invalidation unsound.
+
+<Callout type="note" title="Registration is transactional">
+The signed receipt, all of its dependency-index rows, and one `READY` publication
+obligation are inserted in a single transaction. If any of those writes fail, none
+of them commit.
+</Callout>
+
+## Where each concern lives
+
+| Concern | Owner | Not the owner |
+|---|---|---|
+| Raw spans and payloads | Operational trace store | DataHub |
+| Canonical integrity | `glassbox-dbom` | The Action |
+| Dependency index | Transactional state | DataHub |
+| Materiality | Deterministic engine, versioned | An LLM |
+| Writeback | DataHub Action | The compiler |
+| Authorization | Operator approval | The replay executor |
+
+The separation in the first row is the load-bearing one: DataHub holds governed
+provenance, not telemetry. Raw traces stay in the trace store, and only a curated,
+raw-free projection crosses the boundary.
+
+## Fail-safe, not fail-open
+
+GlassBox is not an availability layer, so it does not need to fail open the way an
+interceptor does. It needs to fail **safe**: when it cannot prove something, it
+says so rather than inferring it.
+
+- An ambiguous agent span is a compile error, not a best guess.
+- A dependency that cannot be resolved to a URN is recorded as unresolved.
+- Field-lineage coverage that is not `COMPLETE` is reported as `INCOMPLETE`, and an
+  assessment made against it says which parts it could not prove.
+- Replay classification is fail-safe: an unclassifiable action is not `ALLOW`.
+
+<Callout type="tip" title="Next">
+[Decision receipts](/docs/receipts) covers what a receipt actually contains and how
+its integrity is established. [The invalidation loop](/docs/invalidation-loop)
+follows one metadata change all the way to writeback.
+</Callout>

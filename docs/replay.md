@@ -185,18 +185,13 @@ of the same source receipt. It binds one corrected bundle and expires. Verificat
 requires both a valid Ed25519 signature and an operator-configured public-key
 fingerprint; an embedded key ID alone is insufficient.
 
-Run the complete live causal scenario with initialized PostgreSQL state and local
-DataHub Core:
+Run the complete live causal scenario and its isolated service estate from a fresh
+checkout:
 
 ```bash
-export GLASSBOX_STATE_POSTGRES_DSN='postgresql://...'
-uv run python -m scripts.build_replay_sandbox
-# Copy the printed image_digest into this environment variable.
-export GLASSBOX_REPLAY_SANDBOX_IMAGE='sha256:...'
-uv run python -m examples.end_to_end_flagship \
-  --server http://localhost:8080 \
-  --sandbox-image-digest "$GLASSBOX_REPLAY_SANDBOX_IMAGE" \
-  --allow-live
+uv run --all-extras python -m examples.flagship_demo \
+  --allow-live \
+  --output .glassbox/flagship/one-command-report.json
 ```
 
 The command executes a real synthetic agent, publishes its signed receipt, proves
@@ -209,6 +204,15 @@ DataHub incident, and proves both receipt Documents remain unchanged.
 See [ADR-0020](adr/0020-signed-invalidation-to-recovery-handoff.md),
 [ADR-0021](adr/0021-oci-isolated-replay-and-verified-incident-closure.md), and the
 [sanitized flagship report](compatibility/datahub-1.6.0-flagship-causal-recovery.live.json).
+The estate and acceptance contract are in
+[ADR-0025](adr/0025-pinned-flagship-estate-and-evidence-ablation.md). The separate
+[benchmark guide](benchmarks/README.md) documents the five production-policy
+ablations and their published failed cases.
+The [one-command live report](compatibility/datahub-1.6.0-one-command-flagship.live.json)
+records the exact service images, nested causal proof, and successful estate cleanup.
+Its compose source is visibly `LOCAL_OVERRIDE` because the measured host reused a
+locally cached official quickstart file; Core still directly reported the required
+`v1.6.0` build commit.
 
 ## Durable recovery orchestration
 

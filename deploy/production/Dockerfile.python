@@ -1,0 +1,30 @@
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS runtime
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
+
+WORKDIR /opt/glassbox
+
+COPY pyproject.toml uv.lock README.md ./
+COPY packages ./packages
+COPY services ./services
+COPY schemas ./schemas
+
+RUN uv sync --frozen --no-dev \
+    --extra control \
+    --extra datahub \
+    --extra mcp \
+    --extra postgres
+
+ENV PATH="/opt/glassbox/.venv/bin:${PATH}"
+
+RUN addgroup --system --gid 10001 glassbox \
+    && adduser --system --uid 10001 --ingroup glassbox --home /nonexistent glassbox \
+    && mkdir -p /var/lib/glassbox-control \
+    && chown -R 10001:10001 /var/lib/glassbox-control
+
+USER 10001:10001
+
+ENTRYPOINT []

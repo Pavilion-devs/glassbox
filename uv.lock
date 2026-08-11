@@ -953,6 +953,10 @@ dependencies = [
 actions = [
     { name = "acryl-datahub-actions" },
 ]
+control = [
+    { name = "starlette" },
+    { name = "uvicorn" },
+]
 datahub = [
     { name = "acryl-datahub" },
 ]
@@ -992,8 +996,10 @@ requires-dist = [
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=6.2,<8" },
     { name = "rfc8785", specifier = ">=0.1.4,<0.2" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.12,<0.16" },
+    { name = "starlette", marker = "extra == 'control'", specifier = ">=0.49" },
+    { name = "uvicorn", marker = "extra == 'control'", specifier = ">=0.35,<1" },
 ]
-provides-extras = ["actions", "datahub", "google-adk", "langchain", "mcp", "postgres", "dev"]
+provides-extras = ["actions", "datahub", "google-adk", "langchain", "mcp", "control", "postgres", "dev"]
 
 [[package]]
 name = "google-adk"

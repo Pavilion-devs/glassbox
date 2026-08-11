@@ -80,15 +80,19 @@ class VerifiedReceiptStore:
                 raise ReceiptStoreError(
                     f"receipt {receipt_id} already has conflicting dependency metadata"
                 )
+            admission = _admission_evidence(self.signer_trust_policy, receipt)
             profile = ReceiptDependencyProfile.from_receipt(
                 receipt,
                 field_lineage=proof,
                 superseded_by=superseded_by,
                 require_signature=self.require_signature,
                 signer_trust_policy=self.signer_trust_policy,
-                signer_trust_mode=SignerTrustMode.ADMISSION,
+                signer_trust_mode=(
+                    SignerTrustMode.HISTORICAL
+                    if self.signer_trust_policy is not None
+                    else SignerTrustMode.ADMISSION
+                ),
             )
-            admission = _admission_evidence(self.signer_trust_policy, receipt)
             material = {
                 "receipt": copy.deepcopy(dict(receipt)),
                 "field_lineage": _lineage_to_dict(proof),

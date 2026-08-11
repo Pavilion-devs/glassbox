@@ -1,0 +1,25 @@
+FROM node:22.20.0-bookworm-slim AS build
+
+WORKDIR /opt/console
+COPY apps/console/package.json apps/console/package-lock.json ./
+RUN npm ci
+ENV NEXT_TELEMETRY_DISABLED=1
+COPY apps/console ./
+ENV GLASSBOX_NEXT_STANDALONE_BUILD=1
+RUN npx next build --webpack
+
+FROM node:22.20.0-bookworm-slim AS runtime
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    HOSTNAME=0.0.0.0 \
+    PORT=3000
+WORKDIR /opt/console
+
+COPY --from=build --chown=node:node /opt/console/.next/standalone ./
+COPY --from=build --chown=node:node /opt/console/.next/static ./.next/static
+COPY --from=build --chown=node:node /opt/console/public ./public
+
+USER node
+EXPOSE 3000
+CMD ["node", "server.js"]

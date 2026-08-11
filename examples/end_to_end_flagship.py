@@ -120,6 +120,16 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--server", default=os.getenv("DATAHUB_GMS_URL", "http://localhost:8080"))
     parser.add_argument("--token", default=os.getenv("DATAHUB_GMS_TOKEN") or None)
     parser.add_argument("--state-postgres-dsn-env", default="GLASSBOX_STATE_POSTGRES_DSN")
+    parser.add_argument(
+        "--state-postgres-schema",
+        default=None,
+        help="Explicit state schema; defaults to an isolated random proof schema.",
+    )
+    parser.add_argument(
+        "--keep-state-schema",
+        action="store_true",
+        help="Retain the proven PostgreSQL state for a live operator console.",
+    )
     parser.add_argument("--uvx", type=Path, default=None)
     parser.add_argument(
         "--sandbox-image-digest",
@@ -437,7 +447,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     graph = DataHubGraph(config=DatahubClientConfig(server=server, token=args.token))
     graph.test_connection()
     core_version, core_commit = _datahub_version(graph)
-    schema = f"gbx_flagship_{uuid.uuid4().hex}"
+    schema = args.state_postgres_schema or f"gbx_flagship_{uuid.uuid4().hex}"
     try:
         before = _schema(native_type="VARCHAR", numeric=False, time_ms=_BEFORE_TIME_MS)
         unrelated = _schema(
@@ -754,6 +764,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "receipts": integrity.receipts,
                 "campaigns": integrity.campaigns,
                 "audit_records": integrity.audit_records,
+                "state_postgres_schema": schema if args.keep_state_schema else None,
                 "dsn_persisted_or_reported": False,
             },
             "privacy": {
@@ -779,7 +790,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(json.dumps(result, indent=2, sort_keys=True))
         return 0 if result["valid"] else 1
     finally:
-        _drop_schema(dsn, schema)
+        if not args.keep_state_schema:
+            _drop_schema(dsn, schema)
 
 
 if __name__ == "__main__":
