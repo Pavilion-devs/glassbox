@@ -3,9 +3,26 @@
 # Forensics MCP
 
 <Lede>
-Six read-only, proof-carrying tools over the same state authority the Action writes
+Seven read-only, proof-carrying tools over the same state authority the Action writes
 to — and no raw content, ever.
 </Lede>
+
+## Judge quick test
+
+From a clone of the repository, run:
+
+```bash title="Shell"
+uv run --extra mcp python -m examples.judge_mcp_quick_test
+```
+
+This is a fresh protocol run, not saved output. It executes the deterministic
+pricing agent, creates an ephemeral Ed25519 authority, persists the signed receipt
+and an impact campaign, then uses the official MCP client to discover and call all
+seven tools. It needs no credentials and leaves no state behind.
+
+The report explicitly says `external_datahub_contacted: false`: this command proves
+the MCP, signature, policy, state, and raw-content boundaries locally. The separate
+hosted and flagship reports prove the real DataHub write/readback path.
 
 ## A thin adapter over a neutral service
 
@@ -27,6 +44,7 @@ uv run glassbox-forensics-mcp
 |---|---|
 | `verify_decision_receipt` | Is this receipt intact, signed, and admitted under operator trust? |
 | `get_decision_influence` | What did this decision actually depend on, and how completely do we know? |
+| `get_decision_publication` | What durable DataHub publication obligation and sealed readback evidence exists? |
 | `classify_decision_impact` | If this entity changed, would this decision be affected? |
 | `list_affected_decisions` | Which decisions depend on this entity? A complete reverse scan. |
 | `get_invalidation_campaign` | What did this persisted campaign actually decide, and why? |

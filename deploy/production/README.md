@@ -19,9 +19,9 @@ absent from the production image. The release check requires a zero-finding
    reference pair is `glassboxhq.xyz` and `app.glassboxhq.xyz`.
 3. A GitHub OAuth App whose callback is
    `https://app.glassboxhq.xyz/oauth2/callback` (replace the host for another domain).
-   The reference proxy requests `user:email read:org`: email identifies the user,
-   while GitHub requires `read:org` for the organization list that OAuth2 Proxy
-   uses to populate its authenticated group set.
+   The reference proxy requests only `user:email`. Any authenticated GitHub user
+   becomes a read-only viewer; only usernames in `GITHUB_ADMIN_USERS` may change
+   the DataHub connection or issue and revoke ingestion keys.
 4. A scoped DataHub service account that can read catalog entities and upsert the
    GlassBox Document/Incident aspects used by the compiler and invalidation Action.
 5. A receipt signing key and matching operator trust policy.
@@ -92,9 +92,10 @@ containers except for encrypted control-plane storage.
 
 The separate hosted edge proof provisioned an isolated TierHive VPS, routed
 `glassboxhq.xyz` through the regional HAProxy and Let's Encrypt certificate, and
-completed the allowlisted GitHub OAuth flow. The authenticated operator resolved as
-an administrator at request time; the live DataHub connection form and named agent-
-key controls are enabled. The control plane proved connection, authentication, SDK
+completed the GitHub OAuth flow. Authenticated GitHub users resolve as read-only
+viewers unless explicitly configured as administrators; the verified operator can
+use the live DataHub connection form and named agent-key controls. The control plane
+proved connection, authentication, SDK
 compatibility, Document write, and direct readback before activating the receiver.
 One named production ingestion key is active; an earlier key whose one-time secret
 was not recoverably escrowed is revoked.

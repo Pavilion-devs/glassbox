@@ -24,8 +24,6 @@ services:
   oauth2-proxy:
     image: quay.io/oauth2-proxy/oauth2-proxy:v7.12.0
     restart: unless-stopped
-    command:
-      - --github-user=${GITHUB_ALLOWED_USERS:?set GITHUB_ALLOWED_USERS}
     environment:
       OAUTH2_PROXY_PROVIDER: github
       OAUTH2_PROXY_CLIENT_ID: ${GITHUB_OAUTH_CLIENT_ID:?set GITHUB_OAUTH_CLIENT_ID}
@@ -38,9 +36,9 @@ services:
       OAUTH2_PROXY_COOKIE_EXPIRE: 8h
       OAUTH2_PROXY_REDIRECT_URL: https://${GLASSBOX_CONSOLE_DOMAIN:?set GLASSBOX_CONSOLE_DOMAIN}/oauth2/callback
       OAUTH2_PROXY_EMAIL_DOMAINS: "*"
-      # GitHub's organization-list endpoint requires read:org (or broader user)
-      # and oauth2-proxy uses it to populate the authenticated group set.
-      OAUTH2_PROXY_SCOPE: user:email read:org
+      # Authentication is open to any GitHub account. Authorization remains in
+      # GlassBox: authenticated users are viewers unless explicitly named below.
+      OAUTH2_PROXY_SCOPE: user:email
       OAUTH2_PROXY_REVERSE_PROXY: "true"
       OAUTH2_PROXY_SET_XAUTHREQUEST: "true"
       OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
@@ -64,7 +62,7 @@ services:
       GLASSBOX_CONTROL_API_URL: http://control:8790
       GLASSBOX_CONTROL_API_TOKEN: ${GLASSBOX_CONTROL_API_TOKEN:?set GLASSBOX_CONTROL_API_TOKEN}
       GLASSBOX_ADMIN_EMAILS: ${GLASSBOX_ADMIN_EMAILS:-}
-      GLASSBOX_ADMIN_USERS: ${GITHUB_ALLOWED_USERS:?set GITHUB_ALLOWED_USERS}
+      GLASSBOX_ADMIN_USERS: ${GITHUB_ADMIN_USERS:-}
       GLASSBOX_ALLOW_LOCAL_OPERATOR: "false"
       GLASSBOX_PUBLIC_HOSTS: ${GLASSBOX_PUBLIC_DOMAIN:?set GLASSBOX_PUBLIC_DOMAIN}
     expose: ["3000"]

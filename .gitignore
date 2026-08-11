@@ -17,6 +17,8 @@ reproducibility-dist/
 
 # Local runtime state
 .env
+/AGENTS.md
+/plan.md
 deploy/production/.env.production
 deploy/production/trusted-signers.json
 .glassbox/

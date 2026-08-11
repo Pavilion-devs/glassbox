@@ -20,6 +20,7 @@ report.
 - 🎬 **Two-minute demo** — https://youtu.be/g-j9zD5cxLk
 - 📖 **Documentation** — https://glassboxhq.xyz/docs
 - 🗺️ **Architecture** — https://glassboxhq.xyz/docs/architecture
+- 🔎 **Read-only console** — https://app.glassboxhq.xyz
 - 🏆 **Devpost submission** — https://devpost.com/software/glassbox-yr49mu
 - 🤝 **DataHub contributions** — [Agent Forensics Skill PR #120](https://github.com/datahub-project/datahub-skills/pull/120) · [Core pgQueue proof PR #19004](https://github.com/datahub-project/datahub/pull/19004)
 - 🧾 **Live evidence reports** — [`docs/compatibility/`](docs/compatibility/)
@@ -31,11 +32,28 @@ Document aspects, directly read them back, and proven idempotent redelivery. The
 sanitized proof is
 [`datahub-1.6.0-hosted-production-otlp.live.json`](docs/compatibility/datahub-1.6.0-hosted-production-otlp.live.json).
 
+Judges can browse the product, docs, and architecture without signing in. The live
+console accepts any GitHub account as a **read-only viewer**; only explicitly
+configured maintainers receive mutation controls. No username exchange is needed.
+
+For a credential-free terminal proof of the actual MCP contract:
+
+```bash
+uv run --extra mcp python -m examples.judge_mcp_quick_test
+```
+
+The command executes a fresh deterministic agent run, signs and persists its
+receipt, opens the real GlassBox MCP server through the official MCP client,
+discovers and calls all seven read-only tools, and verifies the raw-content
+boundary. It uses ephemeral local state and does not pretend to contact DataHub;
+the hosted DataHub proof is the live evidence report linked above.
+
 ---
 
 ## Table of Contents
 
 - [Quick Path](#quick-path)
+- [Judge Access](#judge-access)
 - [Why It Stands Out](#why-it-stands-out)
 - [What it does](#what-it-does)
 - [Architecture](#architecture)
@@ -96,6 +114,18 @@ For the implementation details:
 - Quickstart — [`apps/console/app/docs/quickstart`](apps/console/app/docs/quickstart/page.mdx)
 - Architecture — [`apps/console/app/docs/architecture`](apps/console/app/docs/architecture/page.mdx)
 - Decision records — [`docs/adr/`](docs/adr/)
+
+## Judge Access
+
+- Public product and documentation: https://glassboxhq.xyz
+- Live evidence console: https://app.glassboxhq.xyz — sign in with any GitHub
+  account for a read-only viewer session.
+- Local MCP protocol proof:
+  `uv run --extra mcp python -m examples.judge_mcp_quick_test`
+
+Viewer sessions can inspect receipts, dependencies, campaigns, recovery state, and
+trust boundaries. They cannot replace the DataHub connection, create or revoke
+agent keys, or perform any other control-plane mutation.
 
 ## Why It Stands Out
 
@@ -170,7 +200,7 @@ runtime evidence → governed projection → deterministic assessment
 - **Domain-semantic policies** — exact equality is the default; widening it
   requires the caller to name an exact content-addressed `policy_id` *and* an
   operator registry that already trusts it.
-- **Read-only forensics surface** — six proof-carrying MCP tools over the same
+- **Read-only forensics surface** — seven proof-carrying MCP tools over the same
   PostgreSQL state authority the Action writes to, with prospective
   classifications kept visibly separate from actually persisted findings.
 - **Raw-free by construction** — digests, governed URNs, reason codes, and
@@ -395,10 +425,22 @@ uv run glassbox-forensics-mcp \
 ```
 
 It complements DataHub's official MCP server: DataHub owns catalog discovery and
-generic lineage, GlassBox owns signed run-specific decision evidence. All six
+generic lineage, GlassBox owns signed run-specific decision evidence. All seven
 tools are read-only, and there is no quarantine, approval, replay-execution,
 resolution, or supersession tool. Prospective classifications stay visibly
 separate from campaigns actually persisted and writeback-verified by the Action.
+
+Evaluators can exercise that contract without credentials or a production estate:
+
+```bash
+uv run --extra mcp python -m examples.judge_mcp_quick_test
+```
+
+This is not recorded output: it executes the synthetic pricing agent, creates a
+fresh ephemeral signing authority, persists real local state, and calls every tool
+through the official MCP client. It deliberately reports
+`external_datahub_contacted=false`; use the hosted evidence report or flagship
+proof when evaluating the separate live DataHub integration.
 
 The forensic Skill installs into any Agent Skills-compatible project:
 
@@ -448,7 +490,7 @@ Stated boundaries, kept in the open:
 - The reference OTLP receiver is single-flight and expects TLS termination and
   rate limiting in a production proxy.
 
-See [`AGENTS.md`](AGENTS.md) for binding engineering rules and
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for contributor checks and
 [`SECURITY.md`](SECURITY.md) for vulnerability reporting and data-handling rules.
 
 ## Project layout
