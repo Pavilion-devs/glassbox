@@ -37,6 +37,8 @@ test("renders the public product, documentation, and architecture surfaces", asy
   assert.match(landingHtml, /GlassBox tells you what your agents did because of it/);
   assert.match(landingHtml, /href="\/docs"/);
   assert.match(landingHtml, /href="\/docs\/architecture"/);
+  assert.match(landingHtml, /href="https:\/\/youtu\.be\/g-j9zD5cxLk"/);
+  assert.match(landingHtml, />Watch demo</);
   assert.doesNotMatch(landingHtml, /Service-account token|Create ingestion key/);
 
   const docs = await render("/docs");
