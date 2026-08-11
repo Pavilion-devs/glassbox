@@ -1,0 +1,87 @@
+<Eyebrow>Reference</Eyebrow>
+
+# Schemas & contracts
+
+<Lede>
+Seven published JSON contracts. Each one is closed, versioned, and enforced at a
+specific boundary.
+</Lede>
+
+## The published set
+
+All contracts live under `schemas/` in the repository and ship inside the wheel, so
+a consumer can validate against them without cloning the source.
+
+| Contract | Directory | Enforced at |
+|---|---|---|
+| DBOM | `schemas/dbom/` | Receipt compilation and `glassbox-dbom verify` |
+| Runtime event | `schemas/runtime-event/` | Runtime normalisation, before compilation |
+| Signer trust | `schemas/signer-trust/` | Operator admission of a signed receipt |
+| Replay bundle | `schemas/replay-bundle/` | Bundle build, verification, and execution |
+| Semantic policy | `schemas/semantic-policy/` | Non-exact output equivalence |
+| State transfer | `schemas/state-transfer/` | Moving receipt state between profiles |
+| Benchmark report | `schemas/benchmark-report/` | Published ablation results |
+
+<Callout type="note" title="Closed means closed">
+Each of these is a closed contract: unknown fields are rejected rather than ignored.
+That is what allows a consumer to treat a validated document as fully understood
+instead of partially understood.
+</Callout>
+
+## Content addressing
+
+Four of the contracts are content-addressed with RFC 8785 canonicalisation, SHA-256,
+and domain separation:
+
+| Artifact | Content address |
+|---|---|
+| Receipt | `gbx:receipt:sha256:<digest>` |
+| Replay bundle | domain-separated bundle digest |
+| State transfer | `gbx:state-transfer:sha256:<digest>` |
+| Semantic policy | `policy_id` over the canonical document |
+
+Domain separation means a digest computed for one artifact type can never collide
+with, or be substituted for, a digest of another type.
+
+## State transfer
+
+The State Transfer 0.1 contract moves trusted receipt, field-lineage, and
+supersession state atomically between SQLite and PostgreSQL.
+
+What it deliberately refuses to carry is as important as what it carries: it will
+not reactivate old leases, campaigns, or notification side effects. Importing
+historical state must not cause a worker to start acting on finished work or
+re-send notifications that were already delivered.
+
+```bash title="Shell"
+uv run glassbox-invalidation-state export-transfer .glassbox/invalidation.sqlite3 transfer.json
+uv run glassbox-invalidation-state verify-transfer transfer.json
+uv run glassbox-invalidation-state postgres-import-transfer transfer.json \
+  --dsn-env GLASSBOX_STATE_POSTGRES_DSN \
+  --schema glassbox
+```
+
+## Telemetry
+
+The compiler pins the supported GenAI semantic schema URL and rejects envelopes it
+cannot interpret exactly rather than degrading them:
+
+- dropped attributes or dropped events;
+- duplicate span identities;
+- ambiguous agent-span selection;
+- complex OTLP shapes outside the supported profile.
+
+Nested runs correlate through explicit parent run and span IDs, with children
+inheriting the parent's trace ID.
+
+## Benchmark reports
+
+Published ablation results conform to `schemas/benchmark-report/`, so a claim about
+how much evidence a capability actually contributes is a validated document rather
+than a table in a README.
+
+<Callout type="tip" title="Release evidence">
+The release gate verifies archive safety, wheel RECORD integrity, entry points,
+packaged contracts, byte-identical rebuilds, SHA-256 checksums, a CycloneDX
+lockfile SBOM, and clean Python 3.11–3.13 installs before anything is published.
+</Callout>

@@ -1,0 +1,15 @@
+.git
+.github
+.glassbox
+.venv
+**/.env*
+**/trusted-signers.json
+**/.next
+**/.open-next
+**/.wrangler
+**/dist
+**/node_modules
+**/tsconfig.tsbuildinfo
+benchmarks/results
+docs/compatibility/*.live.json
+videos

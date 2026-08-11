@@ -1,0 +1,145 @@
+<Eyebrow>Getting started</Eyebrow>
+
+# Quickstart
+
+<Lede>
+One command brings up a disposable estate, runs the real causal chain, and removes
+only what it created.
+</Lede>
+
+## Before you start
+
+<CardGroup cols={2}>
+  <Card title="Toolchain" icon="solar:box-linear">
+    Python 3.11–3.13 (3.12 recommended) and [`uv`](https://docs.astral.sh/uv/).
+  </Card>
+  <Card title="Docker" icon="solar:layers-linear">
+    Docker with Compose `!override` support, and enough memory for the DataHub
+    quickstart profile.
+  </Card>
+</CardGroup>
+
+The estate binds host ports `13306`, `14319`, `15432`, `18080`, `19002`, `19092`,
+and `19200`. Every one has a CLI override if it is already occupied.
+
+<Callout type="warning" title="This is a live estate">
+The flagship demo downloads the commit-pinned official DataHub Core `v1.6.0`
+quickstart and starts real containers. It needs internet access for any upstream
+artifact or image it does not already have cached.
+</Callout>
+
+## Run the whole chain
+
+<Steps>
+  <Step title="Install dependencies">
+    Sync the workspace with every extra, so the DataHub, Actions, and PostgreSQL
+    paths are all available.
+
+    ```bash title="Shell"
+    uv sync --all-extras
+    ```
+  </Step>
+  <Step title="Run the flagship demo">
+    This downloads the pinned quickstart, starts it on isolated ports with
+    PostgreSQL 16, waits for health, builds and inspects the replay sandbox, runs
+    the causal chain, validates every proof boundary, and writes a raw-free report.
+
+    ```bash title="Shell"
+    uv run --all-extras python -m examples.flagship_demo \
+      --allow-live \
+      --output .glassbox/flagship/one-command-report.json
+    ```
+  </Step>
+  <Step title="Read the report">
+    The report is raw-free by construction: digests, governed URNs, reason codes,
+    and verification results only.
+
+    ```bash title="Shell"
+    cat .glassbox/flagship/one-command-report.json
+    ```
+  </Step>
+</Steps>
+
+By default the estate is torn down when the run finishes. Pass `--keep-estate` to
+leave it up and explore DataHub and the console against live state.
+
+## What actually happened
+
+This is one connected chain, not a replay fixture:
+
+1. An instrumented agent run emitted OTLP spans, which the compiler turned into a
+   canonical, signed receipt with a resolved dependency set.
+2. The receipt registered in transactional state and published a governed DataHub
+   projection, verified by direct entity readback.
+3. A real schema field changed in DataHub. The Action consumed the change, built a
+   content-addressed campaign, and a declarative rule pack classified the affected
+   decision as material.
+4. The exact receipt the live Action quarantined became the source of a
+   fingerprint-authorized corrected bundle.
+5. The corrected evidence digest replaced the affected action input, and the new
+   decision was produced inside a source- and schema-bound hardened container.
+6. DataHub read back both receipts plus their immutable supersession relation
+   before the incident resolved.
+
+<Callout type="note" title="Negative control">
+The same run exercises an unrelated-field change that must **not** invalidate the
+decision. A proof that only ever fires positively is not a proof.
+</Callout>
+
+## Smaller checks
+
+You do not need the full estate to see the core contracts work.
+
+### Verify a receipt with no DataHub at all
+
+```bash title="Shell"
+uv run glassbox-dbom verify tests/fixtures/dbom/valid-read-only.json
+```
+
+### Verify against operator authority
+
+A self-contained signature proves key possession, not authorization. For
+production authority, validate the operator registry and verify against it:
+
+```bash title="Shell"
+uv run glassbox-dbom verify-policy /etc/glassbox/trusted-signers.json
+uv run glassbox-dbom verify receipt.json \
+  --signer-trust-policy /etc/glassbox/trusted-signers.json \
+  --json
+```
+
+### Inspect the DataHub probe without writing
+
+```bash title="Shell"
+uv run glassbox-datahub-probe plan
+```
+
+## Targeted proofs
+
+Each of these runs one boundary against a live estate and writes its own sanitized
+evidence report.
+
+<CodeGroup>
+```bash title="Receipt pipeline"
+export GLASSBOX_STATE_POSTGRES_DSN='postgresql://...'
+uv run python -m examples.end_to_end_receipt --allow-live
+```
+
+```bash title="Invalidation"
+uv run python -m examples.end_to_end_invalidation --allow-live
+```
+
+```bash title="Kafka transport"
+uv run python -m examples.end_to_end_broker_invalidation --allow-live
+```
+</CodeGroup>
+
+The Kafka proof deliberately injects an action failure, exhausts the synchronous
+commit retry window, forces exact same-offset redelivery, and takes a same-group
+recovery commit — then re-verifies a completed campaign with no additional DataHub
+write.
+
+<Callout type="tip" title="Next">
+Read the [architecture guide](/docs/architecture) for the five steps in context, or
+open [Connections](/settings) to wire GlassBox into your own DataHub estate.
+</Callout>

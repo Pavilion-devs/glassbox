@@ -3,13 +3,21 @@
 from __future__ import annotations
 
 import argparse
+import hmac
 import os
 from pathlib import Path
 from typing import Any
 
 from glassbox_dbom import load_signer_trust_policy
-from glassbox_forensics.live_state import TransactionalCampaignReader
-from glassbox_forensics.service import ForensicsService
+from glassbox_forensics.live_state import (
+    TransactionalCampaignReader,
+    TransactionalReceiptPublicationReader,
+)
+from glassbox_forensics.service import (
+    ForensicsInputError,
+    ForensicsNotFoundError,
+    ForensicsService,
+)
 from glassbox_invalidation import VerifiedReceiptStore
 from glassbox_policy import ChangeKind, NormalizedChange
 
@@ -18,7 +26,7 @@ class MCPDependencyError(RuntimeError):
     """Raised when the optional MCP transport dependency is unavailable."""
 
 
-def build_server(service: ForensicsService) -> Any:
+def build_server(service: ForensicsService, *, http_bearer_token: str | None = None) -> Any:
     """Create the MCP server without putting policy inside the transport layer."""
 
     try:
@@ -55,6 +63,12 @@ def build_server(service: ForensicsService) -> Any:
         """Get the evidence that influenced one decision and its completeness state."""
 
         return service.get_decision_influence(receipt_id)
+
+    @server.tool(annotations=read_only)
+    def get_decision_publication(receipt_id: str) -> dict[str, object]:
+        """Get sealed durable DataHub-publication evidence for one decision receipt."""
+
+        return service.get_decision_publication(receipt_id)
 
     @server.tool(annotations=read_only)
     def classify_decision_impact(
@@ -123,6 +137,121 @@ def build_server(service: ForensicsService) -> Any:
 
         return service.list_decision_findings(receipt_id, limit=limit)
 
+    try:
+        from starlette.requests import Request
+        from starlette.responses import JSONResponse
+    except ImportError:  # pragma: no cover - MCP installs the HTTP dependency
+        return server
+
+    def unauthorized(request: Request) -> Any | None:
+        if http_bearer_token is None:
+            return None
+        authorization = request.headers.get("authorization")
+        expected = f"Bearer {http_bearer_token}"
+        if authorization is not None and hmac.compare_digest(
+            authorization.encode(), expected.encode()
+        ):
+            return None
+        return _console_error("UNAUTHENTICATED", "Service authentication failed.", status_code=401)
+
+    async def health(request: Request) -> Any:
+        if (rejected := unauthorized(request)) is not None:
+            return rejected
+        return JSONResponse(
+            {
+                "status": "ok",
+                "service": "glassbox-forensics",
+                "contract_version": "glassbox.console-api.v1",
+            }
+        )
+
+    async def console_overview(request: Request) -> Any:
+        if (rejected := unauthorized(request)) is not None:
+            return rejected
+        return JSONResponse(service.get_console_overview())
+
+    async def console_receipts(request: Request) -> Any:
+        if (rejected := unauthorized(request)) is not None:
+            return rejected
+        try:
+            return JSONResponse(
+                service.list_decisions(
+                    query=request.query_params.get("query"),
+                    limit=_query_int(request, "limit", 100),
+                    offset=_query_int(request, "offset", 0),
+                )
+            )
+        except ForensicsInputError as exc:
+            return _console_error("INVALID_ARGUMENT", str(exc), status_code=400)
+
+    async def console_receipt_findings(request: Request) -> Any:
+        if (rejected := unauthorized(request)) is not None:
+            return rejected
+        try:
+            return JSONResponse(
+                service.list_decision_findings(
+                    request.path_params["receipt_id"],
+                    limit=_query_int(request, "limit", 100),
+                )
+            )
+        except ForensicsInputError as exc:
+            return _console_error("INVALID_ARGUMENT", str(exc), status_code=400)
+        except ForensicsNotFoundError as exc:
+            return _console_error("NOT_FOUND", str(exc), status_code=404)
+
+    async def console_receipt(request: Request) -> Any:
+        if (rejected := unauthorized(request)) is not None:
+            return rejected
+        try:
+            receipt_id = request.path_params["receipt_id"]
+            return JSONResponse(
+                {
+                    "contract_version": "glassbox.console-api.v1",
+                    "verification": service.verify_decision_receipt(receipt_id),
+                    "influence": service.get_decision_influence(receipt_id),
+                    "publication": service.get_decision_publication(receipt_id),
+                }
+            )
+        except ForensicsInputError as exc:
+            return _console_error("INVALID_ARGUMENT", str(exc), status_code=400)
+        except ForensicsNotFoundError as exc:
+            return _console_error("NOT_FOUND", str(exc), status_code=404)
+
+    async def console_campaigns(request: Request) -> Any:
+        if (rejected := unauthorized(request)) is not None:
+            return rejected
+        try:
+            return JSONResponse(
+                service.list_invalidation_campaigns(
+                    limit=_query_int(request, "limit", 100),
+                    offset=_query_int(request, "offset", 0),
+                )
+            )
+        except ForensicsInputError as exc:
+            return _console_error("INVALID_ARGUMENT", str(exc), status_code=400)
+
+    async def console_campaign(request: Request) -> Any:
+        if (rejected := unauthorized(request)) is not None:
+            return rejected
+        try:
+            return JSONResponse(
+                service.get_invalidation_campaign(request.path_params["campaign_id"])
+            )
+        except ForensicsInputError as exc:
+            return _console_error("INVALID_ARGUMENT", str(exc), status_code=400)
+        except ForensicsNotFoundError as exc:
+            return _console_error("NOT_FOUND", str(exc), status_code=404)
+
+    server.custom_route("/health", methods=["GET"])(health)
+    server.custom_route("/api/v1/overview", methods=["GET"])(console_overview)
+    server.custom_route("/api/v1/receipts", methods=["GET"])(console_receipts)
+    server.custom_route(
+        "/api/v1/receipts/{receipt_id:path}/findings",
+        methods=["GET"],
+    )(console_receipt_findings)
+    server.custom_route("/api/v1/receipts/{receipt_id:path}", methods=["GET"])(console_receipt)
+    server.custom_route("/api/v1/campaigns", methods=["GET"])(console_campaigns)
+    server.custom_route("/api/v1/campaigns/{campaign_id:path}", methods=["GET"])(console_campaign)
     return server
 
 
@@ -168,6 +297,28 @@ def main() -> None:
         default=10.0,
         help="bounded PostgreSQL connection timeout",
     )
+    parser.add_argument(
+        "--transport",
+        choices=("stdio", "streamable-http"),
+        default="stdio",
+        help="serve MCP over stdio or the loopback HTTP operator surface",
+    )
+    parser.add_argument(
+        "--http-host",
+        default="127.0.0.1",
+        help="loopback host for streamable HTTP (default: 127.0.0.1)",
+    )
+    parser.add_argument(
+        "--http-port",
+        type=int,
+        default=8788,
+        help="port for streamable HTTP and the console API (default: 8788)",
+    )
+    parser.add_argument(
+        "--http-bearer-token-env",
+        default="GLASSBOX_FORENSICS_API_TOKEN",
+        help="environment variable containing the private console API bearer token",
+    )
     args = parser.parse_args()
     configured = args.receipt_store or _path_from_environment()
     if configured is not None and args.state_postgres_dsn_env is not None:
@@ -202,6 +353,10 @@ def main() -> None:
             postgres_store,
             artifacts=postgres_store,
             findings=TransactionalCampaignReader(postgres_store),
+            publications=TransactionalReceiptPublicationReader(
+                postgres_store,
+                durability_authority="POSTGRESQL",
+            ),
             require_signature=require_signature,
             signer_trust_policy=signer_trust_policy,
         )
@@ -222,7 +377,26 @@ def main() -> None:
             require_signature=require_signature,
             signer_trust_policy=signer_trust_policy,
         )
-    build_server(service).run()
+    http_bearer_token = os.getenv(args.http_bearer_token_env) or None
+    server = (
+        build_server(service, http_bearer_token=http_bearer_token)
+        if http_bearer_token is not None
+        else build_server(service)
+    )
+    if args.transport == "stdio":
+        server.run()
+    else:
+        if args.http_host not in {"127.0.0.1", "localhost", "::1"} and http_bearer_token is None:
+            parser.error("a non-loopback console API bind requires bearer authentication")
+        if not 1 <= args.http_port <= 65535:
+            parser.error("http-port must be between 1 and 65535")
+        server.run(
+            transport="streamable-http",
+            host=args.http_host,
+            port=args.http_port,
+            json_response=True,
+            stateless_http=True,
+        )
 
 
 def _path_from_environment() -> Path | None:
@@ -233,6 +407,29 @@ def _path_from_environment() -> Path | None:
 def _trust_path_from_environment() -> Path | None:
     value = os.environ.get("GLASSBOX_SIGNER_TRUST_POLICY_PATH")
     return Path(value) if value else None
+
+
+def _query_int(request: Any, name: str, default: int) -> int:
+    raw = request.query_params.get(name)
+    if raw is None:
+        return default
+    try:
+        return int(raw)
+    except ValueError as exc:
+        raise ForensicsInputError(f"{name} must be an integer") from exc
+
+
+def _console_error(code: str, message: str, *, status_code: int) -> Any:
+    from starlette.responses import JSONResponse
+
+    return JSONResponse(
+        {
+            "contract_version": "glassbox.console-api.v1",
+            "error": {"code": code, "message": message},
+            "raw_content_returned": False,
+        },
+        status_code=status_code,
+    )
 
 
 def _change(

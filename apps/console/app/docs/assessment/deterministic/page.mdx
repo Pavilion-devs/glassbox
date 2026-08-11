@@ -1,0 +1,97 @@
+<Eyebrow>Assessment</Eyebrow>
+
+# Deterministic invalidation
+
+<Lede>
+A rule decides whether a decision is stale. Not a model, not a heuristic, and not a
+human reading a dashboard.
+</Lede>
+
+## Why determinism is the requirement
+
+The output of this system is used to decide whether a past decision can still be
+relied on. That answer has to be:
+
+- **Reproducible** — the same receipt and the same change must always produce the
+  same verdict.
+- **Explainable** — the verdict must carry a reason code, not prose.
+- **Versioned** — a verdict must name the exact policy that produced it, so an old
+  finding stays interpretable after the rules change.
+- **Auditable** — it must be durable and raw-free.
+
+An LLM satisfies none of those four. Materiality is therefore kept pure,
+deterministic, and versioned, and it is separated from the DataHub writeback that
+acts on it.
+
+<Callout type="note" title="Separation of concerns">
+ADR-0006 splits deterministic materiality from invalidation writeback precisely so
+that the judgement is testable in isolation. Materiality is a pure function; the
+writeback is the side effect.
+</Callout>
+
+## The closed change model
+
+Supported `MetadataChangeLogEvent_v1` payloads are normalised into a **closed**
+change model before any policy evaluation.
+
+| Situation | Behaviour |
+|---|---|
+| Supported aspect, well-formed | Normalised and evaluated |
+| Unsupported aspect | Acknowledged as a no-op |
+| Supported aspect, malformed | Raises, so the Actions framework retries |
+
+The third row matters. A malformed event that GlassBox *should* understand is not
+quietly dropped — dropping it would silently lose an invalidation.
+
+## States and reason codes
+
+An assessment produces a state and a reason code. The state is what the console
+renders; the reason code is what makes it defensible.
+
+| State | Meaning |
+|---|---|
+| `STALE` | A dependency this decision actually used changed materially |
+| `UNAFFECTED` | The change provably did not touch anything this decision used |
+| `UNKNOWN` | Coverage was insufficient to decide either way |
+| `NO_RECORDED_FINDING` | No campaign has assessed this receipt |
+| `SUPERSEDED` | A later receipt replaced this one |
+
+A reason code such as `OBSERVED_MATERIAL_DEPENDENCY_CHANGED` or
+`COMPLETE_FIELD_LINEAGE_PROVES_FIELD_UNUSED` travels with the assessment. Note the
+shape of that second one: it is a *positive* statement about why the decision is
+safe, not an absence of evidence.
+
+<Callout type="warning" title="UNAFFECTED is a claim, not a default">
+`UNAFFECTED` is only produced when coverage is good enough to prove the changed
+field was unused. When it is not, the answer is `UNKNOWN`. Defaulting to
+"unaffected" whenever nothing matched would turn missing evidence into false
+assurance.
+</Callout>
+
+## The negative control
+
+Every live invalidation proof exercises an unrelated-field change that must **not**
+produce a finding:
+
+```bash title="Shell"
+uv run python -m examples.end_to_end_invalidation --allow-live
+```
+
+A detector that only ever fires positively is not evidence that it works. The
+committed report records both the positive material finding and the negative
+control that stayed `UNAFFECTED`.
+
+## Raw-free by construction
+
+Assessments are durable and raw-free. They record digests, governed URNs, reason
+codes, policy versions, and verification results — never the field values, the
+prompt, the tool arguments, or the model output that produced the decision.
+
+That is what lets a finding be stored indefinitely, shared with another team, and
+attached to a DataHub incident without a data-handling review.
+
+<Callout type="tip" title="Next">
+[Evidence completeness](/docs/assessment/completeness) covers when an assessment
+can be exact, and [Domain-semantic policies](/docs/policy) covers how to widen
+equality beyond byte-for-byte.
+</Callout>

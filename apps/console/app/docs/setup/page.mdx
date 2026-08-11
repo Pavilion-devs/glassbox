@@ -1,0 +1,123 @@
+<Eyebrow>Getting started</Eyebrow>
+
+# Installation & setup
+
+<Lede>
+Toolchain, package extras, a state profile, signing authority, and the DataHub
+estate — in that order.
+</Lede>
+
+## Requirements
+
+| Requirement | Version |
+|---|---|
+| Python | 3.11 – 3.13 (3.12 recommended) |
+| [`uv`](https://docs.astral.sh/uv/) | current |
+| Docker | only for disposable live DataHub Core and PostgreSQL checks |
+
+```bash title="Shell"
+uv sync --all-extras
+uv run ruff format --check .
+uv run ruff check .
+uv run mypy
+uv run pytest
+```
+
+## Package extras
+
+Install only what a given process needs. A compiler host does not need the Actions
+runtime, and an Action worker does not need the replay sandbox.
+
+```bash title="Shell"
+uv sync --extra actions --extra datahub --extra postgres
+```
+
+## Choose a state profile
+
+<CardGroup cols={2}>
+  <Card title="SQLite (WAL)" icon="solar:box-linear">
+    Multi-process coordination on **one host**. Recommended for local development
+    and single-host deployments.
+  </Card>
+  <Card title="PostgreSQL 14+" icon="solar:database-linear">
+    Workers that may run on different hosts. Row-locked claims and database-clock
+    leases.
+  </Card>
+</CardGroup>
+
+<CodeGroup>
+```bash title="SQLite"
+mkdir -p .glassbox
+export GLASSBOX_SIGNER_TRUST_POLICY_PATH=/etc/glassbox/trusted-signers.json
+uv run glassbox-invalidation-state init .glassbox/invalidation.sqlite3
+uv run glassbox-invalidation-state verify .glassbox/invalidation.sqlite3
+```
+
+```bash title="PostgreSQL"
+export GLASSBOX_STATE_POSTGRES_DSN='postgresql://...'
+export GLASSBOX_SIGNER_TRUST_POLICY_PATH=/etc/glassbox/trusted-signers.json
+uv run glassbox-invalidation-state postgres-init \
+  --dsn-env GLASSBOX_STATE_POSTGRES_DSN \
+  --schema glassbox
+uv run glassbox-invalidation-state postgres-verify \
+  --dsn-env GLASSBOX_STATE_POSTGRES_DSN \
+  --schema glassbox
+```
+</CodeGroup>
+
+<Callout type="warning" title="Bootstrap with a privileged identity, then step down">
+`postgres-init` is an operator-only bootstrap. Run compilers and Action workers
+afterwards with an environment-injected DSN and narrower runtime privileges. The
+DSN value never appears in Actions configuration or status output.
+</Callout>
+
+## Establish signing authority
+
+Signature integrity and operator trust are separate concerns. Set up the registry
+before admitting any receipt in anger.
+
+```bash title="Shell"
+uv run glassbox-dbom signer-entry
+uv run glassbox-dbom verify-policy /etc/glassbox/trusted-signers.json
+```
+
+`signer-entry` derives a policy-ready public entry from an environment-indirect
+private key without returning its private bytes. Key rotation has a dedicated
+runbook in the repository.
+
+## Install the DataHub Action
+
+Both checks are offline and do not connect to DataHub:
+
+```bash title="Shell"
+uv run glassbox-datahub-action inspect-install
+uv run glassbox-datahub-action validate-config examples/datahub-actions-invalidation.yml
+```
+
+For the PostgreSQL profile, use the PostgreSQL pipeline example instead.
+
+## Verify against a real server
+
+A live probe is deliberately gated. Read the compatibility note before running one.
+
+```bash title="Shell"
+uv run glassbox-datahub-probe plan
+```
+
+## Repository preflight
+
+Before publishing or handing off a source tree, run the preflight. It evaluates the
+tracked and prospective source set and rejects generated files, unsafe links,
+oversized files, private-key material, common credential formats, personal machine
+paths, malformed JSON, and non-canonical project URLs — then emits a
+content-addressed raw-free inventory.
+
+```bash title="Shell"
+uv run python -m scripts.repository_preflight --root .
+```
+
+<Callout type="tip" title="Next">
+[Quickstart](/docs/quickstart) runs the whole chain against a disposable estate in
+one command, or go to [DataHub](/docs/integrations/datahub) to wire the Action into
+an existing deployment.
+</Callout>

@@ -1,0 +1,109 @@
+<Eyebrow>Core concepts</Eyebrow>
+
+# Decision receipts
+
+<Lede>
+A Decision Bill of Materials is a signed, canonical assertion about what one
+consequential agent output actually depended on.
+</Lede>
+
+## Canonical integrity
+
+A receipt's identity comes from its content, not from a database row.
+
+<CardGroup cols={2}>
+  <Card title="RFC 8785" icon="solar:document-text-linear">
+    Payloads are canonicalised with the JSON Canonicalization Scheme, so two
+    semantically identical receipts produce identical bytes.
+  </Card>
+  <Card title="SHA-256" icon="solar:target-linear">
+    The digest is taken over that canonical form and becomes the receipt's content
+    address: `gbx:receipt:sha256:<digest>`.
+  </Card>
+  <Card title="Merkle commitments" icon="solar:layers-linear">
+    Evidence sets are committed as a tree, so an individual item can be proven
+    without disclosing its siblings.
+  </Card>
+  <Card title="Ed25519" icon="solar:key-linear">
+    The payload digest is signed. Verification needs no network access and no
+    database.
+  </Card>
+</CardGroup>
+
+<Callout type="note" title="What is excluded from the digest">
+`receipt_id` and the entire `integrity` object are removed from the digest
+material before hashing. A receipt cannot commit to its own identity or to its own
+signature — that would be circular, and it would make the ID unverifiable.
+</Callout>
+
+## Verifying one, with nothing else running
+
+```bash title="Shell"
+uv run glassbox-dbom verify tests/fixtures/dbom/valid-read-only.json
+```
+
+That checks the schema and the integrity material. It proves the bytes are intact
+and the signature matches the key that produced it.
+
+## Signature integrity is not authorization
+
+A self-contained signature proves **key possession**. It does not prove the key was
+ever allowed to sign receipts for your organisation.
+
+Operator authority is a separate, explicit contract: the closed
+`glassbox.signer-trust.v1` policy, published as a JSON Schema under
+`schemas/signer-trust/0.1.0/`.
+
+```bash title="Shell"
+uv run glassbox-dbom verify-policy /etc/glassbox/trusted-signers.json
+uv run glassbox-dbom verify receipt.json \
+  --signer-trust-policy /etc/glassbox/trusted-signers.json \
+  --json
+```
+
+Every trusted signer is bound to **both** its `key_id` and the lowercase SHA-256
+fingerprint of its raw 32-byte Ed25519 public key. A matching key ID carrying
+different key material is rejected rather than trusted.
+
+<Callout type="warning" title="Trust mode">
+Raw receipt files default to current-time `ADMISSION`. Use `--trust-mode HISTORICAL`
+only when checksummed state or equivalent independent evidence proves the receipt
+was admitted before the signer retired. A signer-authored timestamp is not that
+proof — the signer is exactly the party you are trying to check.
+</Callout>
+
+Derive a policy entry from an environment-indirect private key without ever
+returning its private bytes:
+
+```bash title="Shell"
+uv run glassbox-dbom signer-entry
+```
+
+## What a receipt records
+
+| Section | Contents |
+|---|---|
+| `influence.dependencies[]` | Each governed dependency, with its role, state, and evidence ID |
+| `influence.completeness` | Dependency resolution, field-lineage coverage, wildcard-query flag |
+| `influence.integrity` | Verification state and whether it is a fresh verification |
+| `influence.superseded_by` | Set only when a later receipt supersedes this one |
+| `integrity` | Digest, algorithm, key ID, signature |
+
+The dependency set is *qualified*, not just a list of URNs: a dependency is an
+`INPUT` or an `OUTPUT`, it has an observation state, and it carries the evidence ID
+that ties it back to a specific runtime observation.
+
+## Supersession, never editing
+
+A correction never rewrites a receipt. It produces a new signed receipt plus an
+immutable supersession relation, and both receipt Documents stay byte-unchanged.
+
+That is what makes a quarantine reversible: the original decision, its original
+dependency set, and the reason it was superseded all remain independently
+verifiable afterwards.
+
+<Callout type="tip" title="Next">
+[Evidence completeness](/docs/assessment/completeness) explains what the
+`completeness` block means for later assessments, and
+[Recovery & quarantine](/docs/recovery) covers how supersession is authorized.
+</Callout>

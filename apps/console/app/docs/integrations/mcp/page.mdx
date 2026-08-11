@@ -1,0 +1,86 @@
+<Eyebrow>Integrations</Eyebrow>
+
+# Forensics MCP
+
+<Lede>
+Six read-only, proof-carrying tools over the same state authority the Action writes
+to — and no raw content, ever.
+</Lede>
+
+## A thin adapter over a neutral service
+
+The logic lives in a protocol-neutral `ForensicsService`. MCP is a thin adapter
+that owns no verification, lineage, materiality, approval, or replay policy of its
+own.
+
+That matters for a specific reason: if the MCP server owned any judgement, an agent
+querying it could get a different answer than the console or the Action. There is
+one authority, and three surfaces reading it.
+
+```bash title="Shell"
+uv run glassbox-forensics-mcp
+```
+
+## The tools
+
+| Tool | Answers |
+|---|---|
+| `verify_decision_receipt` | Is this receipt intact, signed, and admitted under operator trust? |
+| `get_decision_influence` | What did this decision actually depend on, and how completely do we know? |
+| `classify_decision_impact` | If this entity changed, would this decision be affected? |
+| `list_affected_decisions` | Which decisions depend on this entity? A complete reverse scan. |
+| `get_invalidation_campaign` | What did this persisted campaign actually decide, and why? |
+| `list_decision_findings` | What has the Action actually recorded against this receipt? |
+
+The last two are deliberately separated from the third. `classify_decision_impact`
+is a **prospective** question answered by the deterministic engine.
+`list_decision_findings` returns **actual persisted Action findings** from the same
+PostgreSQL state authority. Confusing a prediction with a record is exactly the
+kind of error this split prevents.
+
+<Callout type="note" title="Proof-carrying">
+Every response carries the evidence for its own claim: contract version, the state
+authority it read, verification results, and reason codes. A caller never has to
+take a bare verdict on faith.
+</Callout>
+
+## Read-only, enforced structurally
+
+Action workers remain the only writers. The MCP process opens the existing schema
+with `initialize_schema=false` and exposes read-only operations only.
+
+It cannot create the schema, migrate it, or write to it. That is not a permission
+setting that could be misconfigured — the code path does not exist.
+
+## The raw-content boundary
+
+Every response declares `raw_content_returned: false`, and that declaration is
+structural rather than aspirational. The service returns:
+
+<CardGroup cols={2}>
+  <Card title="Returned" icon="solar:shield-check-linear">
+    Digests, governed URNs, reason codes, policy versions, verification states,
+    counts, and timestamps.
+  </Card>
+  <Card title="Never returned" icon="solar:forbidden-circle-linear">
+    Prompts, model outputs, tool arguments, tool results, field values,
+    credentials, or signing keys.
+  </Card>
+</CardGroup>
+
+This is what makes it safe to give an agent access to the forensics surface at all.
+An agent investigating why a decision went stale does not need to see the data —
+it needs to see the *shape* of the dependency and the reason code.
+
+## Sharing one authority
+
+The Action and the MCP server may use the same PostgreSQL schema as their live
+decision-state authority. That is what lets an agent's answer and the console's
+answer be the same answer, rather than two independently-derived guesses that
+drift.
+
+<Callout type="tip" title="Also available as a Skill">
+The portable `datahub-agent-forensics` Skill packages signed-DBOM inspection,
+projection-only safeguards, canonical impact classification, and report templates,
+with adversarial evaluations included.
+</Callout>

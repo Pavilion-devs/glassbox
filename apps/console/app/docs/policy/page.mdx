@@ -1,0 +1,90 @@
+<Eyebrow>Policy</Eyebrow>
+
+# Domain-semantic policies
+
+<Lede>
+Exact equality is the default. Anything looser has to be named, content-addressed,
+and explicitly trusted by an operator.
+</Lede>
+
+## The default is byte equality
+
+When GlassBox compares a replayed output against the original, it compares exactly.
+That is the safe default: two outputs are the same only when they are the same.
+
+But exact equality is wrong for some real domains. `1.0000001` and `1.0` may be the
+same price. `["a","b"]` and `["b","a"]` may be the same set of tags. Widening
+equality for those cases is legitimate — and it is also exactly the kind of change
+that could be abused to make a broken replay look successful.
+
+So a domain policy is only used when **both** of these hold:
+
+1. the caller supplies its exact content-addressed `policy_id`, and
+2. an operator-configured `SemanticPolicyRegistry` trusts that same ID.
+
+<Callout type="warning" title="Neither half is sufficient">
+A caller cannot introduce a looser rule by naming one, because the registry must
+already trust it. An operator trusting a pack does not silently apply it either,
+because the caller must ask for that exact ID. Widening equality takes two parties.
+</Callout>
+
+## The document contract
+
+Packs conform to the closed `glassbox.semantic-policy.v1` contract at schema
+version `0.1.0`. Each pack binds:
+
+| Field | Purpose |
+|---|---|
+| Name | Human-readable identity |
+| Semantic version | Ordering between revisions of the same pack |
+| Output kind | The output type this pack is allowed to judge |
+| Ordered rules | Evaluated in order; first match wins |
+| `policy_id` | Content address over the canonical document |
+
+Because the ID is a content address, editing a rule produces a different pack. An
+operator who trusted the old ID has not implicitly trusted the edit.
+
+## Equivalence primitives
+
+The contract deliberately ships a small, closed set of primitives rather than an
+expression language:
+
+<CardGroup cols={2}>
+  <Card title="Numeric tolerance" icon="solar:target-linear">
+    Absolute or relative tolerance for values that are the same measurement
+    expressed with different precision.
+  </Card>
+  <Card title="Unordered multiset" icon="solar:layers-linear">
+    Collections that are equal as bags, where sequence carries no meaning.
+  </Card>
+</CardGroup>
+
+A closed primitive set is a security property. An arbitrary expression language
+inside a trust boundary is a sandbox problem, and this contract declines to have
+one.
+
+## Complete change coverage
+
+A pack must account for every change it could encounter for its output kind. A rule
+set with gaps is rejected rather than defaulting the uncovered cases to "equivalent".
+
+That requirement is what keeps a policy from quietly becoming a blanket approval as
+outputs evolve.
+
+## Live proof
+
+The non-exact-equivalence path is proven against DataHub Core 1.6.0, not asserted:
+a real replay produces an output that is **not** byte-identical, a trusted pack
+judges it equivalent under a named rule, and the resulting assessment records both
+the `policy_id` and the rule that matched.
+
+<Callout type="note" title="Assessments stay raw-free">
+A policy decision records the pack ID, the matched rule, and the verdict. It does
+not record the values that were compared.
+</Callout>
+
+<Callout type="tip" title="Next">
+[Recovery & quarantine](/docs/recovery) covers where these comparisons happen — at
+the end of an authorized replay, deciding whether a corrected decision may
+supersede the original.
+</Callout>

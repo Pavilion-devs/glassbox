@@ -1,0 +1,112 @@
+<Eyebrow>Policy</Eyebrow>
+
+# Recovery & quarantine
+
+<Lede>
+Quarantine is the only deliberate enforcement action. Everything that undoes it is
+explicitly authorized, sandboxed, and append-only.
+</Lede>
+
+## Quarantine
+
+When a campaign finds a receipt material, that receipt can be quarantined. A
+quarantined decision is marked in DataHub and surfaced in the console's recovery
+queue. It is a statement that the decision should not be relied on until something
+is done about it — not a deletion, and not an edit.
+
+## The replay bundle
+
+Recovery starts from a **Replay Bundle 0.1** artifact derived from a verified source
+receipt.
+
+<CardGroup cols={2}>
+  <Card title="Committed source" icon="solar:link-linear">
+    The bundle commits the source receipt ID and its payload digest. It never
+    mutates history.
+  </Card>
+  <Card title="Independently signed" icon="solar:key-linear">
+    Content-addressed with RFC 8785 and SHA-256 under domain separation, then signed
+    with Ed25519 separately from the source DBOM.
+  </Card>
+  <Card title="Input replacement" icon="solar:refresh-linear">
+    A corrected input commits the original and active digests, the source evidence
+    IDs, the replacement origin, and the verifying authority — inside the signature.
+  </Card>
+  <Card title="Non-executing dry run" icon="solar:eye-linear">
+    The renderer is structurally incapable of invoking a tool, so a plan can be
+    reviewed without any risk of running it.
+  </Card>
+</CardGroup>
+
+```bash title="Build and inspect a bundle"
+uv run glassbox-replay bundle --help
+uv run glassbox-replay verify-bundle bundle.json
+uv run glassbox-replay dry-run bundle.json
+```
+
+## Authorization is digest-bound and expiring
+
+An approval is bound to the exact bundle digest and it expires. An approval for one
+bundle cannot authorize a different one, and an approval that has been sitting
+around is not still valid.
+
+At the execution boundary, deterministic planning is re-run against the supplied
+exact resource inventory. Plans that are stale, modified, not `ALLOW`, or belong to
+a different bundle are rejected.
+
+<Callout type="warning" title="Read-only actions only">
+The executor runs `READ_ONLY` actions. It does not execute reversible actions even
+when a different planner path could authorize them with approval. Widening that is
+a deliberate future decision, not a configuration flag.
+</Callout>
+
+## Isolation
+
+Execution happens inside a container profile pinned by **exact image ID**, never a
+mutable tag.
+
+| Control | Setting |
+|---|---|
+| Image | Exact OCI image ID, inspected before every invocation |
+| Labels | Must match the receipt's exact tool source and schema |
+| Network | Denied |
+| Root filesystem | Read-only |
+| Capabilities | Dropped |
+| Resources | Ceilinged |
+| Transport | Bounded |
+
+The host — not the container — creates the `IsolationAttestation`, which is itself
+content-addressed. A sandbox that attested to its own integrity would be attesting
+to nothing.
+
+<Callout type="note" title="Honest boundary">
+This is a strong, verifiable sandbox. It is not a formal isolation guarantee, and
+the docs do not claim one.
+</Callout>
+
+## Durable orchestration
+
+Recovery is a separately versioned PostgreSQL state machine living in the same
+schema authority as invalidation state. A `recovery_jobs` row references the exact
+completed campaign row and the exact source receipt row through foreign keys, so a
+recovery cannot exist without the finding that justified it.
+
+It carries server-clock leases, atomic raw-free artifact sealing, persisted replay,
+supersession and closure IDs, append-only checkpoint events, and per-attempt
+physical-write evidence. Restart-safe DataHub effects mean a crashed worker resumes
+rather than re-writing.
+
+Prior closure recovery is exact and performs **zero writes**: if the incident was
+already closed, the system proves that by reading, not by closing it again.
+
+## Closure
+
+An incident closes only after verified supersession. DataHub reads back both
+receipt Documents plus their immutable supersession relation before the incident
+resolves — and both Documents remain byte-unchanged.
+
+<Callout type="tip" title="Next">
+[Domain-semantic policies](/docs/policy) covers how a corrected output is judged
+equivalent, and [DataHub](/docs/integrations/datahub) covers the writeback and
+closure surface.
+</Callout>

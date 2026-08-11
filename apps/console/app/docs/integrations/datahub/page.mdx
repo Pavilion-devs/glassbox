@@ -1,0 +1,106 @@
+<Eyebrow>Integrations</Eyebrow>
+
+# DataHub
+
+<Lede>
+GlassBox ships as an installable DataHub Actions plugin through the public
+external-plugin contract, and publishes provenance as governed metadata.
+</Lede>
+
+## Compatibility mode
+
+GlassBox uses native Agent Registry entities for agents, skills, and tools **only
+when the installed server and SDK capability probe proves they exist**. Otherwise
+it uses a typed Document compatibility layer for receipt summaries.
+
+Inspect what a server supports without performing any network write:
+
+```bash title="Shell"
+uv run glassbox-datahub-probe plan
+```
+
+<Callout type="note" title="Proven means proven">
+A DataHub capability is marked proven only after a live probe writes metadata and
+reads it back directly from the configured server. A screenshot is not evidence,
+and neither is a successful write acknowledgement on its own.
+</Callout>
+
+## Installing the Action
+
+The plugin registers through the standard entry point
+`datahub_actions.action.plugins`. Both checks below are offline:
+
+```bash title="Shell"
+uv run glassbox-datahub-action inspect-install
+uv run glassbox-datahub-action validate-config examples/datahub-actions-invalidation.yml
+```
+
+`inspect-install` verifies the entry point is installed **exactly once** — a
+duplicate registration is a real failure mode that would double-process every
+change event.
+
+## Writeback surface
+
+<CardGroup cols={2}>
+  <Card title="Receipt projection" icon="solar:document-text-linear">
+    The governed projection of a signed receipt, verified by direct entity readback
+    rather than by write acknowledgement.
+  </Card>
+  <Card title="Native incidents" icon="solar:danger-triangle-linear">
+    Material findings become DataHub incidents, carrying the campaign ID and reason
+    code.
+  </Card>
+  <Card title="Receipt quarantine" icon="solar:forbidden-circle-linear">
+    An affected decision is marked so downstream consumers can see it is not safe
+    to rely on.
+  </Card>
+  <Card title="Ownership routing" icon="solar:users-group-rounded-linear">
+    A second durable outbox resolves the native DataHub owner and delivers through
+    a webhook adapter with stable idempotency keys.
+  </Card>
+</CardGroup>
+
+Owner-routing obligations are created in the **same transaction** as verified
+writeback. If either transition fails, neither commits — so a notification can
+never exist without the finding that justified it.
+
+## Credentials
+
+Three credentials are kept separate, and none of them is shared:
+
+| Credential | Used by | Notes |
+|---|---|---|
+| OAuth/OIDC identity | Humans at the edge | Operator-configured provider |
+| DataHub service-account token | GlassBox → DataHub | One scoped token |
+| State DSN | Workers → PostgreSQL | Environment-injected |
+
+The DSN value is never placed in Actions configuration or in status output.
+Environment indirection (`--dsn-env`) is used everywhere, so the secret does not
+appear on a command line or in a process listing.
+
+```bash title="Shell"
+export GLASSBOX_STATE_POSTGRES_DSN='postgresql://...'
+export DATAHUB_GMS_TOKEN='...'
+uv run glassbox-invalidation-state postgres-init \
+  --dsn-env GLASSBOX_STATE_POSTGRES_DSN \
+  --schema glassbox
+```
+
+## Live evidence
+
+The DataHub paths are proven against Core `1.6.0` with committed, sanitized
+reports rather than assertions:
+
+- an idempotent receipt publisher proven through double-write and direct entity
+  readback;
+- a combined receipt-pipeline report covering signer admission, checksummed
+  PostgreSQL admission evidence, two real upserts plus aspect readback, and
+  completed redelivery with **zero additional DataHub writes**;
+- a flagship causal-recovery report covering quarantine through supersession to
+  verified closure.
+
+<Callout type="tip" title="Ecosystem packaging">
+GlassBox ships through DataHub's public external-plugin contract before seeking
+core inclusion. The reasoning, the clean-wheel checklist, and the maintainer-facing
+submission sequence live in the repository's upstream contribution packet.
+</Callout>

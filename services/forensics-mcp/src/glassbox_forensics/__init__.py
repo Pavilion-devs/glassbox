@@ -21,8 +21,10 @@ from glassbox_forensics.service import (
     ForensicsNotFoundError,
     ForensicsService,
     PersistedCampaign,
+    PersistedReceiptPublication,
     ReceiptArtifactReader,
     ReceiptProfileReader,
+    ReceiptPublicationReader,
 )
 
 __all__ = [
@@ -39,8 +41,10 @@ __all__ = [
     "MCPToolContract",
     "NarrationContractError",
     "PersistedCampaign",
+    "PersistedReceiptPublication",
     "ReceiptArtifactReader",
     "ReceiptProfileReader",
+    "ReceiptPublicationReader",
     "build_narration_brief",
     "compose_dual_mcp_evidence",
     "evaluate_agent_narration",

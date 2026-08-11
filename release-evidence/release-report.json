@@ -2,13 +2,13 @@
   "artifacts": [
     {
       "filename": "glassbox_core-0.1.0-py3-none-any.whl",
-      "sha256": "9cdc67d2ec6ae35d916fa26a957c0a36f9b70e3026891f73b8f735bc0b929ccd",
-      "size": 251614
+      "sha256": "945e49cf18743f674c786ab423b6539a57f4abe4da4d95d750bd4caa0ff30327",
+      "size": 265697
     },
     {
       "filename": "glassbox_core-0.1.0.tar.gz",
-      "sha256": "0d10705823b27746b926c187f645b779bf11056865cada89a06585300864d5e7",
-      "size": 750409
+      "sha256": "3a40d3fa63b8c5bd7ff42b2e9ab6a4922137a93d5a4aaf3b537fb2ae23b1445f",
+      "size": 2307332
     }
   ],
   "evidence": {
@@ -19,7 +19,7 @@
   "reproducible_build": true,
   "sdist": {
     "archive_safe": true,
-    "files": 283,
+    "files": 319,
     "links_present": false,
     "required_files_present": true,
     "versioned_root": "glassbox_core-0.1.0"
@@ -29,7 +29,7 @@
   "wheel": {
     "archive_safe": true,
     "entry_points_match": true,
-    "files": 94,
+    "files": 99,
     "metadata_matches": true,
     "record_verified": true,
     "required_contracts_present": true

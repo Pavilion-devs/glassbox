@@ -17,11 +17,18 @@ reproducibility-dist/
 
 # Local runtime state
 .env
+deploy/production/.env.production
+deploy/production/trusted-signers.json
+.glassbox/
 *.db
 *.sqlite*
 artifacts/private/
 traces/
 keys/
+
+# Local demo-video production workspace. The public demo is linked from README;
+# captures, voice tracks, render caches, and encoded masters stay out of Git.
+videos/
 
 # Editors and operating systems
 .DS_Store

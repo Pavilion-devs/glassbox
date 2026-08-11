@@ -37,6 +37,7 @@ def _policy(
     key: SigningKey,
     *,
     status: SignerStatus = SignerStatus.ACTIVE,
+    not_before: str = "2020-01-01T00:00:00Z",
 ) -> SignerTrustPolicy:
     return SignerTrustPolicy(
         policy_id="glassbox-state-test-trust-v1",
@@ -47,7 +48,7 @@ def _policy(
                 public_key=signing_key_public_key(key),
                 public_key_sha256=signing_key_fingerprint(key),
                 status=status,
-                not_before="2020-01-01T00:00:00Z",
+                not_before=not_before,
                 not_after="2100-01-01T00:00:00Z",
             ),
         ),
@@ -77,6 +78,32 @@ def test_sqlite_admission_rejects_untrusted_signer_before_receipt_or_outbox_writ
     assert report.receipts == 0
     assert report.dependencies == 0
     assert report.receipt_publication_tasks == 0
+
+
+def test_durable_stores_reject_receipt_from_before_signer_validity_without_writing(
+    tmp_path: Path,
+) -> None:
+    key = SigningKey("future-at-receipt-time", Ed25519PrivateKey.generate())
+    policy = _policy(key, not_before="2026-08-07T00:00:00Z")
+    receipt = _receipt(key, run_id="receipt-before-key-validity")
+
+    sqlite = SQLiteInvalidationStore(
+        tmp_path / "historical-window.sqlite3",
+        signer_trust_policy=policy,
+    )
+    with pytest.raises(PolicyInputError, match="BEFORE_VALIDITY_WINDOW"):
+        sqlite.register(receipt)
+    sqlite_report = sqlite.verify_integrity()
+    assert sqlite_report.receipts == 0
+    assert sqlite_report.dependencies == 0
+    assert sqlite_report.receipt_publication_tasks == 0
+
+    jsonl_path = tmp_path / "historical-window.jsonl"
+    jsonl = VerifiedReceiptStore(jsonl_path, signer_trust_policy=policy)
+    with pytest.raises(PolicyInputError, match="BEFORE_VALIDITY_WINDOW"):
+        jsonl.register(receipt)
+    assert not jsonl_path.exists()
+    assert jsonl.all_profiles() == ()
 
 
 def test_sqlite_rotation_keeps_exact_history_but_blocks_new_retired_key_admission(

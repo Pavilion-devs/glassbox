@@ -1,0 +1,114 @@
+<Eyebrow>Integrations</Eyebrow>
+
+# OTLP & Kafka
+
+<Lede>
+Publication is a durable obligation, not a side effect of a successful HTTP call —
+and each transport is proven on its own terms.
+</Lede>
+
+## The OTLP receiver
+
+Exporters send OTLP protobuf JSON to `POST /v1/traces` with a bearer token.
+
+```bash title="Shell"
+export GLASSBOX_STATE_POSTGRES_DSN='postgresql://...'
+export GLASSBOX_RECEIPT_SIGNING_KEY='...'
+export GLASSBOX_OTLP_BEARER_TOKEN='...'
+export GLASSBOX_SIGNER_TRUST_POLICY_PATH=/etc/glassbox/trusted-signers.json
+export DATAHUB_GMS_TOKEN='...'
+
+uv run glassbox-otlp-receiver serve \
+  --signing-key-id glassbox-prod-2026-08 \
+  --environment PROD \
+  --output-kind agent-decision \
+  --output-mime-type application/json
+```
+
+<Callout type="warning" title="Never on the command line">
+Inject the base64url-encoded 32-byte Ed25519 private key and the receiver bearer
+token through your secret manager. Neither value belongs in a shell history or a
+process listing.
+</Callout>
+
+## What the status codes mean
+
+| Code | Meaning |
+|---|---|
+| `200` | The signed receipt, dependency index, and publication obligation exist **and** DataHub direct-read evidence has been sealed |
+| `503` | Retry. The durable obligation survives even if the sender disappears |
+
+A 200 is therefore a much stronger statement than "we received your bytes". It
+means the whole chain through governed publication completed and was verified.
+
+Stranded obligations are repaired independently of the sender:
+
+```bash title="Shell"
+uv run glassbox-otlp-receiver drain --limit 100
+```
+
+Completed redelivery performs a fresh DataHub readback with **zero writes**.
+
+<Callout type="note" title="Reference server boundaries">
+The reference receiver is single-flight and expects TLS termination and rate
+limiting in a production proxy. Non-loopback binds require bearer authentication
+unless the operator supplies an explicit unsafe override.
+</Callout>
+
+## Kafka delivery
+
+The invalidation plugin deploys through the pinned Actions `kafka` source on
+`MetadataChangeLog_Versioned_v1`, using acknowledged at-least-once delivery.
+
+The pipeline name is the Kafka consumer-group identity. It must be stable and
+unique — two logically different actions must never run under the same name, or
+they will silently split each other's partitions.
+
+## Proving acknowledgement recovery
+
+Kafka's failure mode that matters is not "a message was lost". It is "the offset
+advanced even though the work failed". The live proof targets exactly that:
+
+<Steps>
+  <Step title="Disable async commit">
+    `async_commit_enabled=false`, so every commit is synchronous and observable.
+  </Step>
+  <Step title="Fail every commit in the window">
+    Every client commit attempt fails within one configured acknowledgement retry
+    window, before any call reaches the broker.
+  </Step>
+  <Step title="Confirm the offset did not move">
+    An independent consumer verifies the committed offset stayed behind.
+  </Step>
+  <Step title="Force exact redelivery">
+    The same offset is redelivered, a same-group recovery commit succeeds, and a
+    completed campaign is re-verified with no additional DataHub write.
+  </Step>
+</Steps>
+
+```bash title="Shell"
+uv run python -m examples.end_to_end_broker_invalidation --allow-live
+```
+
+## PostgreSQL Queue
+
+The official Actions pgQueue source is proven separately against real PostgreSQL
+leases and contiguous offsets: the offset stays behind after failed
+acknowledgement, a restart cannot steal a live lease, the exact handle returns
+after visibility expiry, completed work is freshly verified with zero duplicate
+emissions, the ack marker advances the offset, and a third restart is empty.
+
+```bash title="Shell"
+export GLASSBOX_PGQUEUE_PASSWORD='a-disposable-local-password'
+uv run python -m examples.end_to_end_pgqueue_invalidation \
+  --server http://localhost:18080 \
+  --pg-host-port 127.0.0.1:55434 \
+  --initialize-schema \
+  --allow-live
+```
+
+<Callout type="warning" title="The two claims are independent">
+A success in one transport never marks the other proven. Kafka and pgQueue keep
+separate reports on purpose — they have different failure modes, and evidence for
+one is not evidence for the other.
+</Callout>

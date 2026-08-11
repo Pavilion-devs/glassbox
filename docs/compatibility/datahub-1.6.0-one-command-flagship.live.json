@@ -1,0 +1,397 @@
+{
+  "contract_version": "0.1.0",
+  "elapsed_seconds": 56.728,
+  "estate": {
+    "cleanup_succeeded": true,
+    "compose_project": "glassbox-flagship",
+    "compose_sha256": "ba39d779cd0e066553b5f4673384ece3d6a872e2245983525fc71e2ece1b5077",
+    "compose_source": "LOCAL_OVERRIDE",
+    "compose_url": null,
+    "datahub_core_commit_target": "059a36c0b035a6057de00114ccac0ea9003d6bc2",
+    "datahub_core_target": "v1.6.0",
+    "kept_running": false,
+    "published_ports": {
+      "frontend": 19002,
+      "gms": 18080,
+      "kafka": 19092,
+      "mysql": 13306,
+      "opensearch": 19200,
+      "otlp": 14319,
+      "postgres": 15432
+    },
+    "service_images": [
+      {
+        "ContainerName": "glassbox-flagship-datahub-actions-quickstart-1",
+        "ID": "sha256:873b99fe6c9390c33b1a9271a57e50bd6115ec012b613068f6221bbf32443ce1",
+        "Repository": "acryldata/datahub-actions",
+        "Tag": "v1.6.0-slim"
+      },
+      {
+        "ContainerName": "glassbox-flagship-datahub-gms-quickstart-1",
+        "ID": "sha256:672bceed7f36f751ab3302c30826c6ba124d1c0fd8d24c3724e725078b864018",
+        "Repository": "acryldata/datahub-gms",
+        "Tag": "v1.6.0"
+      },
+      {
+        "ContainerName": "glassbox-flagship-frontend-quickstart-1",
+        "ID": "sha256:dc8264712e80a06fda79b593801c2a0eee7ff594e6d907006d016783a46d21db",
+        "Repository": "acryldata/datahub-frontend-react",
+        "Tag": "v1.6.0"
+      },
+      {
+        "ContainerName": "glassbox-flagship-glassbox-state-postgres-1",
+        "ID": "sha256:33f923b05f64ca54ac4401c01126a6b92afe839a0aa0a52bc5aeb5cc958e5f20",
+        "Repository": "postgres",
+        "Tag": "16"
+      },
+      {
+        "ContainerName": "glassbox-flagship-kafka-broker-1",
+        "ID": "sha256:9cdc8119cb39c45f0efa6da8e2220058020c7433e3ba3a3ce11a8006a18cb336",
+        "Repository": "confluentinc/cp-kafka",
+        "Tag": "8.0.0"
+      },
+      {
+        "ContainerName": "glassbox-flagship-mysql-1",
+        "ID": "sha256:212fe73edca5df6ff14826d5eb975c914bfb91f82a2e923f9050568f99525da1",
+        "Repository": "mysql",
+        "Tag": "8.2"
+      },
+      {
+        "ContainerName": "glassbox-flagship-opensearch-1",
+        "ID": "sha256:e96cc6ae1500a073d973c0906f30f7cf4d9c461f32f855f9242a2da933660cdd",
+        "Repository": "opensearchproject/opensearch",
+        "Tag": "2.19.3"
+      },
+      {
+        "ContainerName": "glassbox-flagship-system-update-quickstart-1",
+        "ID": "sha256:6e6b9f09165007004c20e9387e6ca1a171d1425fd76ae807b217c5dc7883ff02",
+        "Repository": "acryldata/datahub-upgrade",
+        "Tag": "v1.6.0"
+      }
+    ]
+  },
+  "flagship": {
+    "corrected_replay": {
+      "action_input_digest_changed": true,
+      "bundle_id": "gbx:replay-bundle:sha256:395f39208421597c3d31bea7c978bcdddca8b01fc66ed3320bfb70c706a796d5",
+      "completed_redelivery_datahub_write_performed": false,
+      "context_observation_count": 1,
+      "decision": "ALLOW",
+      "diff_id": "gbx:replay-diff:sha256:eff63d16afaec3cc830e50250054bee6b7a7048d98966dd1d2ec2c9d36f93e7d",
+      "execution_id": "gbx:replay-execution:sha256:39364b44748f1f44aab837db85a4d73323cea8c54a63873ebca52f15041f4046",
+      "execution_status": "SUCCEEDED",
+      "isolation": {
+        "attestation_id": "gbx:isolation-attestation:sha256:edbd71513dc8dddf030aab0b0dfb4c02b5ae34709bcc8b77ced22970d7d86224",
+        "capability_labels_verified": true,
+        "capability_schema_digest": "36da44a35cbfb2437f9b9760ef8110f57851f9f6793bbbc544bacd2274df7a68",
+        "capability_source_digest": "434c60c18fc5fc051b7f383f360e6447d63e66680c8d4bd1c488d7d8e87748b8",
+        "command_digest": "35a02bd4394ec5b9ab526ebce06366aca6bf086c10ea9e1aba82aa80b28918c8",
+        "cpus": 0.5,
+        "exit_code": 0,
+        "host_environment": "NOT_INHERITED",
+        "host_environment_probe_absent": true,
+        "image_digest": "sha256:7e16f5d64bf80e69a7ba6b479dc64819f2112482f4f345c076d9df39e6d05ff2",
+        "image_identity_verified": true,
+        "linux_capabilities": "ALL_DROPPED",
+        "memory_bytes": 134217728,
+        "network_access": "DENIED",
+        "network_probe_denied": true,
+        "no_new_privileges": true,
+        "pids_limit": 32,
+        "profile_version": "glassbox.oci-read-only.v1",
+        "raw_values_retained": false,
+        "root_filesystem": "READ_ONLY",
+        "root_write_probe_denied": true,
+        "runtime": "OCI_CONTAINER",
+        "stdout_digest": "395d917a1db8449020ca247e4f3a5f54c2fc1787a5d19b543a65e305681f0a85",
+        "timeout_seconds": 10.0,
+        "tmpfs_bytes": 16777216
+      },
+      "plan_id": "gbx:replay-plan:sha256:08331e176949b492b85b41dae9900ab735bdc4db7f27181800028e21629c9f25",
+      "publication": {
+        "datahub": {
+          "aspect_names": [
+            "browsePathsV2",
+            "documentInfo",
+            "documentKey",
+            "documentSettings",
+            "subTypes"
+          ],
+          "document_urn": "urn:li:document:glassbox.receipt.ef98cf4684e97ab871aaf3143c3901abd9cc177cdf9974de5133a383f7637ea4",
+          "emissions": 2,
+          "receipt_id": "gbx:receipt:sha256:ef98cf4684e97ab871aaf3143c3901abd9cc177cdf9974de5133a383f7637ea4",
+          "valid": true
+        },
+        "publication": {
+          "attempt_count": 1,
+          "datahub_write_performed": true
+        },
+        "raw_content_returned": false,
+        "receipt_id": "gbx:receipt:sha256:ef98cf4684e97ab871aaf3143c3901abd9cc177cdf9974de5133a383f7637ea4",
+        "state": {
+          "field_lineage": {
+            "coverage": "COMPLETE",
+            "rule_id": "glassbox.flagship-field-lineage.v1",
+            "wildcard_query": false
+          },
+          "readback_verified": true,
+          "registration": "INSERTED"
+        },
+        "valid": true
+      },
+      "reason_codes": [
+        "SAFE_READ_ONLY_REPLAY"
+      ],
+      "replay_receipt_id": "gbx:receipt:sha256:ef98cf4684e97ab871aaf3143c3901abd9cc177cdf9974de5133a383f7637ea4",
+      "semantic_exact_match": false,
+      "semantic_policy_id": "gbx:semantic-policy:sha256:24fa909bad2c324e592ed1e2da85a589afde24087de8e769760ae603b3a79b15",
+      "semantic_result": "CHANGED",
+      "semantic_rule_id": "glassbox.pricing-recommendation",
+      "semantic_rule_version": "1.0.0",
+      "source_history_mutations": 0,
+      "structural_change_count": 1
+    },
+    "dual_mcp_forensics": {
+      "contract": "glassbox.dual-mcp-forensics.v1",
+      "cross_plane_binding": {
+        "campaign_id": "gbx:invalidation:sha256:cd2ab9c28c15de4bc5c066f1082f82f7ce3ba83c0ee47a0e2a1eafddc96ab284",
+        "campaign_to_incident": "EXACT",
+        "catalog_to_receipt": "EXACT",
+        "dataset_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "document_urn": "urn:li:document:glassbox.receipt.dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+        "incident_urn": "urn:li:incident:glassbox.invalidation.cd2ab9c28c15de4bc5c066f1082f82f7ce3ba83c0ee47a0e2a1eafddc96ab284",
+        "receipt_id": "gbx:receipt:sha256:dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+        "receipt_to_campaign": "EXACT"
+      },
+      "datahub_mcp": {
+        "active_incident_signal": true,
+        "catalog_entity_read": "PROVEN",
+        "dataset_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,commerce.orders,PROD)",
+        "exact_incident_entity_projection": "UNAVAILABLE",
+        "field_path": "average_order_value",
+        "incident_health": "FAIL",
+        "known_mutation_tools_exposed": [],
+        "native_type": "DECIMAL(18,2)",
+        "non_read_only_tools": [],
+        "receipt_document_related": true,
+        "required_read_tools_present": [
+          "get_entities",
+          "get_lineage",
+          "get_lineage_paths_between",
+          "list_schema_fields",
+          "search"
+        ],
+        "tool_count": 6
+      },
+      "glassbox_mcp": {
+        "campaign_workflow": "COMPLETED",
+        "datahub_writeback": "VERIFIED",
+        "finding_state": "STALE",
+        "mutation_tools": 0,
+        "observed_field_influence": true,
+        "quarantine_required": true,
+        "read_tools": [
+          "classify_decision_impact",
+          "get_decision_influence",
+          "get_invalidation_campaign",
+          "list_affected_decisions",
+          "list_decision_findings",
+          "verify_decision_receipt"
+        ],
+        "receipt_verification": "VERIFIED_NOW",
+        "scan_complete": true,
+        "tool_count": 6
+      },
+      "raw_content_returned": false,
+      "valid": true
+    },
+    "history_preservation": {
+      "datahub_receipt_documents_unchanged_after_supersession": true,
+      "direct_entity_digests_after": {
+        "urn:li:document:glassbox.receipt.dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb": "666b54a4ed9a13d7d47ca0f83ad83bc0cae42dc6fdb1faec9743aa5aee78b507",
+        "urn:li:document:glassbox.receipt.ef98cf4684e97ab871aaf3143c3901abd9cc177cdf9974de5133a383f7637ea4": "0df6bb4edff8fb280ef3b6c657cee73edc04edbaa1e7deaa919414b7cc94ef02"
+      },
+      "direct_entity_digests_before": {
+        "urn:li:document:glassbox.receipt.dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb": "666b54a4ed9a13d7d47ca0f83ad83bc0cae42dc6fdb1faec9743aa5aee78b507",
+        "urn:li:document:glassbox.receipt.ef98cf4684e97ab871aaf3143c3901abd9cc177cdf9974de5133a383f7637ea4": "0df6bb4edff8fb280ef3b6c657cee73edc04edbaa1e7deaa919414b7cc94ef02"
+      },
+      "postgres_source_receipt_unchanged": true
+    },
+    "incident_closure": {
+      "aspect_writes": 4,
+      "campaign_id": "gbx:invalidation:sha256:cd2ab9c28c15de4bc5c066f1082f82f7ce3ba83c0ee47a0e2a1eafddc96ab284",
+      "closure_id": "gbx:recovery-closure:sha256:dc82fa60bd6dfe303ab54d98742a2ccb3117476f4a96f8adb3acd2890baf5aff",
+      "emission_attempts": 2,
+      "incident_aspects": [
+        "incidentInfo",
+        "incidentKey"
+      ],
+      "incident_urn": "urn:li:incident:glassbox.invalidation.cd2ab9c28c15de4bc5c066f1082f82f7ce3ba83c0ee47a0e2a1eafddc96ab284",
+      "raw_values_retained": false,
+      "receipt_documents_unchanged": true,
+      "replay_receipt_document_urn": "urn:li:document:glassbox.receipt.ef98cf4684e97ab871aaf3143c3901abd9cc177cdf9974de5133a383f7637ea4",
+      "reused_completion": false,
+      "source_receipt_document_urn": "urn:li:document:glassbox.receipt.dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+      "supersession_document_urn": "urn:li:document:glassbox.replay.supersession.8b2d004f3531805c0128a950abf42fa2343abf55fcc8fd2f72176d78a52e07ba",
+      "supersession_verified": true,
+      "target_summary_resolved": true,
+      "valid": true
+    },
+    "invalidation": {
+      "campaign_id": "gbx:invalidation:sha256:cd2ab9c28c15de4bc5c066f1082f82f7ce3ba83c0ee47a0e2a1eafddc96ab284",
+      "datahub_writeback_verified": true,
+      "finding": "STALE",
+      "first_delivery_emissions": 2,
+      "incident_urn": "urn:li:incident:glassbox.invalidation.cd2ab9c28c15de4bc5c066f1082f82f7ce3ba83c0ee47a0e2a1eafddc96ab284",
+      "matched_evidence_ids": [
+        "gbx:evidence:2222222222222222"
+      ],
+      "reason_code": "OBSERVED_MATERIAL_DEPENDENCY_CHANGED",
+      "redelivery_emissions": 0,
+      "redelivery_reused_completion": true,
+      "source_receipt_id": "gbx:receipt:sha256:dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+      "workflow_status": "COMPLETED"
+    },
+    "negative_control": {
+      "campaign_id": "gbx:invalidation:sha256:f72fa384835f93dbf5d0378af13423a9c8606d2321489c65f20b24c7c3985da6",
+      "datahub_mutation_required": false,
+      "finding": "UNAFFECTED",
+      "first_delivery_emissions": 0,
+      "reason_code": "COMPLETE_FIELD_LINEAGE_PROVES_FIELD_UNUSED",
+      "redelivery_emissions": 0
+    },
+    "privacy": {
+      "database_credentials_returned": false,
+      "private_keys_returned": false,
+      "raw_action_inputs_returned": false,
+      "raw_evidence_returned": false,
+      "raw_outputs_returned": false,
+      "raw_prompts_returned": false
+    },
+    "recovery_authorization": {
+      "authorization_id": "gbx:recovery-authorization:sha256:8af15b009c5ffe1c6eeb9ab8dd974dad5f48a7bb7ed57fb815d26448a8307b07",
+      "bundle_id": "gbx:replay-bundle:sha256:395f39208421597c3d31bea7c978bcdddca8b01fc66ed3320bfb70c706a796d5",
+      "campaign_id": "gbx:invalidation:sha256:cd2ab9c28c15de4bc5c066f1082f82f7ce3ba83c0ee47a0e2a1eafddc96ab284",
+      "finding_state": "STALE",
+      "mode": "CORRECTED",
+      "source_receipt_id": "gbx:receipt:sha256:dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+      "verification": {
+        "authorization_id_valid": true,
+        "errors": [],
+        "exact_binding_valid": true,
+        "not_revoked": true,
+        "operational_binding_valid": true,
+        "raw_content_returned": false,
+        "signatures_valid": true,
+        "time_valid": true,
+        "trusted_signer_present": true,
+        "valid": true
+      }
+    },
+    "runtime": {
+      "datahub_core_commit": "059a36c0b035a6057de00114ccac0ea9003d6bc2",
+      "datahub_core_version": "v1.6.0",
+      "datahub_mcp_name": "datahub",
+      "datahub_mcp_reported_server_version": "3.4.6",
+      "datahub_sdk_version": "1.6.0.15",
+      "glassbox_mcp_name": "GlassBox Agent Decision Forensics",
+      "glassbox_mcp_reported_server_version": "0.1.0",
+      "negotiated_mcp_protocol_version": "2025-11-25",
+      "official_datahub_mcp_package": "mcp-server-datahub",
+      "official_datahub_mcp_package_version": "0.6.0",
+      "postgresql_server_version": "16.14 (Debian 16.14-1.pgdg13+1)",
+      "proof_date": "2026-08-08",
+      "proof_run_offset_ms": 0
+    },
+    "scenario": "GLASSBOX_DATAHUB_CAUSAL_RECOVERY",
+    "scope": {
+      "corrected_action_input_execution": "PROVEN",
+      "glassbox_mcp_stdio": "PROVEN",
+      "incident_resolution_after_recovery": "PROVEN",
+      "live_datahub_core": "PROVEN",
+      "live_postgresql": "PROVEN",
+      "official_datahub_mcp_stdio": "PROVEN",
+      "organizational_retention_completeness": "CONFIGURATION_DEPENDENT",
+      "process_level_capability_sandbox": "PROVEN",
+      "real_datahub_mutation_and_direct_readback": "PROVEN"
+    },
+    "shared_state": {
+      "audit_records": 4,
+      "campaigns": 2,
+      "dsn_persisted_or_reported": false,
+      "engine": "PostgreSQL",
+      "receipts": 2
+    },
+    "source_decision": {
+      "action_count": 1,
+      "completed_redelivery_datahub_write_performed": false,
+      "evidence_count": 1,
+      "publication": {
+        "datahub": {
+          "aspect_names": [
+            "browsePathsV2",
+            "documentInfo",
+            "documentKey",
+            "documentSettings",
+            "subTypes"
+          ],
+          "document_urn": "urn:li:document:glassbox.receipt.dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+          "emissions": 2,
+          "receipt_id": "gbx:receipt:sha256:dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+          "valid": true
+        },
+        "publication": {
+          "attempt_count": 1,
+          "datahub_write_performed": true
+        },
+        "raw_content_returned": false,
+        "receipt_id": "gbx:receipt:sha256:dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+        "state": {
+          "field_lineage": {
+            "coverage": "COMPLETE",
+            "rule_id": "glassbox.flagship-field-lineage.v1",
+            "wildcard_query": false
+          },
+          "readback_verified": true,
+          "registration": "INSERTED"
+        },
+        "valid": true
+      },
+      "receipt_id": "gbx:receipt:sha256:dab8881a9a37153489ee6f0c24069769ec32ed0b23199908c2c3e74eb5872bcb",
+      "resource_pins_complete": true
+    },
+    "supersession": {
+      "aspect_names": [
+        "browsePathsV2",
+        "documentInfo",
+        "documentKey",
+        "documentSettings",
+        "subTypes"
+      ],
+      "document_urn": "urn:li:document:glassbox.replay.supersession.8b2d004f3531805c0128a950abf42fa2343abf55fcc8fd2f72176d78a52e07ba",
+      "emissions": 2,
+      "supersession_id": "gbx:replay-supersession:sha256:8b2d004f3531805c0128a950abf42fa2343abf55fcc8fd2f72176d78a52e07ba",
+      "valid": true,
+      "verified_property_count": 19
+    },
+    "valid": true
+  },
+  "privacy": {
+    "credentials_reported": false,
+    "private_keys_reported": false,
+    "raw_action_inputs_reported": false,
+    "raw_evidence_reported": false,
+    "raw_outputs_reported": false,
+    "raw_prompts_reported": false
+  },
+  "sandbox": {
+    "capability_schema_digest": "36da44a35cbfb2437f9b9760ef8110f57851f9f6793bbbc544bacd2274df7a68",
+    "capability_source_digest": "434c60c18fc5fc051b7f383f360e6447d63e66680c8d4bd1c488d7d8e87748b8",
+    "image_digest": "sha256:7e16f5d64bf80e69a7ba6b479dc64819f2112482f4f345c076d9df39e6d05ff2",
+    "protocol": "glassbox.isolated-capability.v1",
+    "raw_values_retained": false,
+    "valid": true
+  },
+  "scenario": "GLASSBOX_ONE_COMMAND_FLAGSHIP_ESTATE",
+  "valid": true
+}

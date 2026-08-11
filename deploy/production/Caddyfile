@@ -1,0 +1,96 @@
+{
+	auto_https off
+	admin off
+}
+
+:8080 {
+	request_body {
+		max_size 8MB
+	}
+
+	header {
+		-Server
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+	}
+
+	# Keep the infrastructure probe outside the human OAuth boundary. Using a
+	# path-matched handle also keeps it mutually exclusive with the fallback.
+	handle /healthz {
+		respond 200
+	}
+
+	@oauth {
+		host {$GLASSBOX_CONSOLE_DOMAIN}
+		path /oauth2/*
+	}
+	handle @oauth {
+		reverse_proxy oauth2-proxy:4180
+	}
+
+	# Agent traffic has its own individually revocable bearer credentials and
+	# never enters the human OAuth session boundary.
+	@otlp path /v1/traces
+	handle @otlp {
+		reverse_proxy receiver:4318
+	}
+
+	# The public product host serves only the landing page, documentation, and
+	# their static assets. The app itself also redirects operator routes, but the
+	# edge allowlist is the security boundary: /api and console routes never reach
+	# an unauthenticated server handler on this host.
+	@public_surface {
+		host {$GLASSBOX_PUBLIC_DOMAIN}
+		path / /home /docs /docs/* /architecture /_next/* /favicon.svg /og.png /fonts/* /media/*
+	}
+	handle @public_surface {
+		request_header -X-Auth-Request-User
+		request_header -X-Auth-Request-Email
+		request_header -X-GlassBox-Role
+		reverse_proxy console:3000
+	}
+
+	@public_unknown host {$GLASSBOX_PUBLIC_DOMAIN}
+	handle @public_unknown {
+		respond 404
+	}
+
+	@console_host host {$GLASSBOX_CONSOLE_DOMAIN}
+	handle @console_host {
+		# `route` preserves this security-sensitive order. Untrusted identity
+		# assertions are removed before OAuth, then only the identity copied
+		# from OAuth2 Proxy is forwarded to the console.
+		route {
+			request_header -X-Auth-Request-User
+			request_header -X-Auth-Request-Email
+			request_header -X-GlassBox-Role
+
+			forward_auth oauth2-proxy:4180 {
+				uri /oauth2/auth
+				header_up X-Real-IP {remote_host}
+				copy_headers X-Auth-Request-User X-Auth-Request-Email
+
+				# oauth2-proxy's auth endpoint correctly returns 401 for a missing
+				# session. Turn that browser-only failure into the start of the OAuth
+				# flow; agent traffic is handled above and never enters this branch.
+				@unauthorized status 401
+				handle_response @unauthorized {
+					# Keep the post-login destination same-origin and relative. This
+					# avoids relying on the backend HTTP scheme behind TLS termination.
+					redir * /oauth2/sign_in?rd={uri}
+				}
+			}
+
+			reverse_proxy console:3000
+		}
+	}
+
+	# Refuse unknown Host headers rather than routing them into the authenticated
+	# application by accident.
+	handle {
+		respond 421
+	}
+}

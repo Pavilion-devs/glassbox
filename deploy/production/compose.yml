@@ -1,0 +1,237 @@
+name: glassbox
+
+services:
+  edge:
+    image: caddy:2.10.0-alpine
+    restart: unless-stopped
+    environment:
+      GLASSBOX_PUBLIC_DOMAIN: ${GLASSBOX_PUBLIC_DOMAIN:?set GLASSBOX_PUBLIC_DOMAIN}
+      GLASSBOX_CONSOLE_DOMAIN: ${GLASSBOX_CONSOLE_DOMAIN:?set GLASSBOX_CONSOLE_DOMAIN}
+    ports:
+      - "${GLASSBOX_EDGE_PORT:-8080}:8080"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      console:
+        condition: service_started
+      oauth2-proxy:
+        condition: service_started
+    networks: [edge, private]
+    read_only: true
+    tmpfs: [/config, /data]
+    security_opt: [no-new-privileges:true]
+
+  oauth2-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.12.0
+    restart: unless-stopped
+    command:
+      - --github-user=${GITHUB_ALLOWED_USERS:?set GITHUB_ALLOWED_USERS}
+    environment:
+      OAUTH2_PROXY_PROVIDER: github
+      OAUTH2_PROXY_CLIENT_ID: ${GITHUB_OAUTH_CLIENT_ID:?set GITHUB_OAUTH_CLIENT_ID}
+      OAUTH2_PROXY_CLIENT_SECRET: ${GITHUB_OAUTH_CLIENT_SECRET:?set GITHUB_OAUTH_CLIENT_SECRET}
+      OAUTH2_PROXY_COOKIE_SECRET: ${OAUTH_COOKIE_SECRET:?set OAUTH_COOKIE_SECRET}
+      OAUTH2_PROXY_COOKIE_NAME: __Host-glassbox_session
+      OAUTH2_PROXY_COOKIE_SECURE: "true"
+      OAUTH2_PROXY_COOKIE_SAMESITE: lax
+      OAUTH2_PROXY_COOKIE_REFRESH: 1h
+      OAUTH2_PROXY_COOKIE_EXPIRE: 8h
+      OAUTH2_PROXY_REDIRECT_URL: https://${GLASSBOX_CONSOLE_DOMAIN:?set GLASSBOX_CONSOLE_DOMAIN}/oauth2/callback
+      OAUTH2_PROXY_EMAIL_DOMAINS: "*"
+      # GitHub's organization-list endpoint requires read:org (or broader user)
+      # and oauth2-proxy uses it to populate the authenticated group set.
+      OAUTH2_PROXY_SCOPE: user:email read:org
+      OAUTH2_PROXY_REVERSE_PROXY: "true"
+      OAUTH2_PROXY_SET_XAUTHREQUEST: "true"
+      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
+      OAUTH2_PROXY_UPSTREAMS: static://202
+      OAUTH2_PROXY_HTTP_ADDRESS: 0.0.0.0:4180
+    expose: ["4180"]
+    networks: [private, egress]
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+
+  console:
+    build:
+      context: ../..
+      dockerfile: deploy/production/Dockerfile.console
+    image: glassbox-console:${GLASSBOX_IMAGE_TAG:-rc1}
+    restart: unless-stopped
+    environment:
+      GLASSBOX_FORENSICS_API_URL: http://forensics:8788
+      GLASSBOX_FORENSICS_API_TOKEN: ${GLASSBOX_FORENSICS_API_TOKEN:?set GLASSBOX_FORENSICS_API_TOKEN}
+      GLASSBOX_CONTROL_API_URL: http://control:8790
+      GLASSBOX_CONTROL_API_TOKEN: ${GLASSBOX_CONTROL_API_TOKEN:?set GLASSBOX_CONTROL_API_TOKEN}
+      GLASSBOX_ADMIN_EMAILS: ${GLASSBOX_ADMIN_EMAILS:-}
+      GLASSBOX_ADMIN_USERS: ${GITHUB_ALLOWED_USERS:?set GITHUB_ALLOWED_USERS}
+      GLASSBOX_ALLOW_LOCAL_OPERATOR: "false"
+      GLASSBOX_PUBLIC_HOSTS: ${GLASSBOX_PUBLIC_DOMAIN:?set GLASSBOX_PUBLIC_DOMAIN}
+    expose: ["3000"]
+    networks: [private]
+    read_only: true
+    tmpfs: [/tmp, /opt/console/.wrangler]
+    security_opt: [no-new-privileges:true]
+
+  control-init:
+    build:
+      context: ../..
+      dockerfile: deploy/production/Dockerfile.python
+    image: glassbox-core:${GLASSBOX_IMAGE_TAG:-rc1}
+    command:
+      - glassbox-control
+      - init
+      - --if-needed
+      - --database
+      - /var/lib/glassbox-control/control.sqlite3
+    environment: &control_environment
+      GLASSBOX_CONTROL_MASTER_KEY: ${GLASSBOX_CONTROL_MASTER_KEY:?set GLASSBOX_CONTROL_MASTER_KEY}
+      GLASSBOX_CONTROL_MASTER_KEY_ID: ${GLASSBOX_CONTROL_MASTER_KEY_ID:-control-v1}
+      GLASSBOX_ORGANIZATION: ${GLASSBOX_ORGANIZATION:-default}
+    volumes:
+      - control-state:/var/lib/glassbox-control
+    networks: [private]
+    security_opt: [no-new-privileges:true]
+
+  control:
+    image: glassbox-core:${GLASSBOX_IMAGE_TAG:-rc1}
+    restart: unless-stopped
+    command:
+      - glassbox-control
+      - serve
+      - --bind
+      - 0.0.0.0
+      - --database
+      - /var/lib/glassbox-control/control.sqlite3
+    environment:
+      <<: *control_environment
+      GLASSBOX_CONTROL_API_TOKEN: ${GLASSBOX_CONTROL_API_TOKEN:?set GLASSBOX_CONTROL_API_TOKEN}
+    volumes:
+      - control-state:/var/lib/glassbox-control
+    expose: ["8790"]
+    depends_on:
+      control-init:
+        condition: service_completed_successfully
+    networks: [private, egress]
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+
+  postgres:
+    image: postgres:16.10-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: glassbox
+      POSTGRES_USER: glassbox
+      POSTGRES_PASSWORD: ${GLASSBOX_POSTGRES_PASSWORD:?set GLASSBOX_POSTGRES_PASSWORD}
+    volumes:
+      - postgres-state:/var/lib/postgresql/data
+    expose: ["5432"]
+    networks: [private]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U glassbox -d glassbox"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    security_opt: [no-new-privileges:true]
+
+  state-init:
+    image: glassbox-core:${GLASSBOX_IMAGE_TAG:-rc1}
+    command:
+      - glassbox-invalidation-state
+      - postgres-init
+      - --schema
+      - ${GLASSBOX_STATE_POSTGRES_SCHEMA:-glassbox}
+      - --signer-trust-policy
+      - /etc/glassbox/trusted-signers.json
+    environment: &runtime_environment
+      GLASSBOX_STATE_POSTGRES_DSN: postgresql://glassbox:${GLASSBOX_POSTGRES_PASSWORD}@postgres:5432/glassbox
+      GLASSBOX_SIGNER_TRUST_POLICY_PATH: /etc/glassbox/trusted-signers.json
+      GLASSBOX_CONTROL_MASTER_KEY: ${GLASSBOX_CONTROL_MASTER_KEY}
+    volumes:
+      - ${GLASSBOX_SIGNER_TRUST_POLICY_PATH:?set GLASSBOX_SIGNER_TRUST_POLICY_PATH}:/etc/glassbox/trusted-signers.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [private]
+    security_opt: [no-new-privileges:true]
+
+  forensics:
+    image: glassbox-core:${GLASSBOX_IMAGE_TAG:-rc1}
+    restart: unless-stopped
+    command:
+      - glassbox-forensics-mcp
+      - --transport
+      - streamable-http
+      - --http-host
+      - 0.0.0.0
+      - --state-postgres-dsn-env
+      - GLASSBOX_STATE_POSTGRES_DSN
+      - --state-postgres-schema
+      - ${GLASSBOX_STATE_POSTGRES_SCHEMA:-glassbox}
+      - --signer-trust-policy
+      - /etc/glassbox/trusted-signers.json
+    environment:
+      <<: *runtime_environment
+      GLASSBOX_FORENSICS_API_TOKEN: ${GLASSBOX_FORENSICS_API_TOKEN}
+    volumes:
+      - ${GLASSBOX_SIGNER_TRUST_POLICY_PATH}:/etc/glassbox/trusted-signers.json:ro
+    expose: ["8788"]
+    depends_on:
+      state-init:
+        condition: service_completed_successfully
+    networks: [private]
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+
+  receiver:
+    image: glassbox-core:${GLASSBOX_IMAGE_TAG:-rc1}
+    restart: unless-stopped
+    command:
+      - glassbox-otlp-receiver
+      - serve
+      - --bind
+      - 0.0.0.0
+      - --control-database
+      - /var/lib/glassbox-control/control.sqlite3
+      - --control-organization
+      - ${GLASSBOX_ORGANIZATION:-default}
+      - --startup-retry-seconds
+      - "5"
+      - --state-schema
+      - ${GLASSBOX_STATE_POSTGRES_SCHEMA:-glassbox}
+      - --signing-key-id
+      - ${GLASSBOX_RECEIPT_SIGNING_KEY_ID:?set GLASSBOX_RECEIPT_SIGNING_KEY_ID}
+      - --environment
+      - PROD
+      - --output-kind
+      - agent-decision
+      - --output-mime-type
+      - application/json
+    environment:
+      <<: *runtime_environment
+      GLASSBOX_RECEIPT_SIGNING_KEY: ${GLASSBOX_RECEIPT_SIGNING_KEY:?set GLASSBOX_RECEIPT_SIGNING_KEY}
+    volumes:
+      - control-state:/var/lib/glassbox-control:ro
+      - ${GLASSBOX_SIGNER_TRUST_POLICY_PATH}:/etc/glassbox/trusted-signers.json:ro
+    expose: ["4318"]
+    depends_on:
+      control:
+        condition: service_started
+      state-init:
+        condition: service_completed_successfully
+    networks: [private, egress]
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+
+networks:
+  edge: {}
+  egress: {}
+  private:
+    internal: true
+
+volumes:
+  control-state: {}
+  postgres-state: {}

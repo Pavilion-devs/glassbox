@@ -251,13 +251,61 @@
   prevents historical emission counts from being mislabeled as retry writes. The
   raw-free proof is
   `docs/compatibility/datahub-1.6.0-durable-recovery-uncertain-crash.live.json`.
-- `apps/console` now contains a responsive, raw-free forensic investigation
-  surface backed by the guarded Core 1.6.0 proof. It exposes receipt integrity,
-  exact field influence, projection-only trust boundaries, governed actions, and a
-  positive unrelated-field control without asking a judge to read raw JSON.
-- The console production build, rendered-claim tests, lint, and strict type check
-  pass. Starter assets, unused database bindings, and arbitrary payload surfaces
-  were removed; the local project has a dedicated favicon and 1200×630 preview.
+- `apps/console` is now a responsive multi-page operator application rather than a
+  bundled flagship casefile. Overview, investigations, receipts, campaigns,
+  recovery, trust, and settings are independent routes with real navigation,
+  lookup, bounded empty states, and responsive behavior.
+- The console consumes a loopback-only read API over the existing verified receipt
+  index and persisted Action campaign authority. No successful report is imported
+  into the production UI; an absent service remains visibly disconnected.
+- The console production build, route-render tests, navigation/browser checks,
+  lint, and strict type check pass. The forensics service now exposes bounded
+  overview, receipt-list, receipt-detail, finding, and campaign endpoints without
+  raw content or mutation authority.
+- ADR-0027 and `services/control-plane` now define the authenticated self-hosted
+  product boundary. DataHub service-account tokens are live-tested and encrypted
+  with deployment-held AES-256-GCM keys; named agent ingestion credentials are
+  stored only as keyed digests, returned once, audited, and revocable. The compiler
+  receiver consumes the saved DataHub connection and validates active issued keys.
+- The Connections route is a working control surface rather than setup prose. It
+  proxies bounded role-checked operations server-side, can establish real DataHub
+  write/readback proof, manages agent keys, and activates configured DataHub entity
+  deep links without exposing internal credentials to the browser.
+- `deploy/production` supplies the reproducible single-VPS RC: GitHub OAuth proxy, hardened
+  edge, private console/control/forensics/receiver services, explicit state
+  bootstrap, PostgreSQL authority, secret-only configuration, and a TierHive/DNS
+  cutover runbook. On 2026-08-10 an isolated TierHive production VPS was provisioned,
+  the stack passed its origin gates, `glassboxhq.xyz` was validated and routed to the
+  private backend, and the regional Let's Encrypt certificate became active. The
+  GitHub account grant and allowlisted sign-in completed, the edge-to-console identity
+  bridge resolved the operator as an administrator, and the live Connections and Agent
+  Keys controls are enabled. A separate authenticated, backend-only DataHub Core 1.6.0
+  reference estate now runs on the same isolated VPS as its own Compose project with no
+  public DataHub ports or UI. GlassBox connects through the private network using a
+  role-less, policy-scoped service account and encrypted credential storage.
+- The production edge now keeps the public product surface and operator authority
+  distinct: `glassboxhq.xyz` serves only the landing page, documentation, static
+  assets, and bearer-authenticated OTLP, while `app.glassboxhq.xyz` is the
+  GitHub-OAuth-protected console. Public hosts cannot route to operator pages or the
+  control API, and unknown Host headers fail closed.
+- The production console now ships as a 110 MB native Next.js standalone image,
+  runs as the unprivileged `node` user, and excludes Vinext, Vite, Wrangler, and
+  `image-size` from the runtime. The production-only npm advisory count is zero;
+  the image serves the real Connections route in a container smoke test.
+- On 2026-08-10 the complete Connection Center backend path passed against the
+  retained commit-pinned DataHub Core `v1.6.0` estate with SDK `1.6.0.15`: live
+  connection, deterministic probe Document upsert, direct readback, encrypted
+  persistence, one-time ingestion-key issuance, active authorization, revocation,
+  and immediate denial. The hosted control path now passes those same gates against
+  the VPS reference estate. A real public OTLP delivery at `glassboxhq.xyz` registered
+  and reread a signed pricing-agent receipt in PostgreSQL, double-wrote and directly
+  read back its DataHub Document, and returned HTTP 200; identical redelivery returned
+  HTTP 200 with the same identities and zero further DataHub write. The raw-free proof
+  is `docs/compatibility/datahub-1.6.0-hosted-production-otlp.live.json`. The deployed
+  stores now require both current admission authorization and historical signer
+  authorization at the receipt's claimed run time. A live PostgreSQL regression
+  rejected the invalid case before any receipt, dependency, or outbox write, and an
+  external post-rollout redelivery repeated the HTTP 200 zero-write proof.
 
 ---
 
@@ -1613,18 +1661,23 @@ Current implementation evidence:
   forward tests—including direct pressure to invent Incident details, global scope,
   and mutation permission—passed all deterministic checks, while a separate
   semantic review remained explicitly non-authoritative;
-- the local console turns that exact proof into a judge-readable causal chain,
-  switches between the material change and its negative control, shows every
-  receipt proof gate, marks the DataHub Document `PROJECTION_ONLY`, and exposes
-  safe action/replay boundaries without rendering raw prompts, payloads, or values;
-- its production bundle, server-rendered claim tests, lint, and strict TypeScript
-  checks pass, and its social-preview and favicon assets are project-owned rather
-  than starter residue.
+- the local console is a genuine multi-route operator application backed by the
+  verified receipt index and persisted campaign store. It does not import the
+  flagship report or invent populated states; records and verification results
+  arrive through the loopback-only forensics API;
+- independent overview, investigation, receipt, campaign, recovery, trust, and
+  settings routes, receipt lookup, responsive navigation, honest connection states,
+  production build, server-render tests, lint, strict TypeScript, and browser route
+  checks pass.
 
 The Skill/MCP forensic path now satisfies its natural-language evidence boundary for
-the measured contract. Gate 7's remaining items are console-specific interaction,
-accessibility, and optional public hosting work; they remain paused unless explicitly
-requested and are not prerequisites for the ecosystem contribution.
+the measured contract. The authenticated remote-deployment package and DataHub
+deep-link configuration are implemented. The isolated production VPS, DNS, HAProxy
+backend, regional HTTPS certificate, GitHub OAuth session, administrator control
+surface, private authenticated reference DataHub connection, and public agent receipt
+publication with zero-write redelivery are live-proven. Gate 7's remaining product
+work is accessibility automation, a customer-owned DataHub pilot, and a persisted
+recovery-history reader; they are not prerequisites for the ecosystem contribution.
 
 Deliverables:
 
@@ -1713,10 +1766,38 @@ Current implementation evidence:
   supersession and receipt readback;
 - the sanitized expected output is version-controlled and every remaining limit is
   explicit, including organization-wide retention proof.
+- `examples.flagship_demo` now owns the full reference estate: it resolves the
+  official quickstart compose at exact upstream commit `059a36c0`, applies an
+  isolated port/network/volume overlay, starts PostgreSQL 16, waits for health,
+  builds and verifies the OCI sandbox, runs the existing real causal flagship,
+  validates every live/readback/privacy boundary, and removes only its exact
+  Compose project by default;
+- a real one-command local run started eight isolated services, completed the
+  nested Core/PostgreSQL/dual-MCP/OCI proof in 56.728 seconds, directly confirmed
+  Core `v1.6.0` at commit `059a36c0`, and recorded successful container, network,
+  and volume cleanup. The report truthfully labels its cached official compose
+  source `LOCAL_OVERRIDE` because GitHub resolution was unavailable on the measured
+  host; it is not presented as a fresh-host download proof;
+- the five required ablations now execute the same production
+  `glassbox.materiality.v1` classifier over explicit evidence-capability
+  projections. Twelve public cases publish every result and reason code, including
+  an alias collision, post-change snapshot, wildcard ambiguity, and unresolved
+  runtime context;
+- the full contract produced zero false invalidations over six clean cases, zero
+  missed invalidations over three contaminated cases, and honest `AT_RISK` or
+  `UNKNOWN` results over all three indeterminate cases. The deliberately unresolved
+  case remains a published asset/field resolution failure rather than being
+  promoted to observed or safe;
+- the closed, content-addressed benchmark report also records 4/4 deterministic
+  replay allow/refusal decisions, 0/10 redaction escapes, exact live DataHub write
+  units, 3/3 zero-write completed redeliveries, local p50/p95 policy, agent overhead,
+  and receipt-compilation timings, with measurement authorities and denominators
+  separated from projections.
 
-Remaining: one command that bootstraps the entire service estate from a fresh
-machine, the benchmark/ablation harness, corrupted-context benchmark cases beyond
-the enforced adversarial suite, and the demo video/architecture assets.
+Remaining: run the default commit-pinned download path on independent clean hosts
+and publish repeated fresh-checkout setup success; the current measured host proves
+the complete isolated orchestration through a local official compose override, not
+fresh-host frequency. Demo video and architecture assets also remain.
 
 Deliverables:
 
@@ -2034,13 +2115,23 @@ GlassBox is not done when the demo works once. It is done when all of the follow
    proofs are complete. The PR is ready for review, DataHub tracks it as `ING-3229`,
    and core reviewer assignment is pending. Maintainer approval remains the merge
    gate.
-4. Keep further console work paused unless explicitly requested; it is not an
-   ecosystem contribution dependency.
+4. Continue the hosted-product track with accessibility automation, a bounded
+   persisted recovery-history reader, and then a customer-owned DataHub pilot. The
+   isolated VPS, DNS, TLS, live GitHub OAuth administrator session, encrypted private
+   DataHub connection, least-privilege service identity, revocable ingestion keys,
+   real public OTLP publication, direct readback, and zero-write redelivery are now
+   proven; keep this work independent of the ecosystem contribution dependency.
 5. Add production adapters such as Slack or incident management only when they
    preserve the campaign idempotency key and return bounded acceptance evidence.
 6. Extend Semantic Policy 0.1 only after a new deterministic primitive has a closed
    cross-language contract, adversarial tests, and maintainer-reviewed need; do not
    add arbitrary ignore or callback rules.
+7. Run `examples.flagship_demo` without `--compose-file` on independent clean hosts,
+   record exact setup successes/failures and environment constraints, and replace
+   `NOT_MEASURED_ON_A_FRESH_HOST` only when there is a real denominator.
+8. Build the under-three-minute demo video and architecture assets directly from
+   the committed one-command and benchmark evidence; do not substitute screenshots
+   or narration for failed proof gates.
 
 This order keeps ecosystem contribution and safe replay grounded in the proven
 closed loop.

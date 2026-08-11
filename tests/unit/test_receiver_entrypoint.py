@@ -176,6 +176,53 @@ def test_live_component_factory_connects_and_preflights_without_returning_secret
     assert backend_calls == ["tested"]
 
 
+def test_receiver_waits_for_live_dependencies_during_production_onboarding(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    attempts = 0
+    sleeps: list[float] = []
+
+    def load(_: Namespace) -> tuple[int, int, int, int]:
+        nonlocal attempts
+        attempts += 1
+        if attempts == 1:
+            raise ValueError("connection not configured")
+        return (1, 2, 3, 4)
+
+    monkeypatch.setattr(receiver_module, "_live_components", load)
+    monkeypatch.setattr(receiver_module.time, "sleep", sleeps.append)
+
+    selected = receiver_module._startup_live_components(
+        Namespace(command="serve", startup_retry_seconds=0.25)
+    )
+
+    report = json.loads(capsys.readouterr().err)
+    assert selected == (1, 2, 3, 4)
+    assert attempts == 2
+    assert sleeps == [0.25]
+    assert report["state"] == "WAITING_FOR_LIVE_DEPENDENCIES"
+    assert report["error_type"] == "ValueError"
+    assert report["raw_content_returned"] is False
+
+
+def test_receiver_startup_retry_is_opt_in(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        receiver_module,
+        "_live_components",
+        lambda _: (_ for _ in ()).throw(ValueError("connection not configured")),
+    )
+
+    with pytest.raises(ValueError, match="connection not configured"):
+        receiver_module._startup_live_components(
+            Namespace(command="serve", startup_retry_seconds=0.0)
+        )
+    with pytest.raises(ValueError, match="cannot be negative"):
+        receiver_module._startup_live_components(
+            Namespace(command="serve", startup_retry_seconds=-1.0)
+        )
+
+
 @pytest.mark.parametrize("fail", [False, True])
 def test_drain_entrypoint_reports_bounded_completion(
     fail: bool,
@@ -417,6 +464,25 @@ def test_handler_requires_exact_content_length_and_object_envelope() -> None:
     non_object, non_object_responses = _direct_handler(object(), body=b"[]")
     non_object.do_POST()
     assert non_object_responses[0][1] == "InvalidOTLPRequest"
+
+
+def test_handler_accepts_only_active_control_plane_ingestion_keys() -> None:
+    valid = "gbx_ingest_active"
+    handler, responses = _direct_handler(
+        object(),
+        headers={"Authorization": f"Bearer {valid}"},
+        config=OTLPReceiverConfig(bearer_token_validator=lambda token: token == valid),
+    )
+    handler.do_POST()
+    assert responses[0][1] != "Unauthorized"
+
+    rejected, rejected_responses = _direct_handler(
+        object(),
+        headers={"Authorization": "Bearer gbx_ingest_revoked"},
+        config=OTLPReceiverConfig(bearer_token_validator=lambda token: token == valid),
+    )
+    rejected.do_POST()
+    assert rejected_responses[0][1] == "Unauthorized"
 
 
 @pytest.mark.parametrize(

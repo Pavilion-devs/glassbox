@@ -32,6 +32,7 @@ datahub = ["acryl-datahub==1.6.0.15"]
 google-adk = ["google-adk>=2.5,<3"]
 langchain = ["langchain-core>=1.5,<1.6"]
 mcp = ["mcp>=2,<3"]
+control = ["starlette>=0.49", "uvicorn>=0.35,<1"]
 postgres = ["psycopg[binary]>=3.2,<4"]
 dev = [
   "hypothesis>=6.140,<7",
@@ -48,6 +49,7 @@ glassbox-datahub-action = "glassbox_invalidation.plugin_cli:main"
 glassbox-invalidation-state = "glassbox_invalidation.state_cli:main"
 glassbox-otlp-receiver = "glassbox_compiler.receiver:main"
 glassbox-forensics-mcp = "glassbox_forensics.server:main"
+glassbox-control = "glassbox_control.server:main"
 glassbox-agent-narration = "glassbox_forensics.narration_cli:main"
 glassbox-replay = "glassbox_replay.cli:main"
 
@@ -66,6 +68,7 @@ packages = [
   "packages/datahub-adapter/src/glassbox_datahub",
   "packages/policy/src/glassbox_policy",
   "services/compiler/src/glassbox_compiler",
+  "services/control-plane/src/glassbox_control",
   "services/invalidation-action/src/glassbox_invalidation",
   "services/forensics-mcp/src/glassbox_forensics",
   "services/replay-worker/src/glassbox_replay",
@@ -86,6 +89,7 @@ include = [
   "/.gitignore",
   "/.python-version",
   "/AGENTS.md",
+  "/benchmarks",
   "/CODE_OF_CONDUCT.md",
   "/CONTRIBUTING.md",
   "/LICENSE",
@@ -113,6 +117,7 @@ pythonpath = [
   "packages/datahub-adapter/src",
   "packages/policy/src",
   "services/compiler/src",
+  "services/control-plane/src",
   "services/invalidation-action/src",
   "services/forensics-mcp/src",
   "services/replay-worker/src",
@@ -130,6 +135,7 @@ source = [
   "glassbox_datahub",
   "glassbox_policy",
   "glassbox_compiler",
+  "glassbox_control",
   "glassbox_invalidation",
   "glassbox_forensics",
   "glassbox_replay",
@@ -144,11 +150,13 @@ fail_under = 90
 target-version = "py311"
 line-length = 100
 src = [
+  "benchmarks",
   "packages/sdk/src",
   "packages/dbom/src",
   "packages/datahub-adapter/src",
   "packages/policy/src",
   "services/compiler/src",
+  "services/control-plane/src",
   "services/invalidation-action/src",
   "services/forensics-mcp/src",
   "services/replay-worker/src",
@@ -161,8 +169,10 @@ ignore = ["A005"]
 
 [tool.ruff.lint.isort]
 known-first-party = [
+  "benchmarks",
   "glassbox",
   "glassbox_compiler",
+  "glassbox_control",
   "glassbox_datahub",
   "glassbox_dbom",
   "glassbox_policy",
@@ -181,8 +191,10 @@ python_version = "3.11"
 strict = true
 warn_unreachable = true
 packages = [
+  "benchmarks",
   "glassbox",
   "glassbox_compiler",
+  "glassbox_control",
   "glassbox_dbom",
   "glassbox_datahub",
   "glassbox_policy",
@@ -198,6 +210,7 @@ mypy_path = [
   "packages/datahub-adapter/src",
   "packages/policy/src",
   "services/compiler/src",
+  "services/control-plane/src",
   "services/invalidation-action/src",
   "services/forensics-mcp/src",
   "services/replay-worker/src",
