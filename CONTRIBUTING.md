@@ -4,10 +4,12 @@ Thank you for helping build trustworthy agent infrastructure.
 
 ## Before changing code
 
-1. Read `AGENTS.md` and the relevant sections of `plan.md`.
-2. Read applicable ADRs under `docs/adr/`.
-3. Verify DataHub claims against the pinned Core version and primary documentation.
-4. Keep changes focused on provenance, invalidation, replay safety, or a supporting primitive.
+1. Read applicable ADRs under `docs/adr/`.
+2. Verify DataHub claims against the pinned Core version and primary documentation.
+3. Keep changes focused on provenance, invalidation, replay safety, or a supporting primitive.
+4. Preserve the trust boundaries documented in `SECURITY.md`: raw content stays out
+   of governed projections, deterministic gates stay out of model control, and
+   replay never bypasses explicit authorization.
 
 ## Local checks
 

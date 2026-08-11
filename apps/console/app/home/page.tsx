@@ -90,6 +90,12 @@ export default function LandingPage() {
                 Architecture
               </Link>
               <a
+                className="hidden transition-colors hover:text-ink sm:block"
+                href="https://app.glassboxhq.xyz"
+              >
+                Live console
+              </a>
+              <a
                 className="rounded-full bg-accent px-4 py-1.5 text-[13px] font-medium text-on-accent transition-opacity hover:opacity-90"
                 href="https://github.com/Pavilion-devs/glassbox"
                 target="_blank"
@@ -138,7 +144,16 @@ export default function LandingPage() {
               >
                 See the architecture
               </Link>
+              <a
+                href="https://app.glassboxhq.xyz"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-line bg-panel px-6 text-[14px] font-semibold transition-colors hover:border-line-strong"
+              >
+                Open read-only console
+              </a>
             </div>
+            <p className="mt-3 text-[12px] text-faint">
+              Any GitHub account can sign in as a viewer. Mutations remain maintainer-only.
+            </p>
           </section>
         </div>
       </div>
@@ -270,6 +285,9 @@ export default function LandingPage() {
               <Link className="transition-colors hover:text-ink" href="/docs/architecture">
                 Architecture
               </Link>
+              <a className="transition-colors hover:text-ink" href="https://app.glassboxhq.xyz">
+                Live console
+              </a>
               <a
                 className="transition-colors hover:text-ink"
                 href="https://github.com/Pavilion-devs/glassbox"

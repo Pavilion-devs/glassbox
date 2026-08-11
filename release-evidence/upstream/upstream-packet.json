@@ -145,13 +145,13 @@
     "artifacts": [
       {
         "filename": "glassbox_core-0.1.0-py3-none-any.whl",
-        "sha256": "945e49cf18743f674c786ab423b6539a57f4abe4da4d95d750bd4caa0ff30327",
-        "size": 265697
+        "sha256": "ff806f02cf48fe7dc351277ab29f48945c63e5a73cd926eaf88c54b0f7cda58e",
+        "size": 266325
       },
       {
         "filename": "glassbox_core-0.1.0.tar.gz",
-        "sha256": "9207da7cda6b68174bc97b84f60a25bdc698b670d11749ad560361fc43d93bb5",
-        "size": 2309656
+        "sha256": "06c45822df7ab0f9a7b90251f2aaa35c8980ba22715478c7ebc0ba12f145a7d1",
+        "size": 2271624
       }
     ],
     "project": "glassbox-core",
@@ -212,8 +212,8 @@
   "maintainer_documents": [
     {
       "path": "docs/upstream/agent-decision-rfc-discussion.md",
-      "sha256": "7e58e8e7f036ca56597395a846fc5cd4c8320ac7b43b370933c9ae81ec8c1179",
-      "size": 5976
+      "sha256": "83303848cfef095aafc41272ffd06d09a5c900a08d0312ae534ccd6be08d463b",
+      "size": 5978
     },
     {
       "path": "docs/upstream/datahub-agent-forensics-pr.md",

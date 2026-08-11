@@ -82,7 +82,7 @@ metadata PR.
 - Kafka retry, acknowledgement, and same-consumer-group restart proof;
 - approval-bound, capability-pinned read-only replay that emits a new receipt and
   append-only supersession record;
-- a read-only six-tool MCP surface that separates prospective policy analysis from
+- a read-only seven-tool MCP surface that separates prospective policy analysis from
   actual persisted Action findings, plus a portable DataHub forensic Skill;
 - a live dual-MCP proof that cross-binds official DataHub catalog evidence with
   freshly verified receipt influence and persisted Action state while preserving

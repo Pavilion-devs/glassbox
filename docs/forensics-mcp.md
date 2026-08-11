@@ -31,6 +31,7 @@ flowchart LR
 | --- | --- | --- |
 | `verify_decision_receipt` | Is this stored artifact intact and operator-trusted now? | DBOM integrity plus fingerprint-bound signer policy |
 | `get_decision_influence` | What recorded evidence influenced this decision? | Verified dependency profile and optional fresh artifact check |
+| `get_decision_publication` | What durable DataHub publication obligation and sealed evidence exists? | Transactional receipt-publication state |
 | `classify_decision_impact` | What does one normalized change mean for one receipt? | `glassbox.materiality.v1` |
 | `list_affected_decisions` | Which indexed decisions require review for this change? | Complete local index scan plus `glassbox.materiality.v1` |
 | `get_invalidation_campaign` | What did the running Action actually persist for this campaign? | Transactional campaign, processing, and sealed writeback state |
@@ -63,6 +64,19 @@ or supersede a receipt.
 The scope string `CONFIGURED_RECEIPT_INDEX` is literal. It must not be narrated as
 "all organizational decisions" unless the operator has separately proved that the
 configured store is complete.
+
+## Credential-free judge quick test
+
+```bash
+uv run --extra mcp python -m examples.judge_mcp_quick_test
+```
+
+The command executes a fresh deterministic agent run, creates a process-local
+Ed25519 authority, persists the signed receipt and a deterministic impact campaign,
+then uses the official MCP client to discover and call all seven read-only tools.
+It deletes its temporary state on exit. This is a local protocol proof and reports
+`external_datahub_contacted=false`; it does not substitute for the separately
+committed live DataHub write/readback evidence.
 
 ## Run locally
 

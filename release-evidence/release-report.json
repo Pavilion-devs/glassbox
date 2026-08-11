@@ -2,13 +2,13 @@
   "artifacts": [
     {
       "filename": "glassbox_core-0.1.0-py3-none-any.whl",
-      "sha256": "945e49cf18743f674c786ab423b6539a57f4abe4da4d95d750bd4caa0ff30327",
-      "size": 265697
+      "sha256": "ff806f02cf48fe7dc351277ab29f48945c63e5a73cd926eaf88c54b0f7cda58e",
+      "size": 266325
     },
     {
       "filename": "glassbox_core-0.1.0.tar.gz",
-      "sha256": "9207da7cda6b68174bc97b84f60a25bdc698b670d11749ad560361fc43d93bb5",
-      "size": 2309656
+      "sha256": "06c45822df7ab0f9a7b90251f2aaa35c8980ba22715478c7ebc0ba12f145a7d1",
+      "size": 2271624
     }
   ],
   "evidence": {

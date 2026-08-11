@@ -109,7 +109,10 @@ control plane requires a new migration design and a shared transactional store.
   until a real authorized operation and direct readback succeed.
 - **Run a new identity database inside GlassBox:** rejected. The configured OAuth or
   OIDC provider remains the organization's identity authority. The reference
-  production profile uses a GitHub OAuth App with a deployment allowlist.
+  production profile uses a GitHub OAuth App. Any authenticated GitHub principal is
+  a viewer by default; an explicit deployment-owned username or email list grants
+  administrator privileges. Authentication therefore needs no per-judge
+  coordination, while mutations remain deny-by-default.
 
 ## Consequences and limits
 
