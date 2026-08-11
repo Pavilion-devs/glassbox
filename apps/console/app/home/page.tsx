@@ -138,6 +138,15 @@ export default function LandingPage() {
               >
                 Read the docs
               </Link>
+              <a
+                href="https://youtu.be/g-j9zD5cxLk"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-accent px-6 text-[14px] font-semibold text-on-accent transition-transform hover:-translate-y-0.5"
+              >
+                <Icon icon="solar:play-circle-linear" className="h-[18px] w-[18px]" />
+                Watch demo
+              </a>
               <Link
                 href="/docs/architecture"
                 className="inline-flex min-h-11 items-center justify-center rounded-full border border-line bg-panel px-6 text-[14px] font-semibold transition-colors hover:border-line-strong"
