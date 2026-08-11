@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import os
 import threading
-import time
 import uuid
 from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor
@@ -665,15 +664,24 @@ def test_postgres_uses_server_clock_for_expired_lease_recovery(
         campaign.campaign_id,
         worker_id="first",
         now_ms=1,
-        lease_duration_ms=50,
+        lease_duration_ms=10_000,
     )
     blocked = store.claim(
         campaign.campaign_id,
         worker_id="second",
         now_ms=9_999_999_999_999,
-        lease_duration_ms=50,
+        lease_duration_ms=10_000,
     )
-    time.sleep(0.08)
+    with store._transaction() as cursor:
+        cursor.execute(
+            """
+            UPDATE campaign_outbox
+            SET lease_expires_at_ms =
+                FLOOR(EXTRACT(EPOCH FROM clock_timestamp()) * 1000)::BIGINT - 1
+            WHERE campaign_id = %s
+            """,
+            (campaign.campaign_id,),
+        )
     recovered = store.claim(
         campaign.campaign_id,
         worker_id="second",

@@ -150,8 +150,8 @@
       },
       {
         "filename": "glassbox_core-0.1.0.tar.gz",
-        "sha256": "3a40d3fa63b8c5bd7ff42b2e9ab6a4922137a93d5a4aaf3b537fb2ae23b1445f",
-        "size": 2307332
+        "sha256": "9207da7cda6b68174bc97b84f60a25bdc698b670d11749ad560361fc43d93bb5",
+        "size": 2309656
       }
     ],
     "project": "glassbox-core",
